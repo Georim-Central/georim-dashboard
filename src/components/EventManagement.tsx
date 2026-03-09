@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
-import { Calendar, Ticket, Mail, BarChart3, CreditCard, Settings as SettingsIcon } from 'lucide-react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { Calendar, Ticket, Mail, BarChart3, CreditCard, Download, Settings as SettingsIcon, QrCode, Search, Phone, CheckCircle } from 'lucide-react';
 import { TicketingSection } from './event-management/TicketingSection';
 import { OrdersSection } from './event-management/OrdersSection';
 import { MarketingSection } from './event-management/MarketingSection';
+import { downloadReportPdf } from '../utils/reportExport';
 
 interface EventManagementProps {
   eventId: string;
@@ -10,10 +11,51 @@ interface EventManagementProps {
   onTabChange?: (tab: Tab) => void;
 }
 
-type Tab = 'details' | 'ticketing' | 'orders' | 'marketing' | 'reports' | 'settings';
+type Tab = 'details' | 'ticketing' | 'orders' | 'checked-in' | 'marketing' | 'reports' | 'settings';
+
+type RegisteredAttendee = {
+  attendeeId: string;
+  name: string;
+  email: string;
+  ticketType: string;
+  orderId: string;
+};
+
+type CheckInRecord = RegisteredAttendee & {
+  checkedInAt: string;
+  source: string;
+  scanCode: string;
+};
+
+type ScanResult = {
+  status: 'success' | 'warning' | 'error';
+  message: string;
+};
+
+const registeredAttendees: RegisteredAttendee[] = [
+  { attendeeId: 'ATT-3901', name: 'Sarah Johnson', email: 'sarah.j@email.com', ticketType: 'Early Bird GA', orderId: '5847239' },
+  { attendeeId: 'ATT-4420', name: 'Michael Chen', email: 'mchen@email.com', ticketType: 'VIP Access', orderId: '5847238' },
+  { attendeeId: 'ATT-2015', name: 'Emily Rodriguez', email: 'emily.r@email.com', ticketType: 'Student Discount', orderId: '5847237' },
+  { attendeeId: 'ATT-3372', name: 'David Kim', email: 'davidk@email.com', ticketType: 'Early Bird GA', orderId: '5847236' },
+  { attendeeId: 'ATT-1187', name: 'Jessica Brown', email: 'jbrown@email.com', ticketType: 'VIP Access', orderId: '5847235' }
+];
+
+const initialCheckInRecords: CheckInRecord[] = [
+  {
+    attendeeId: 'ATT-3901',
+    name: 'Sarah Johnson',
+    email: 'sarah.j@email.com',
+    ticketType: 'Early Bird GA',
+    orderId: '5847239',
+    checkedInAt: '2026-06-15T09:12:00.000Z',
+    source: 'Main Gate - iPhone Scanner',
+    scanCode: 'ATT-3901'
+  }
+];
 
 export function EventManagement({ eventId, activeTab: requestedTab, onTabChange }: EventManagementProps) {
   const [activeTab, setActiveTab] = useState<Tab>('details');
+  const [checkInRecords, setCheckInRecords] = useState<CheckInRecord[]>(initialCheckInRecords);
 
   useEffect(() => {
     if (requestedTab) {
@@ -21,10 +63,63 @@ export function EventManagement({ eventId, activeTab: requestedTab, onTabChange 
     }
   }, [requestedTab]);
 
+  const handleAttendeeScan = useCallback((rawScanCode: string, source: string): ScanResult => {
+    const normalizedCode = rawScanCode.trim().toUpperCase();
+    if (!normalizedCode) {
+      return { status: 'error', message: 'Please scan a valid QR code.' };
+    }
+
+    const attendee = registeredAttendees.find((candidate) => {
+      const tokens = [candidate.attendeeId, candidate.orderId, `QR-${candidate.attendeeId}`];
+      return tokens.some((token) => normalizedCode.includes(token.toUpperCase()));
+    });
+
+    if (!attendee) {
+      return { status: 'error', message: 'No attendee found for this QR code.' };
+    }
+
+    let scanResult: ScanResult = { status: 'error', message: 'Unable to process scan.' };
+
+    setCheckInRecords((current) => {
+      const alreadyCheckedIn = current.some((record) => record.attendeeId === attendee.attendeeId);
+      if (alreadyCheckedIn) {
+        scanResult = { status: 'warning', message: `${attendee.name} is already checked in.` };
+        return current;
+      }
+
+      const nextRecord: CheckInRecord = {
+        ...attendee,
+        checkedInAt: new Date().toISOString(),
+        source,
+        scanCode: rawScanCode.trim()
+      };
+
+      scanResult = { status: 'success', message: `${attendee.name} checked in successfully.` };
+      console.log('[CheckIn] Attendee checked in', nextRecord);
+      return [nextRecord, ...current];
+    });
+
+    return scanResult;
+  }, []);
+
+  useEffect(() => {
+    const handleScannerEvent = (event: Event) => {
+      const customEvent = event as CustomEvent<{ code?: string; source?: string }>;
+      const scanCode = customEvent.detail?.code ?? '';
+      const scanSource = customEvent.detail?.source ?? 'Mobile Scanner';
+      if (!scanCode) return;
+      handleAttendeeScan(scanCode, scanSource);
+    };
+
+    window.addEventListener('georim:attendee-scan', handleScannerEvent);
+    return () => window.removeEventListener('georim:attendee-scan', handleScannerEvent);
+  }, [handleAttendeeScan]);
+
   const tabs = [
     { id: 'details', label: 'Event Details', icon: Calendar },
     { id: 'ticketing', label: 'Ticketing', icon: Ticket },
     { id: 'orders', label: 'Orders', icon: CreditCard },
+    { id: 'checked-in', label: 'Checked-In', icon: QrCode },
     { id: 'marketing', label: 'Marketing', icon: Mail },
     { id: 'reports', label: 'Reports', icon: BarChart3 },
     { id: 'settings', label: 'Settings', icon: SettingsIcon }
@@ -48,7 +143,7 @@ export function EventManagement({ eventId, activeTab: requestedTab, onTabChange 
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 border-b border-gray-200 -mb-px">
+          <div className="flex gap-1 border-b border-gray-200 -mb-px overflow-x-auto pb-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
@@ -59,7 +154,7 @@ export function EventManagement({ eventId, activeTab: requestedTab, onTabChange 
                     setActiveTab(nextTab);
                     onTabChange?.(nextTab);
                   }}
-                  className={`flex items-center gap-2 px-6 py-3 border-b-2 transition-colors ${
+                  className={`flex items-center gap-2 px-6 py-3 border-b-2 transition-colors whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'border-[#7626c6] text-[#7626c6]'
                       : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -79,9 +174,224 @@ export function EventManagement({ eventId, activeTab: requestedTab, onTabChange 
         {activeTab === 'details' && <EventDetailsTab />}
         {activeTab === 'ticketing' && <TicketingSection />}
         {activeTab === 'orders' && <OrdersSection />}
+        {activeTab === 'checked-in' && (
+          <CheckedInTab
+            records={checkInRecords}
+            totalAttendees={registeredAttendees.length}
+            onScan={handleAttendeeScan}
+          />
+        )}
         {activeTab === 'marketing' && <MarketingSection />}
         {activeTab === 'reports' && <ReportsTab />}
         {activeTab === 'settings' && <SettingsTab />}
+      </div>
+    </div>
+  );
+}
+
+function CheckedInTab({
+  records,
+  totalAttendees,
+  onScan
+}: {
+  records: CheckInRecord[];
+  totalAttendees: number;
+  onScan: (scanCode: string, source: string) => ScanResult;
+}) {
+  const [scanCode, setScanCode] = useState('');
+  const [scanSource, setScanSource] = useState('Main Gate Scanner');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [scanFeedback, setScanFeedback] = useState<ScanResult | null>(null);
+
+  const pendingCount = Math.max(0, totalAttendees - records.length);
+  const checkInRate = totalAttendees ? Math.min(100, Math.round((records.length / totalAttendees) * 100)) : 0;
+
+  const filteredRecords = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return records;
+    return records.filter((record) =>
+      [record.name, record.email, record.attendeeId, record.orderId, record.ticketType].some((value) =>
+        value.toLowerCase().includes(query)
+      )
+    );
+  }, [records, searchQuery]);
+
+  const handleSubmitScan = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const result = onScan(scanCode, scanSource);
+    setScanFeedback(result);
+    if (result.status === 'success') {
+      setScanCode('');
+    }
+  };
+
+  const simulatePhoneScan = () => {
+    const uncheckedAttendees = registeredAttendees.filter((attendee) =>
+      !records.some((record) => record.attendeeId === attendee.attendeeId)
+    );
+    if (uncheckedAttendees.length === 0) {
+      setScanFeedback({ status: 'warning', message: 'All attendees are already checked in.' });
+      return;
+    }
+
+    const nextAttendee = uncheckedAttendees[0];
+    const result = onScan(nextAttendee.attendeeId, 'iPhone Scanner App');
+    setScanFeedback(result);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white rounded-[20px] border border-gray-200/90 shadow-[0_10px_30px_rgba(15,23,42,0.06)] p-6 md:p-7">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">Checked-In Attendees</h2>
+            <p className="text-sm text-gray-600 mt-1.5 max-w-2xl">
+              Scan attendee QR codes from your phone or scanner device to log check-ins in real time.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap lg:justify-end">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 text-green-700 text-xs font-medium border border-green-200">
+              <span className="w-2 h-2 rounded-full bg-green-500" />
+              Live sync active
+            </div>
+            <button
+              type="button"
+              onClick={simulatePhoneScan}
+              className="inline-flex h-11 items-center justify-center gap-2 px-5 bg-[#7626c6] text-white btn-glass rounded-xl hover:bg-[#5f1fa3] transition-colors text-sm font-medium"
+            >
+              <Phone className="w-4 h-4" />
+              Simulate Scan
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmitScan} className="mt-6 rounded-2xl border border-gray-200 bg-[#fbfbfe] p-5 md:p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold tracking-wide uppercase text-gray-500 mb-2">QR Code</label>
+              <input
+                value={scanCode}
+                onChange={(event) => setScanCode(event.target.value)}
+                placeholder="Scan or paste QR code (example: ATT-4420)"
+                className="w-full h-12 px-4 border border-gray-200 bg-white rounded-xl focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold tracking-wide uppercase text-gray-500 mb-2">Source Device</label>
+              <input
+                value={scanSource}
+                onChange={(event) => setScanSource(event.target.value)}
+                placeholder="Scanner source"
+                className="w-full h-12 px-4 border border-gray-200 bg-white rounded-xl focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <div className="mt-5 pt-4 border-t border-gray-200 flex justify-end">
+            <button
+              type="submit"
+              className="inline-flex h-11 items-center justify-center gap-2 px-5 bg-[#7626c6] text-white btn-glass rounded-xl hover:bg-[#5f1fa3] transition-colors text-sm font-medium"
+            >
+              <QrCode className="w-4 h-4" />
+              Log Check-in
+            </button>
+          </div>
+        </form>
+
+        {scanFeedback && (
+          <div
+            className={`mt-4 rounded-lg px-4 py-3 text-sm ${
+              scanFeedback.status === 'success'
+                ? 'bg-green-50 text-green-700 border border-green-200'
+                : scanFeedback.status === 'warning'
+                  ? 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                  : 'bg-red-50 text-red-700 border border-red-200'
+            }`}
+          >
+            {scanFeedback.message}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div className="rounded-2xl bg-blue-50/80 p-5 border border-blue-100">
+            <div className="text-xs font-semibold tracking-wide uppercase text-blue-700/80 mb-2">Checked In</div>
+            <div className="text-3xl font-semibold text-blue-900 leading-none">{records.length}</div>
+            <div className="text-xs text-blue-700/80 mt-2">Attendees successfully scanned</div>
+          </div>
+          <div className="rounded-2xl bg-orange-50/80 p-5 border border-orange-100">
+            <div className="text-xs font-semibold tracking-wide uppercase text-orange-700/80 mb-2">Pending Check-In</div>
+            <div className="text-3xl font-semibold text-orange-900 leading-none">{pendingCount}</div>
+            <div className="text-xs text-orange-700/80 mt-2">Awaiting arrival at venue</div>
+          </div>
+          <div className="rounded-2xl bg-green-50/80 p-5 border border-green-100">
+            <div className="text-xs font-semibold tracking-wide uppercase text-green-700/80 mb-2">Check-In Rate</div>
+            <div className="text-3xl font-semibold text-green-900 leading-none">{checkInRate}%</div>
+            <div className="text-xs text-green-700/80 mt-2">Live venue attendance progress</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h3 className="text-lg font-semibold text-gray-900">Live Check-In Log</h3>
+          <div className="w-full sm:max-w-sm">
+            <div className="flex items-center rounded-lg border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-[#7626c6] focus-within:border-transparent">
+              <Search className="ml-3 mr-2 w-4 h-4 text-gray-400 shrink-0" />
+              <input
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search attendee, ID, order..."
+                className="w-full py-2 pr-4 text-gray-900 bg-transparent rounded-r-lg focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attendee</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-In Time</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attendee ID</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredRecords.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-6 py-8 text-center text-sm text-gray-500">
+                    No checked-in attendees match your search.
+                  </td>
+                </tr>
+              )}
+              {filteredRecords.map((record) => (
+                <tr key={`${record.attendeeId}-${record.checkedInAt}`} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="font-medium text-gray-900">{record.name}</div>
+                    <div className="text-sm text-gray-500">{record.email}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{record.ticketType}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                      <CheckCircle className="w-3.5 h-3.5" />
+                      Checked In
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {new Date(record.checkedInAt).toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{record.source}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-mono">#{record.orderId}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-mono">{record.attendeeId}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
@@ -137,6 +447,44 @@ function EventDetailsTab() {
 }
 
 function ReportsTab() {
+  const handleExportReport = () => {
+    downloadReportPdf({
+      fileName: 'summer-music-festival-report.pdf',
+      title: 'Event Reports: Summer Music Festival 2026',
+      subtitle: 'Attendee issue log and performance snapshot.',
+      sections: [
+        {
+          heading: 'Quick Stats',
+          lines: [
+            'Total Tickets Sold: 847',
+            'Checked In: 796',
+            'Check-in Rate: 94%',
+            'No Shows: 51'
+          ]
+        },
+        {
+          heading: 'Attendee Report Issues',
+          lines: [
+            'High Priority: Ticket Scanning Issues (12 attendees, gates 2 and 3)',
+            'Medium Priority: Missing Confirmation Emails (8 attendees)',
+            'Medium Priority: Late Entry Requests (5 attendees)',
+            'Low Priority: Name Mismatch on Tickets (6 attendees)',
+            'Low Priority: Refund Processing Delays (4 attendees)'
+          ]
+        },
+        {
+          heading: 'Issue Summary',
+          lines: [
+            'Total Issues: 35',
+            'High Priority: 1',
+            'Medium Priority: 2',
+            'Resolved: 23'
+          ]
+        }
+      ]
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Reports Header */}
@@ -146,7 +494,11 @@ function ReportsTab() {
             <h2 className="text-lg font-semibold text-gray-900">Event Reports</h2>
             <p className="text-gray-600 mt-1">Event attendee reports and analytics</p>
           </div>
-          <button className="px-4 py-2 bg-[#7626c6] text-white btn-glass rounded-lg text-sm font-medium hover:bg-[#5f1fa3] transition-colors">
+          <button
+            onClick={handleExportReport}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#7626c6] text-white btn-glass rounded-lg text-sm font-medium hover:bg-[#5f1fa3] transition-colors"
+          >
+            <Download className="w-4 h-4" />
             Export Report
           </button>
         </div>

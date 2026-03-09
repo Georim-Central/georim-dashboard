@@ -2,7 +2,7 @@ import { Plus, Calendar, MapPin, Users, DollarSign, TrendingUp, MoreVertical, Be
 
 interface DashboardProps {
   onCreateEvent: () => void;
-  onEventSelect: (eventId: string) => void;
+  onEventSelect: (eventId: string, eventName?: string) => void;
 }
 
 // Mock data
@@ -229,7 +229,7 @@ export function Dashboard({ onCreateEvent, onEventSelect }: DashboardProps) {
                 <div
                   key={event.id}
                   className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
-                  onClick={() => onEventSelect(event.id)}
+                  onClick={() => onEventSelect(event.id, event.title)}
                 >
                   <div className="flex gap-6">
                     {/* Event Image */}

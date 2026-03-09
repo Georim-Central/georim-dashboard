@@ -48,8 +48,8 @@ export function TopBar({ contextMode, onOpenProfile }: TopBarProps) {
             >
               <Bell className="w-5 h-5 text-gray-600" />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
-                  {unreadCount}
+                <span className="absolute top-0 right-0 translate-x-1/3 -translate-y-1/3 min-w-[1.1rem] h-[1.1rem] px-1 bg-red-500 text-white text-[10px] leading-none rounded-full flex items-center justify-center font-semibold shadow-sm ring-2 ring-white">
+                  {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
             </button>

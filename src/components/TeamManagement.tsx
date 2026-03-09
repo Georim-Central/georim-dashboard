@@ -1,10 +1,71 @@
 import { useState } from 'react';
 import { Plus, Mail, MoreVertical, Shield, Edit2, Trash2, QrCode, CreditCard as CreditCardIcon, Ticket } from 'lucide-react';
 
+type InviteRole = 'admin' | 'marketing' | 'operations';
+type InviteAccess = 'all' | 'specific';
+
 export function TeamManagement() {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [showTicketModal, setShowTicketModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState<InviteRole>('admin');
+  const [inviteAccess, setInviteAccess] = useState<InviteAccess>('all');
+  const [inviteError, setInviteError] = useState('');
+
+  const openInviteModal = () => {
+    setInviteEmail('');
+    setInviteRole('admin');
+    setInviteAccess('all');
+    setInviteError('');
+    setShowInviteModal(true);
+  };
+
+  const generateInviteLink = () => {
+    const token = Math.random().toString(36).slice(2, 12);
+    const access = inviteAccess === 'all' ? 'all-events' : 'specific-events';
+    return `https://georim.app/team-invite/${token}?role=${inviteRole}&access=${access}`;
+  };
+
+  const getRoleLabel = (role: InviteRole) => {
+    if (role === 'admin') return 'Admin';
+    if (role === 'marketing') return 'Marketing';
+    return 'Operations';
+  };
+
+  const handleSendInvite = () => {
+    const email = inviteEmail.trim();
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if (!isValidEmail) {
+      setInviteError('Please enter a valid email address.');
+      return;
+    }
+
+    const inviteLink = generateInviteLink();
+    const roleLabel = getRoleLabel(inviteRole);
+    const accessLabel = inviteAccess === 'all' ? 'all events' : 'specific events';
+    const subject = 'You are invited to join Georim Team Management';
+    const body = [
+      'Hi there,',
+      '',
+      `You have been invited to join our Georim team as ${roleLabel} with access to ${accessLabel}.`,
+      '',
+      `Accept your invite here: ${inviteLink}`,
+      '',
+      'This invite link is unique to you.',
+      '',
+      'Best regards,',
+      'Georim Team'
+    ].join('\n');
+
+    const mailtoUrl = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+
+    console.log('[Team] Invite mailto generated', { email, role: inviteRole, access: inviteAccess, inviteLink });
+    setShowInviteModal(false);
+    setInviteError('');
+  };
 
   return (
     <div className="min-h-full bg-gray-50 p-8">
@@ -16,7 +77,7 @@ export function TeamManagement() {
           <p className="text-gray-600 mt-1">Manage team access and permissions</p>
         </div>
         <button
-          onClick={() => setShowInviteModal(true)}
+          onClick={openInviteModal}
           className="flex items-center gap-2 bg-[#7626c6] text-white btn-glass px-4 py-2 rounded-lg hover:bg-[#5f1fa3] transition-colors"
         >
           <Plus className="w-4 h-4" />
@@ -242,6 +303,11 @@ export function TeamManagement() {
                 </label>
                 <input
                   type="email"
+                  value={inviteEmail}
+                  onChange={(event) => {
+                    setInviteEmail(event.target.value);
+                    if (inviteError) setInviteError('');
+                  }}
                   placeholder="colleague@example.com"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
                 />
@@ -251,7 +317,11 @@ export function TeamManagement() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Role
                 </label>
-                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent">
+                <select
+                  value={inviteRole}
+                  onChange={(event) => setInviteRole(event.target.value as InviteRole)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
+                >
                   <option value="admin">Admin - Full access</option>
                   <option value="marketing">Marketing - Marketing tools only</option>
                   <option value="operations">Operations - Check-in access</option>
@@ -262,21 +332,32 @@ export function TeamManagement() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Event Access
                 </label>
-                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent">
+                <select
+                  value={inviteAccess}
+                  onChange={(event) => setInviteAccess(event.target.value as InviteAccess)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
+                >
                   <option value="all">All events</option>
                   <option value="specific">Specific events only</option>
                 </select>
               </div>
 
+              {inviteError && (
+                <p className="text-sm text-red-600">{inviteError}</p>
+              )}
+
               <div className="pt-4 flex gap-3">
                 <button
-                  onClick={() => setShowInviteModal(false)}
+                  onClick={() => {
+                    setShowInviteModal(false);
+                    setInviteError('');
+                  }}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={() => setShowInviteModal(false)}
+                  onClick={handleSendInvite}
                   className="flex-1 px-4 py-2 bg-[#7626c6] text-white btn-glass rounded-lg hover:bg-[#5f1fa3] transition-colors"
                 >
                   Send Invite

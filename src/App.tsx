@@ -11,23 +11,26 @@ const Finance = lazy(() => import('./components/Finance').then((module) => ({ de
 const ProfileSettings = lazy(() => import('./components/ProfileSettings').then((module) => ({ default: module.ProfileSettings })));
 
 type View = 'dashboard' | 'create-event' | 'event-management' | 'analytics' | 'team' | 'finance' | 'profile';
-type EventManagementTab = 'details' | 'ticketing' | 'orders' | 'marketing' | 'reports' | 'settings';
+type EventManagementTab = 'details' | 'ticketing' | 'orders' | 'checked-in' | 'marketing' | 'reports' | 'settings';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
   const [contextMode, setContextMode] = useState<'organization' | 'event'>('organization');
   const [eventManagementTab, setEventManagementTab] = useState<EventManagementTab>('details');
 
-  const handleEventCreated = (eventId: string) => {
+  const handleEventCreated = (eventId: string, eventName?: string) => {
     setSelectedEventId(eventId);
+    setSelectedEventName(eventName || 'Untitled Event');
     setContextMode('event');
     setEventManagementTab('details');
     setCurrentView('event-management');
   };
 
-  const handleEventSelect = (eventId: string) => {
+  const handleEventSelect = (eventId: string, eventName?: string) => {
     setSelectedEventId(eventId);
+    setSelectedEventName(eventName || 'Selected Event');
     setContextMode('event');
     setEventManagementTab('details');
     setCurrentView('event-management');
@@ -43,6 +46,7 @@ export default function App() {
   const handleBackToOrganization = () => {
     setContextMode('organization');
     setSelectedEventId(null);
+    setSelectedEventName(null);
     setEventManagementTab('details');
     setCurrentView('dashboard');
   };
@@ -55,6 +59,7 @@ export default function App() {
         contextMode={contextMode}
         onBackToOrganization={handleBackToOrganization}
         selectedEventId={selectedEventId}
+        selectedEventName={selectedEventName}
         activeEventTab={eventManagementTab}
         onEventTabSelect={handleEventTabSelect}
       />

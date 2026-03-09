@@ -7,7 +7,7 @@ import { DescriptionEditor } from './event-creation/DescriptionEditor';
 import { Check } from 'lucide-react';
 
 interface EventCreationProps {
-  onEventCreated: (eventId: string) => void;
+  onEventCreated: (eventId: string, eventName?: string) => void;
 }
 
 type Step = 'basic' | 'location' | 'datetime' | 'media' | 'description';
@@ -61,7 +61,8 @@ export function EventCreation({ onEventCreated }: EventCreationProps) {
   const handleFinish = () => {
     // In a real app, this would save to a database
     const eventId = Math.random().toString(36).substring(7);
-    onEventCreated(eventId);
+    const eventName = eventData.title.trim() || 'Untitled Event';
+    onEventCreated(eventId, eventName);
   };
 
   const updateEventData = (data: Partial<typeof eventData>) => {

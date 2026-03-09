@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { TrendingUp, Users, DollarSign, Ticket, Download, Calendar, Eye, MousePointer } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { downloadReportPdf } from '../utils/reportExport';
 
 interface AnalyticsProps {
   selectedEventId: string | null;
@@ -7,6 +9,64 @@ interface AnalyticsProps {
 
 export function Analytics({ selectedEventId }: AnalyticsProps) {
   const isEventView = !!selectedEventId;
+  const [selectedRange, setSelectedRange] = useState('Last 7 days');
+
+  const handleExportReport = () => {
+    const metricLines = (isEventView ? eventMetrics : orgMetrics).map(
+      (metric) => `${metric.label}: ${metric.value} (${metric.change})`
+    );
+
+    if (isEventView) {
+      downloadReportPdf({
+        fileName: 'event-analytics-report.pdf',
+        title: 'Event Analytics Report',
+        subtitle: 'Summer Music Festival 2026 performance overview.',
+        metadata: [`Range: ${selectedRange}`],
+        sections: [
+          { heading: 'KPI Summary', lines: metricLines },
+          {
+            heading: 'Daily Ticket Sales',
+            lines: eventSalesData.map((row) => `${row.date}: ${row.tickets} tickets`)
+          },
+          {
+            heading: 'Ticket Type Breakdown',
+            lines: eventTicketTypes.map((ticket) => `${ticket.name}: ${ticket.sold} sold, ${ticket.remaining} remaining`)
+          },
+          {
+            heading: 'Event Page Traffic',
+            lines: eventTrafficData.map((traffic) => `${traffic.date}: ${traffic.views} views, ${traffic.clicks} ticket clicks`)
+          },
+          {
+            heading: 'Top Attendee Cities',
+            lines: eventGeographyData.cities.map((city) => `${city.name}: ${city.count} attendees (${city.percentage}%)`)
+          }
+        ]
+      });
+      return;
+    }
+
+    downloadReportPdf({
+      fileName: 'organization-analytics-report.pdf',
+      title: 'Organization Analytics Report',
+      subtitle: 'Cross-event performance summary for your organization.',
+      metadata: [`Range: ${selectedRange}`],
+      sections: [
+        { heading: 'KPI Summary', lines: metricLines },
+        {
+          heading: 'Revenue and Ticket Trend',
+          lines: orgRevenueData.map((row) => `${row.month}: $${row.revenue.toLocaleString()} revenue, ${row.tickets} tickets`)
+        },
+        {
+          heading: 'Top Events by Revenue ($K)',
+          lines: orgEventsPerformance.map((event) => `${event.event}: $${event.revenue}K`)
+        },
+        {
+          heading: 'Top Attendee Cities',
+          lines: orgGeographyData.cities.map((city) => `${city.name}: ${city.count} attendees (${city.percentage}%)`)
+        }
+      ]
+    });
+  };
 
   return (
     <div className="min-h-full bg-gray-50 p-8">
@@ -24,13 +84,20 @@ export function Analytics({ selectedEventId }: AnalyticsProps) {
           </p>
         </div>
         <div className="flex gap-3">
-          <select className="px-4 py-2 border border-gray-300 rounded-lg">
+          <select
+            value={selectedRange}
+            onChange={(event) => setSelectedRange(event.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg"
+          >
             <option>Last 7 days</option>
             <option>Last 30 days</option>
             <option>Last 90 days</option>
             <option>All time</option>
           </select>
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#7626c6] text-white btn-glass rounded-lg hover:bg-[#5f1fa3] transition-colors">
+          <button
+            onClick={handleExportReport}
+            className="flex items-center gap-2 px-4 py-2 bg-[#7626c6] text-white btn-glass rounded-lg hover:bg-[#5f1fa3] transition-colors"
+          >
             <Download className="w-4 h-4" />
             Export Report
           </button>

@@ -1,4 +1,4 @@
-import { Home, Calendar, BarChart3, Users, ArrowLeft, Ticket, CreditCard, Mail, Settings, DollarSign, MessageCircle, Repeat, Download } from 'lucide-react';
+import { Home, Calendar, BarChart3, Users, ArrowLeft, Ticket, CreditCard, Mail, Settings, DollarSign, MessageCircle, Repeat, Download, QrCode } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -8,8 +8,9 @@ interface SidebarProps {
   contextMode: 'organization' | 'event';
   onBackToOrganization: () => void;
   selectedEventId: string | null;
-  activeEventTab: 'details' | 'ticketing' | 'orders' | 'marketing' | 'reports' | 'settings';
-  onEventTabSelect: (tab: 'details' | 'ticketing' | 'orders' | 'marketing' | 'reports' | 'settings') => void;
+  selectedEventName?: string | null;
+  activeEventTab: 'details' | 'ticketing' | 'orders' | 'checked-in' | 'marketing' | 'reports' | 'settings';
+  onEventTabSelect: (tab: 'details' | 'ticketing' | 'orders' | 'checked-in' | 'marketing' | 'reports' | 'settings') => void;
 }
 
 export function Sidebar({
@@ -18,10 +19,18 @@ export function Sidebar({
   contextMode,
   onBackToOrganization,
   selectedEventId,
+  selectedEventName,
   activeEventTab,
   onEventTabSelect,
 }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const handleLogoClick = () => {
+    if (contextMode === 'event') {
+      onBackToOrganization();
+      return;
+    }
+    onViewChange('dashboard');
+  };
 
   useEffect(() => {
     document.documentElement.style.setProperty('--sidebar-width', isCollapsed ? '5rem' : '16rem');
@@ -30,10 +39,18 @@ export function Sidebar({
   return (
     <div className={`${isCollapsed ? 'w-20' : 'w-64'} bg-[#05031B] text-white flex flex-col transition-all duration-300 relative`}>
       {/* Logo */}
-      <div className="p-6 border-b border-white/10">
-        {!isCollapsed && <h1 className="text-2xl font-bold text-[#7626c6]">Georim</h1>}
-        {isCollapsed && <h1 className="text-2xl font-bold text-[#7626c6] text-center">G</h1>}
-      </div>
+      <button
+        type="button"
+        onClick={handleLogoClick}
+        className="p-4 border-b border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors"
+        title="Go to dashboard"
+      >
+        <img
+          src={isCollapsed ? '/images/collasible logo.svg' : '/images/logo.svg'}
+          alt="Georim logo"
+          className={isCollapsed ? 'h-11 w-11 object-contain' : 'h-10 w-full max-w-[172px] object-contain'}
+        />
+      </button>
 
       {/* Collapse Toggle */}
       <button
@@ -150,7 +167,9 @@ export function Sidebar({
             {!isCollapsed && (
               <>
                 <div className="text-xs uppercase tracking-wide text-gray-400 px-4 py-2">Event Management</div>
-                <div className="text-sm text-gray-400 px-4 py-1 mb-4">Summer Music Festival 2026</div>
+                <div className="text-sm text-gray-400 px-4 py-1 mb-4">
+                  {selectedEventName || 'Selected Event'}
+                </div>
               </>
             )}
 
@@ -191,6 +210,19 @@ export function Sidebar({
             >
               <CreditCard className="w-5 h-5" />
               {!isCollapsed && <span>Orders</span>}
+            </button>
+
+            <button
+              onClick={() => onEventTabSelect('checked-in')}
+              className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-4 py-3 rounded-lg transition-colors ${
+                currentView === 'event-management' && activeEventTab === 'checked-in'
+                  ? 'bg-[#7626c6] text-white btn-glass'
+                  : 'text-gray-300 hover:bg-white/10'
+              }`}
+              title={isCollapsed ? 'Checked-In' : ''}
+            >
+              <QrCode className="w-5 h-5" />
+              {!isCollapsed && <span>Checked-In</span>}
             </button>
 
             <button
