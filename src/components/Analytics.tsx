@@ -5,11 +5,13 @@ import { downloadReportPdf } from '../utils/reportExport';
 
 interface AnalyticsProps {
   selectedEventId: string | null;
+  selectedEventName?: string | null;
 }
 
-export function Analytics({ selectedEventId }: AnalyticsProps) {
+export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps) {
   const isEventView = !!selectedEventId;
   const [selectedRange, setSelectedRange] = useState('Last 7 days');
+  const eventDisplayName = selectedEventName?.trim() || 'Selected Event';
 
   const handleExportReport = () => {
     const metricLines = (isEventView ? eventMetrics : orgMetrics).map(
@@ -17,10 +19,11 @@ export function Analytics({ selectedEventId }: AnalyticsProps) {
     );
 
     if (isEventView) {
+      const eventSlug = eventDisplayName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'event';
       downloadReportPdf({
-        fileName: 'event-analytics-report.pdf',
-        title: 'Event Analytics Report',
-        subtitle: 'Summer Music Festival 2026 performance overview.',
+        fileName: `${eventSlug}-analytics-report.pdf`,
+        title: `${eventDisplayName} Analytics Report`,
+        subtitle: `${eventDisplayName} performance overview.`,
         metadata: [`Range: ${selectedRange}`],
         sections: [
           { heading: 'KPI Summary', lines: metricLines },
@@ -79,7 +82,7 @@ export function Analytics({ selectedEventId }: AnalyticsProps) {
           </h1>
           <p className="text-gray-600 mt-1">
             {isEventView 
-              ? 'Performance metrics for Summer Music Festival 2026' 
+              ? `Performance metrics for ${eventDisplayName}` 
               : 'Real-time insights across all your events'}
           </p>
         </div>

@@ -84,12 +84,13 @@ export default function App() {
           {currentView === 'event-management' && selectedEventId && (
             <EventManagement
               eventId={selectedEventId}
+              eventName={selectedEventName}
               activeTab={eventManagementTab}
               onTabChange={setEventManagementTab}
             />
           )}
             {currentView === 'analytics' && (
-              <Analytics selectedEventId={selectedEventId} />
+              <Analytics selectedEventId={selectedEventId} selectedEventName={selectedEventName} />
             )}
             {currentView === 'team' && (
               <TeamManagement />

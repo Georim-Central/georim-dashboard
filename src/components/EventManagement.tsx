@@ -7,6 +7,7 @@ import { downloadReportPdf } from '../utils/reportExport';
 
 interface EventManagementProps {
   eventId: string;
+  eventName?: string | null;
   activeTab?: Tab;
   onTabChange?: (tab: Tab) => void;
 }
@@ -53,9 +54,10 @@ const initialCheckInRecords: CheckInRecord[] = [
   }
 ];
 
-export function EventManagement({ eventId, activeTab: requestedTab, onTabChange }: EventManagementProps) {
+export function EventManagement({ eventId, eventName, activeTab: requestedTab, onTabChange }: EventManagementProps) {
   const [activeTab, setActiveTab] = useState<Tab>('details');
   const [checkInRecords, setCheckInRecords] = useState<CheckInRecord[]>(initialCheckInRecords);
+  const resolvedEventName = eventName?.trim() || 'Selected Event';
 
   useEffect(() => {
     if (requestedTab) {
@@ -132,7 +134,7 @@ export function EventManagement({ eventId, activeTab: requestedTab, onTabChange 
         <div className="max-w-7xl mx-auto px-8 py-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Summer Music Festival 2026</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{resolvedEventName}</h1>
               <p className="text-gray-600 mt-1">June 15, 2026 • Central Park, New York</p>
             </div>
             <div className="flex items-center gap-3">
@@ -171,7 +173,7 @@ export function EventManagement({ eventId, activeTab: requestedTab, onTabChange 
 
       {/* Tab Content */}
       <div className="max-w-7xl mx-auto px-8 py-8">
-        {activeTab === 'details' && <EventDetailsTab />}
+        {activeTab === 'details' && <EventDetailsTab eventName={resolvedEventName} />}
         {activeTab === 'ticketing' && <TicketingSection />}
         {activeTab === 'orders' && <OrdersSection />}
         {activeTab === 'checked-in' && (
@@ -182,7 +184,7 @@ export function EventManagement({ eventId, activeTab: requestedTab, onTabChange 
           />
         )}
         {activeTab === 'marketing' && <MarketingSection />}
-        {activeTab === 'reports' && <ReportsTab />}
+        {activeTab === 'reports' && <ReportsTab eventName={resolvedEventName} />}
         {activeTab === 'settings' && <SettingsTab />}
       </div>
     </div>
@@ -249,7 +251,7 @@ function CheckedInTab({
               Scan attendee QR codes from your phone or scanner device to log check-ins in real time.
             </p>
           </div>
-          <div className="flex items-center gap-3 flex-wrap lg:justify-end">
+          <div className="flex items-center gap-4 flex-wrap lg:justify-end lg:pr-1">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 text-green-700 text-xs font-medium border border-green-200">
               <span className="w-2 h-2 rounded-full bg-green-500" />
               Live sync active
@@ -257,7 +259,7 @@ function CheckedInTab({
             <button
               type="button"
               onClick={simulatePhoneScan}
-              className="inline-flex h-11 items-center justify-center gap-2 px-5 bg-[#7626c6] text-white btn-glass rounded-xl hover:bg-[#5f1fa3] transition-colors text-sm font-medium"
+              className="inline-flex h-12 items-center justify-center gap-2 px-6 bg-[#7626c6] text-white btn-glass rounded-xl hover:bg-[#5f1fa3] transition-colors text-sm font-medium"
             >
               <Phone className="w-4 h-4" />
               Simulate Scan
@@ -287,10 +289,10 @@ function CheckedInTab({
             </div>
           </div>
 
-          <div className="mt-5 pt-4 border-t border-gray-200 flex justify-end">
+          <div className="mt-5 pt-4 border-t border-gray-200 flex justify-end pr-1">
             <button
               type="submit"
-              className="inline-flex h-11 items-center justify-center gap-2 px-5 bg-[#7626c6] text-white btn-glass rounded-xl hover:bg-[#5f1fa3] transition-colors text-sm font-medium"
+              className="inline-flex h-12 items-center justify-center gap-2 px-6 bg-[#7626c6] text-white btn-glass rounded-xl hover:bg-[#5f1fa3] transition-colors text-sm font-medium"
             >
               <QrCode className="w-4 h-4" />
               Log Check-in
@@ -397,7 +399,7 @@ function CheckedInTab({
   );
 }
 
-function EventDetailsTab() {
+function EventDetailsTab({ eventName }: { eventName: string }) {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl border border-gray-200 p-6">
@@ -407,7 +409,7 @@ function EventDetailsTab() {
             <label className="block text-sm font-medium text-gray-700 mb-2">Event Title</label>
             <input
               type="text"
-              defaultValue="Summer Music Festival 2026"
+              defaultValue={eventName}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg"
             />
           </div>
@@ -446,11 +448,12 @@ function EventDetailsTab() {
   );
 }
 
-function ReportsTab() {
+function ReportsTab({ eventName }: { eventName: string }) {
   const handleExportReport = () => {
+    const eventSlug = eventName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'event';
     downloadReportPdf({
-      fileName: 'summer-music-festival-report.pdf',
-      title: 'Event Reports: Summer Music Festival 2026',
+      fileName: `${eventSlug}-report.pdf`,
+      title: `Event Reports: ${eventName}`,
       subtitle: 'Attendee issue log and performance snapshot.',
       sections: [
         {
