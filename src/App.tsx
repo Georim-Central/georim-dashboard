@@ -229,6 +229,7 @@ export default function App() {
                 firstName={currentUserFirstName}
                 onCreateEvent={() => setCurrentView('create-event')}
                 onEventSelect={handleEventSelect}
+                onViewTeam={() => setCurrentView('team')}
               />
             )}
             {currentView === 'create-event' && (

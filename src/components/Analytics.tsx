@@ -9,12 +9,18 @@ interface AnalyticsProps {
   selectedEventName?: string | null;
 }
 
+type OrgOverviewMode = 'both' | 'revenue' | 'tickets';
+
 export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps) {
   const isEventView = !!selectedEventId;
   const [selectedRange, setSelectedRange] = useState('Last 7 days');
+  const [orgOverviewMode, setOrgOverviewMode] = useState<OrgOverviewMode>('both');
   const eventDisplayName = selectedEventName?.trim() || 'Selected Event';
   const analyticsError: string | null = null;
   const isLoading = false;
+
+  const showRevenueSeries = orgOverviewMode === 'both' || orgOverviewMode === 'revenue';
+  const showTicketSeries = orgOverviewMode === 'both' || orgOverviewMode === 'tickets';
 
   const handleExportReport = () => {
     const metricLines = (isEventView ? eventMetrics : orgMetrics).map(
@@ -299,13 +305,40 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                 <p className="text-sm text-gray-600 mt-1">Performance across all events</p>
               </div>
               <div className="flex gap-2">
-                <button type="button" className="px-3 py-1.5 bg-[#7626c6] text-white btn-glass rounded-lg text-sm font-medium">
+                <button
+                  type="button"
+                  onClick={() => setOrgOverviewMode('both')}
+                  aria-pressed={orgOverviewMode === 'both'}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    orgOverviewMode === 'both'
+                      ? 'bg-[#7626c6] text-white btn-glass'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
                   Both
                 </button>
-                <button type="button" className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setOrgOverviewMode('revenue')}
+                  aria-pressed={orgOverviewMode === 'revenue'}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    orgOverviewMode === 'revenue'
+                      ? 'bg-[#7626c6] text-white btn-glass'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
                   Revenue Only
                 </button>
-                <button type="button" className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setOrgOverviewMode('tickets')}
+                  aria-pressed={orgOverviewMode === 'tickets'}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    orgOverviewMode === 'tickets'
+                      ? 'bg-[#7626c6] text-white btn-glass'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
                   Tickets Only
                 </button>
               </div>
@@ -314,30 +347,50 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
               <LineChart data={orgRevenueData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="month" stroke="#666" style={{ fontSize: '12px' }} />
-                <YAxis yAxisId="left" stroke="#666" style={{ fontSize: '12px' }} />
-                <YAxis yAxisId="right" orientation="right" stroke="#666" style={{ fontSize: '12px' }} />
+                {showRevenueSeries ? (
+                  <YAxis
+                    yAxisId="left"
+                    stroke="#666"
+                    style={{ fontSize: '12px' }}
+                    tickFormatter={(value) => `$${Number(value).toLocaleString()}`}
+                  />
+                ) : null}
+                {showTicketSeries ? (
+                  <YAxis
+                    yAxisId={showRevenueSeries ? 'right' : 'left'}
+                    orientation={showRevenueSeries ? 'right' : 'left'}
+                    stroke="#666"
+                    style={{ fontSize: '12px' }}
+                  />
+                ) : null}
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
                 />
-                <Legend />
-                <Line 
-                  yAxisId="left"
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#7626c6" 
-                  strokeWidth={3}
-                  name="Revenue ($)"
-                  dot={{ fill: '#7626c6', r: 4 }}
-                />
-                <Line 
-                  yAxisId="right"
-                  type="monotone" 
-                  dataKey="tickets" 
-                  stroke="#10b981" 
-                  strokeWidth={3}
-                  name="Tickets Sold"
-                  dot={{ fill: '#10b981', r: 4 }}
-                />
+                {orgOverviewMode === 'both' ? <Legend /> : null}
+                {showRevenueSeries ? (
+                  <Line 
+                    yAxisId="left"
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="#7626c6" 
+                    strokeWidth={3}
+                    name="Revenue ($)"
+                    dot={{ fill: '#7626c6', r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                ) : null}
+                {showTicketSeries ? (
+                  <Line 
+                    yAxisId={showRevenueSeries ? 'right' : 'left'}
+                    type="monotone" 
+                    dataKey="tickets" 
+                    stroke="#10b981" 
+                    strokeWidth={3}
+                    name="Tickets Sold"
+                    dot={{ fill: '#10b981', r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                ) : null}
               </LineChart>
             </ResponsiveContainer>
           </div>

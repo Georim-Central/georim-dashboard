@@ -1,10 +1,13 @@
 import { Plus, Calendar, MapPin, Users, DollarSign, TrendingUp, MoreVertical, ArrowRight, Ticket } from 'lucide-react';
 import { KeyboardEvent } from 'react';
 import { ContentState } from './ui/ContentState';
+import { Avatar, AvatarFallback } from './ui/avatar';
+import { Button } from './ui/button';
 
 interface DashboardProps {
   onCreateEvent: () => void;
   onEventSelect: (eventId: string, eventName?: string) => void;
+  onViewTeam: () => void;
   firstName: string;
 }
 
@@ -142,7 +145,87 @@ const recentActivity = [
   }
 ];
 
-export function Dashboard({ onCreateEvent, onEventSelect, firstName }: DashboardProps) {
+const teamCollaborationMembers = [
+  {
+    name: 'Alexandra Deff',
+    task: 'Overseeing workspace permissions, releases, and core platform operations.',
+    role: 'Admin',
+    initials: 'AD',
+  },
+  {
+    name: 'Edwin Adenike',
+    task: 'Driving campaigns, messaging, and growth initiatives across active events.',
+    role: 'Marketing',
+    initials: 'EA',
+  },
+  {
+    name: 'Isaac Oluwatemilorun',
+    task: 'Managing day-to-day workflow setup, reporting, and cross-team coordination.',
+    role: 'Operations',
+    initials: 'IO',
+  },
+  {
+    name: 'David Oshodi',
+    task: 'Handling team assistance, issue follow-ups, and workspace support coverage.',
+    role: 'Support',
+    initials: 'DO',
+  },
+];
+
+function getTeamRoleBadgeClass(role: string) {
+  if (role === 'Admin') return 'bg-[#7626c6]/10 text-[#7626c6]';
+  if (role === 'Marketing') return 'bg-blue-100 text-blue-700';
+  if (role === 'Operations') return 'bg-emerald-100 text-emerald-700';
+  return 'bg-amber-100 text-amber-700';
+}
+
+function TeamCollaborationCard({ onViewTeam }: { onViewTeam: () => void }) {
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold text-gray-900">Team Collaboration</h2>
+        <Button type="button" variant="outline" size="sm" className="gap-1.5 text-sm">
+          <Plus className="w-4 h-4" />
+          Add Member
+        </Button>
+      </div>
+
+      <div className="divide-y divide-gray-200">
+        {teamCollaborationMembers.slice(0, 3).map((member) => (
+          <div key={member.name} className="px-6 py-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3 min-w-0">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-[#7626c6]/12 text-[#7626c6]">{member.initials}</AvatarFallback>
+                </Avatar>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">{member.name}</p>
+                  <p className="text-xs text-gray-600 mt-1 leading-5">{member.task}</p>
+                </div>
+              </div>
+              <span className={`inline-flex shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${getTeamRoleBadgeClass(member.role)}`}>
+                {member.role}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+        <button
+          type="button"
+          onClick={onViewTeam}
+          className="text-sm text-[#7626c6] hover:text-[#5f1fa3] font-medium flex items-center gap-1"
+        >
+          View more
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function Dashboard({ onCreateEvent, onEventSelect, onViewTeam, firstName }: DashboardProps) {
   const isLoading = false;
   const dataError: string | null = null;
 
@@ -352,50 +435,54 @@ export function Dashboard({ onCreateEvent, onEventSelect, firstName }: Dashboard
 
         {/* Recent Activity Feed - Takes 1 column */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
-            </div>
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
+              </div>
 
-            <div className="divide-y divide-gray-200 motion-stagger">
-              <ContentState
-                isLoading={isLoading}
-                error={dataError}
-                isEmpty={recentActivity.length === 0}
-                emptyMessage="No recent activity."
-                className="py-14"
-              >
-                {recentActivity.map((activity, index) => (
-                <div key={index} className="p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#7626c6] rounded-full mt-2 flex-shrink-0"></div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <p className="text-sm font-medium text-gray-900">{activity.action}</p>
-                        {activity.amount && (
-                          <span className="text-sm font-semibold text-green-600">
-                            {activity.amount}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-600 mb-1">{activity.detail}</p>
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs text-gray-500">{activity.event}</p>
-                        <p className="text-xs text-gray-400">{activity.time}</p>
+              <div className="divide-y divide-gray-200 motion-stagger">
+                <ContentState
+                  isLoading={isLoading}
+                  error={dataError}
+                  isEmpty={recentActivity.length === 0}
+                  emptyMessage="No recent activity."
+                  className="py-14"
+                >
+                  {recentActivity.map((activity, index) => (
+                  <div key={index} className="p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-[#7626c6] rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <p className="text-sm font-medium text-gray-900">{activity.action}</p>
+                          {activity.amount && (
+                            <span className="text-sm font-semibold text-green-600">
+                              {activity.amount}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-600 mb-1">{activity.detail}</p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs text-gray-500">{activity.event}</p>
+                          <p className="text-xs text-gray-400">{activity.time}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                ))}
-              </ContentState>
+                  ))}
+                </ContentState>
+              </div>
+
+              <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+                <button type="button" className="text-sm text-[#7626c6] hover:text-[#5f1fa3] font-medium flex items-center gap-1">
+                  View all activity
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
-              <button type="button" className="text-sm text-[#7626c6] hover:text-[#5f1fa3] font-medium flex items-center gap-1">
-                View all activity
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
+            <TeamCollaborationCard onViewTeam={onViewTeam} />
           </div>
         </div>
       </div>
