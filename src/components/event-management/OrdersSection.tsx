@@ -1,9 +1,10 @@
 import { Search, Download, Filter, CheckCircle, XCircle, Clock, MoreVertical } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ContentState } from '../ui/ContentState';
 import { useModalA11y } from '../../hooks/useModalA11y';
 
 export function OrdersSection() {
+  const fieldIdPrefix = useId();
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [activeOrderActionId, setActiveOrderActionId] = useState<string | null>(null);
@@ -11,6 +12,7 @@ export function OrdersSection() {
   const [selectedOrder, setSelectedOrder] = useState<(typeof mockOrders)[number] | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const actionMenuRef = useRef<HTMLDivElement | null>(null);
+  const getFieldId = (field: string) => `${fieldIdPrefix}-${field}`;
   const {
     dialogRef: orderDetailsDialogRef,
     titleId: orderDetailsTitleId,
@@ -39,7 +41,6 @@ export function OrdersSection() {
 
   const handleFilterClick = () => {
     setShowFilterOptions((current) => !current);
-    console.log('[Orders] Filter options:', filterOptions);
   };
 
   const toggleFilterOption = (option: string) => {
@@ -48,14 +49,12 @@ export function OrdersSection() {
       const nextFilters = alreadySelected
         ? currentFilters.filter((filter) => filter !== option)
         : [...currentFilters, option];
-      console.log('[Orders] Selected filters:', nextFilters);
       return nextFilters;
     });
   };
 
   const handleRowActionClick = (order: (typeof mockOrders)[number]) => {
     setActiveOrderActionId((currentOrderId) => (currentOrderId === order.id ? null : order.id));
-    console.log(`[Orders] Actions opened for order #${order.id}: More details`);
   };
 
   const handleOrderActionSelect = (order: (typeof mockOrders)[number], action: string) => {
@@ -63,10 +62,8 @@ export function OrdersSection() {
       setSelectedOrder(order);
       setShowOrderDetailsModal(true);
       setActiveOrderActionId(null);
-      console.log(`[Orders] Showing attendee details for order #${order.id}`);
       return;
     }
-    console.log(`[Orders] ${action} selected for order #${order.id}`);
     setActiveOrderActionId(null);
   };
 
@@ -152,6 +149,8 @@ export function OrdersSection() {
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
+              id={getFieldId('search-orders')}
+              aria-label="Search orders"
               type="text"
               placeholder="Search by order ID, name, or email..."
               value={searchQuery}
@@ -346,16 +345,18 @@ export function OrdersSection() {
             <div className="ticketing-modal-body space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Attendee Name</label>
+                  <label htmlFor={getFieldId('attendee-name')} className="block text-xs font-medium text-gray-500 mb-1">Attendee Name</label>
                   <input
+                    id={getFieldId('attendee-name')}
                     readOnly
                     value={selectedOrder.customer.name}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-800"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Email</label>
+                  <label htmlFor={getFieldId('attendee-email')} className="block text-xs font-medium text-gray-500 mb-1">Email</label>
                   <input
+                    id={getFieldId('attendee-email')}
                     readOnly
                     value={selectedOrder.customer.email}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-800"
@@ -365,16 +366,18 @@ export function OrdersSection() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Phone</label>
+                  <label htmlFor={getFieldId('attendee-phone')} className="block text-xs font-medium text-gray-500 mb-1">Phone</label>
                   <input
+                    id={getFieldId('attendee-phone')}
                     readOnly
                     value={selectedOrder.customer.phone}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-800"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Attendee ID</label>
+                  <label htmlFor={getFieldId('attendee-id')} className="block text-xs font-medium text-gray-500 mb-1">Attendee ID</label>
                   <input
+                    id={getFieldId('attendee-id')}
                     readOnly
                     value={selectedOrder.customer.attendeeId}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-800"
@@ -384,24 +387,27 @@ export function OrdersSection() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Ticket Type</label>
+                  <label htmlFor={getFieldId('ticket-type')} className="block text-xs font-medium text-gray-500 mb-1">Ticket Type</label>
                   <input
+                    id={getFieldId('ticket-type')}
                     readOnly
                     value={selectedOrder.ticketType}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-800"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Quantity</label>
+                  <label htmlFor={getFieldId('ticket-quantity')} className="block text-xs font-medium text-gray-500 mb-1">Quantity</label>
                   <input
+                    id={getFieldId('ticket-quantity')}
                     readOnly
                     value={String(selectedOrder.quantity)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-800"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Amount</label>
+                  <label htmlFor={getFieldId('ticket-amount')} className="block text-xs font-medium text-gray-500 mb-1">Amount</label>
                   <input
+                    id={getFieldId('ticket-amount')}
                     readOnly
                     value={`$${selectedOrder.amount}`}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-800"
@@ -411,24 +417,27 @@ export function OrdersSection() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                  <label htmlFor={getFieldId('order-status')} className="block text-xs font-medium text-gray-500 mb-1">Status</label>
                   <input
+                    id={getFieldId('order-status')}
                     readOnly
                     value={selectedOrder.status}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-800 capitalize"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Order Date</label>
+                  <label htmlFor={getFieldId('order-date')} className="block text-xs font-medium text-gray-500 mb-1">Order Date</label>
                   <input
+                    id={getFieldId('order-date')}
                     readOnly
                     value={selectedOrder.date}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-800"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Purchased At</label>
+                  <label htmlFor={getFieldId('purchased-at')} className="block text-xs font-medium text-gray-500 mb-1">Purchased At</label>
                   <input
+                    id={getFieldId('purchased-at')}
                     readOnly
                     value={selectedOrder.purchasedAt}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-800"
@@ -438,16 +447,18 @@ export function OrdersSection() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Payment Method</label>
+                  <label htmlFor={getFieldId('payment-method')} className="block text-xs font-medium text-gray-500 mb-1">Payment Method</label>
                   <input
+                    id={getFieldId('payment-method')}
                     readOnly
                     value={selectedOrder.paymentMethod}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-800"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Transaction ID</label>
+                  <label htmlFor={getFieldId('transaction-id')} className="block text-xs font-medium text-gray-500 mb-1">Transaction ID</label>
                   <input
+                    id={getFieldId('transaction-id')}
                     readOnly
                     value={selectedOrder.transactionId}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-800"
@@ -457,16 +468,18 @@ export function OrdersSection() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Promo Code</label>
+                  <label htmlFor={getFieldId('promo-code')} className="block text-xs font-medium text-gray-500 mb-1">Promo Code</label>
                   <input
+                    id={getFieldId('promo-code')}
                     readOnly
                     value={selectedOrder.promoCode || 'None'}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-800"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Check-in Status</label>
+                  <label htmlFor={getFieldId('check-in-status')} className="block text-xs font-medium text-gray-500 mb-1">Check-in Status</label>
                   <input
+                    id={getFieldId('check-in-status')}
                     readOnly
                     value={selectedOrder.checkInStatus}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-800"
@@ -475,8 +488,9 @@ export function OrdersSection() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Notes</label>
+                <label htmlFor={getFieldId('order-notes')} className="block text-xs font-medium text-gray-500 mb-1">Notes</label>
                 <textarea
+                  id={getFieldId('order-notes')}
                   readOnly
                   rows={3}
                   value={selectedOrder.notes}

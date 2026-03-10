@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, useId, useRef, useState } from 'react';
 import { User } from 'lucide-react';
 
 type ProfileForm = {
@@ -36,9 +36,11 @@ const defaultProfile: ProfileForm = {
 };
 
 export function ProfileSettings() {
+  const fieldIdPrefix = useId();
   const [profileForm, setProfileForm] = useState<ProfileForm>(defaultProfile);
   const [profileNotice, setProfileNotice] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const getFieldId = (field: string) => `${fieldIdPrefix}-${field}`;
 
   const updateProfileField = <T extends keyof ProfileForm>(field: T, value: ProfileForm[T]) => {
     setProfileForm((currentProfileForm) => ({
@@ -55,7 +57,6 @@ export function ProfileSettings() {
     fileReader.onload = () => {
       updateProfileField('avatarUrl', String(fileReader.result || ''));
       setProfileNotice(`Profile photo selected: ${selectedFile.name}`);
-      console.log('[Profile] Avatar updated', { fileName: selectedFile.name, fileSize: selectedFile.size });
     };
     fileReader.readAsDataURL(selectedFile);
     event.target.value = '';
@@ -73,13 +74,6 @@ export function ProfileSettings() {
       setProfileNotice('Enter your current password to set a new password.');
       return;
     }
-
-    console.log('[Profile] Profile settings saved', {
-      ...profileForm,
-      currentPassword: profileForm.currentPassword ? '••••••••' : '',
-      newPassword: profileForm.newPassword ? '••••••••' : '',
-      confirmPassword: profileForm.confirmPassword ? '••••••••' : ''
-    });
 
     setProfileNotice('Profile settings saved successfully.');
     setProfileForm((currentProfileForm) => ({
@@ -134,8 +128,9 @@ export function ProfileSettings() {
           <h2 className="text-lg font-semibold text-gray-900">Account Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+              <label htmlFor={getFieldId('full-name')} className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
               <input
+                id={getFieldId('full-name')}
                 required
                 type="text"
                 value={profileForm.fullName}
@@ -144,8 +139,9 @@ export function ProfileSettings() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Display Name</label>
+              <label htmlFor={getFieldId('display-name')} className="block text-sm font-medium text-gray-700 mb-2">Display Name</label>
               <input
+                id={getFieldId('display-name')}
                 required
                 type="text"
                 value={profileForm.displayName}
@@ -157,8 +153,9 @@ export function ProfileSettings() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+              <label htmlFor={getFieldId('email-address')} className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
               <input
+                id={getFieldId('email-address')}
                 required
                 type="email"
                 value={profileForm.email}
@@ -167,8 +164,9 @@ export function ProfileSettings() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+              <label htmlFor={getFieldId('username')} className="block text-sm font-medium text-gray-700 mb-2">Username</label>
               <input
+                id={getFieldId('username')}
                 required
                 type="text"
                 value={profileForm.username}
@@ -180,8 +178,9 @@ export function ProfileSettings() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+              <label htmlFor={getFieldId('phone-number')} className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
               <input
+                id={getFieldId('phone-number')}
                 type="tel"
                 value={profileForm.phone}
                 onChange={(event) => updateProfileField('phone', event.target.value)}
@@ -189,8 +188,9 @@ export function ProfileSettings() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
+              <label htmlFor={getFieldId('timezone')} className="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
               <select
+                id={getFieldId('timezone')}
                 value={profileForm.timezone}
                 onChange={(event) => updateProfileField('timezone', event.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
@@ -204,8 +204,9 @@ export function ProfileSettings() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Role / Title</label>
+            <label htmlFor={getFieldId('role-title')} className="block text-sm font-medium text-gray-700 mb-2">Role / Title</label>
             <input
+              id={getFieldId('role-title')}
               type="text"
               value={profileForm.role}
               onChange={(event) => updateProfileField('role', event.target.value)}
@@ -214,8 +215,9 @@ export function ProfileSettings() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+            <label htmlFor={getFieldId('bio')} className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
             <textarea
+              id={getFieldId('bio')}
               rows={3}
               value={profileForm.bio}
               onChange={(event) => updateProfileField('bio', event.target.value)}
@@ -229,8 +231,9 @@ export function ProfileSettings() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+              <label htmlFor={getFieldId('current-password')} className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
               <input
+                id={getFieldId('current-password')}
                 type="password"
                 value={profileForm.currentPassword}
                 onChange={(event) => updateProfileField('currentPassword', event.target.value)}
@@ -238,8 +241,9 @@ export function ProfileSettings() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+              <label htmlFor={getFieldId('new-password')} className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
               <input
+                id={getFieldId('new-password')}
                 type="password"
                 value={profileForm.newPassword}
                 onChange={(event) => updateProfileField('newPassword', event.target.value)}
@@ -247,8 +251,9 @@ export function ProfileSettings() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+              <label htmlFor={getFieldId('confirm-password')} className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
               <input
+                id={getFieldId('confirm-password')}
                 type="password"
                 value={profileForm.confirmPassword}
                 onChange={(event) => updateProfileField('confirmPassword', event.target.value)}
@@ -258,8 +263,9 @@ export function ProfileSettings() {
           </div>
 
           <div className="space-y-3">
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label htmlFor={getFieldId('two-factor-enabled')} className="flex items-center gap-2 cursor-pointer">
               <input
+                id={getFieldId('two-factor-enabled')}
                 type="checkbox"
                 checked={profileForm.twoFactorEnabled}
                 onChange={(event) => updateProfileField('twoFactorEnabled', event.target.checked)}
@@ -267,8 +273,9 @@ export function ProfileSettings() {
               />
               <span className="text-sm text-gray-700">Enable two-factor authentication</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label htmlFor={getFieldId('login-alerts')} className="flex items-center gap-2 cursor-pointer">
               <input
+                id={getFieldId('login-alerts')}
                 type="checkbox"
                 checked={profileForm.loginAlerts}
                 onChange={(event) => updateProfileField('loginAlerts', event.target.checked)}
@@ -278,7 +285,7 @@ export function ProfileSettings() {
             </label>
           </div>
 
-          {profileNotice && <p className="text-sm text-[#7626c6]">{profileNotice}</p>}
+          {profileNotice && <p className="text-sm text-[#7626c6]" aria-live="polite">{profileNotice}</p>}
 
           <div className="flex justify-end">
             <button

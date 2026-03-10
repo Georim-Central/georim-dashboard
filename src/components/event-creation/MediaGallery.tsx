@@ -8,22 +8,42 @@ interface MediaGalleryProps {
 
 export function MediaGallery({ data, onUpdate }: MediaGalleryProps) {
   const additionalImages = data.additionalImages || [];
+  const isBlobUrl = (url: string) => url.startsWith('blob:');
 
   const handleMainImageUpload = (file: File | undefined) => {
     if (!file) return;
     const url = URL.createObjectURL(file);
+    if (data.mainImage && isBlobUrl(data.mainImage) && data.mainImage !== url) {
+      URL.revokeObjectURL(data.mainImage);
+    }
     onUpdate({ mainImage: url });
+  };
+
+  const handleRemoveMainImage = () => {
+    if (data.mainImage && isBlobUrl(data.mainImage)) {
+      URL.revokeObjectURL(data.mainImage);
+    }
+    onUpdate({ mainImage: '' });
   };
 
   const handleAdditionalImagesUpload = (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
     const nextImages = Array.from(files).map((file) => URL.createObjectURL(file));
-    const mergedImages = [...additionalImages, ...nextImages].slice(0, 10);
-    onUpdate({ additionalImages: mergedImages });
+    const mergedImages = [...additionalImages, ...nextImages];
+    const allowedImages = mergedImages.slice(0, 10);
+    const droppedImages = mergedImages.slice(10);
+    droppedImages.forEach((image) => {
+      if (isBlobUrl(image)) URL.revokeObjectURL(image);
+    });
+    onUpdate({ additionalImages: allowedImages });
   };
 
   const handleRemoveAdditionalImage = (index: number) => {
+    const removedImage = additionalImages[index];
+    if (removedImage && isBlobUrl(removedImage)) {
+      URL.revokeObjectURL(removedImage);
+    }
     onUpdate({
       additionalImages: additionalImages.filter((_, imageIndex) => imageIndex !== index)
     });
@@ -54,7 +74,7 @@ export function MediaGallery({ data, onUpdate }: MediaGalleryProps) {
             />
             <button
               type="button"
-              onClick={() => onUpdate({ mainImage: '' })}
+              onClick={handleRemoveMainImage}
               className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
             >
               Remove

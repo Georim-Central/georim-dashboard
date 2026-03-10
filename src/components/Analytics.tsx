@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TrendingUp, Users, DollarSign, Ticket, Download, Calendar, Eye, MousePointer } from 'lucide-react';
+import { Users, DollarSign, Ticket, Download, Calendar, Eye, MousePointer } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { downloadReportPdf } from '../utils/reportExport';
 import { ContentState } from './ui/ContentState';

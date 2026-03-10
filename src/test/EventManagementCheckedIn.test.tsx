@@ -7,7 +7,7 @@ describe('EventManagement checked-in flow', () => {
     const user = userEvent.setup();
     render(<EventManagement eventId="evt-1" />);
 
-    await user.click(await screen.findByRole('button', { name: /checked-in/i }));
+    await user.click(await screen.findByRole('tab', { name: /checked-in/i }));
 
     const scanInput = await screen.findByPlaceholderText(/scan or paste qr code/i);
     await user.type(scanInput, 'ATT-4420');

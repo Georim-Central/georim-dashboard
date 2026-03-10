@@ -17,7 +17,7 @@ describe('App core flows', () => {
     const user = userEvent.setup();
     const { container } = render(<EventManagement eventId="evt-1" />);
 
-    await user.click(await screen.findByRole('button', { name: /^settings$/i }));
+    await user.click(await screen.findByRole('tab', { name: /^settings$/i }));
 
     const visibilitySelect = await screen.findByRole('combobox');
     await user.selectOptions(visibilitySelect, 'Private');
@@ -54,5 +54,15 @@ describe('App core flows', () => {
 
     expect(await screen.findByRole('heading', { name: /profile settings/i })).toBeInTheDocument();
     expect(screen.getByText(/update your profile picture, login information, and security details/i)).toBeInTheDocument();
+  });
+
+  it('opens help center from sidebar help', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /^help$/i }));
+
+    expect(await screen.findByRole('heading', { name: /help center/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /faqs/i })).toBeInTheDocument();
   });
 });

@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, KeyboardEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Calendar, Ticket, Mail, BarChart3, CreditCard, Download, Settings as SettingsIcon, QrCode, Search, Phone, CheckCircle } from 'lucide-react';
 import { TicketingSection } from './event-management/TicketingSection';
 import { OrdersSection } from './event-management/OrdersSection';
@@ -59,7 +59,7 @@ const initialCheckInRecords: CheckInRecord[] = [
 ];
 
 export function EventManagement({
-  eventId,
+  eventId: _eventId,
   eventName,
   eventDetails,
   onUpdateEventDetails,
@@ -115,7 +115,6 @@ export function EventManagement({
       };
 
       scanResult = { status: 'success', message: `${attendee.name} checked in successfully.` };
-      console.log('[CheckIn] Attendee checked in', nextRecord);
       return [nextRecord, ...current];
     });
 
@@ -144,6 +143,34 @@ export function EventManagement({
     { id: 'reports', label: 'Reports', icon: BarChart3 },
     { id: 'settings', label: 'Settings', icon: SettingsIcon }
   ];
+  const tabIds = tabs.map((tab) => tab.id as Tab);
+
+  const activateTab = (nextTab: Tab) => {
+    setActiveTab(nextTab);
+    onTabChange?.(nextTab);
+  };
+
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, currentIndex: number) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (event.key === 'Home') {
+      activateTab(tabIds[0]);
+      return;
+    }
+
+    if (event.key === 'End') {
+      activateTab(tabIds[tabIds.length - 1]);
+      return;
+    }
+
+    const direction = event.key === 'ArrowRight' ? 1 : -1;
+    const nextIndex = (currentIndex + direction + tabIds.length) % tabIds.length;
+    activateTab(tabIds[nextIndex]);
+  };
 
   return (
     <div className="min-h-full bg-gray-50">
@@ -163,18 +190,20 @@ export function EventManagement({
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 border-b border-gray-200 -mb-px overflow-x-auto pb-1">
-            {tabs.map((tab) => {
+          <div className="flex gap-1 border-b border-gray-200 -mb-px overflow-x-auto pb-1" role="tablist" aria-label="Event management sections">
+            {tabs.map((tab, index) => {
               const Icon = tab.icon;
               return (
                 <button
                   type="button"
                   key={tab.id}
-                  onClick={() => {
-                    const nextTab = tab.id as Tab;
-                    setActiveTab(nextTab);
-                    onTabChange?.(nextTab);
-                  }}
+                  id={`event-tab-${tab.id}`}
+                  role="tab"
+                  aria-selected={activeTab === tab.id}
+                  aria-controls={`event-panel-${tab.id}`}
+                  tabIndex={activeTab === tab.id ? 0 : -1}
+                  onClick={() => activateTab(tab.id as Tab)}
+                  onKeyDown={(event) => handleTabKeyDown(event, index)}
                   className={`flex items-center gap-2 px-6 py-3 border-b-2 transition-colors whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'border-[#7626c6] text-[#7626c6]'
@@ -192,25 +221,27 @@ export function EventManagement({
 
       {/* Tab Content */}
       <div className="max-w-7xl mx-auto px-8 py-8">
-        {activeTab === 'details' && (
-          <EventDetailsTab
-            eventName={resolvedEventName}
-            eventDetails={eventDetails}
-            onUpdateEventDetails={onUpdateEventDetails}
-          />
-        )}
-        {activeTab === 'ticketing' && <TicketingSection />}
-        {activeTab === 'orders' && <OrdersSection />}
-        {activeTab === 'checked-in' && (
-          <CheckedInTab
-            records={checkInRecords}
-            totalAttendees={registeredAttendees.length}
-            onScan={handleAttendeeScan}
-          />
-        )}
-        {activeTab === 'marketing' && <MarketingSection />}
-        {activeTab === 'reports' && <ReportsTab eventName={resolvedEventName} />}
-        {activeTab === 'settings' && <SettingsTab />}
+        <section id={`event-panel-${activeTab}`} role="tabpanel" aria-labelledby={`event-tab-${activeTab}`}>
+          {activeTab === 'details' && (
+            <EventDetailsTab
+              eventName={resolvedEventName}
+              eventDetails={eventDetails}
+              onUpdateEventDetails={onUpdateEventDetails}
+            />
+          )}
+          {activeTab === 'ticketing' && <TicketingSection />}
+          {activeTab === 'orders' && <OrdersSection />}
+          {activeTab === 'checked-in' && (
+            <CheckedInTab
+              records={checkInRecords}
+              totalAttendees={registeredAttendees.length}
+              onScan={handleAttendeeScan}
+            />
+          )}
+          {activeTab === 'marketing' && <MarketingSection />}
+          {activeTab === 'reports' && <ReportsTab eventName={resolvedEventName} />}
+          {activeTab === 'settings' && <SettingsTab />}
+        </section>
       </div>
     </div>
   );
@@ -225,10 +256,12 @@ function CheckedInTab({
   totalAttendees: number;
   onScan: (scanCode: string, source: string) => ScanResult;
 }) {
+  const fieldIdPrefix = useId();
   const [scanCode, setScanCode] = useState('');
   const [scanSource, setScanSource] = useState('Main Gate Scanner');
   const [searchQuery, setSearchQuery] = useState('');
   const [scanFeedback, setScanFeedback] = useState<ScanResult | null>(null);
+  const getFieldId = (field: string) => `${fieldIdPrefix}-${field}`;
 
   const pendingCount = Math.max(0, totalAttendees - records.length);
   const checkInRate = totalAttendees ? Math.min(100, Math.round((records.length / totalAttendees) * 100)) : 0;
@@ -295,8 +328,9 @@ function CheckedInTab({
         <form onSubmit={handleSubmitScan} className="mt-6 rounded-2xl border border-gray-200 bg-[#fbfbfe] p-5 md:p-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold tracking-wide uppercase text-gray-500 mb-2">QR Code</label>
+              <label htmlFor={getFieldId('scan-code')} className="block text-xs font-semibold tracking-wide uppercase text-gray-500 mb-2">QR Code</label>
               <input
+                id={getFieldId('scan-code')}
                 value={scanCode}
                 onChange={(event) => setScanCode(event.target.value)}
                 placeholder="Scan or paste QR code (example: ATT-4420)"
@@ -304,8 +338,9 @@ function CheckedInTab({
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold tracking-wide uppercase text-gray-500 mb-2">Source Device</label>
+              <label htmlFor={getFieldId('scan-source')} className="block text-xs font-semibold tracking-wide uppercase text-gray-500 mb-2">Source Device</label>
               <input
+                id={getFieldId('scan-source')}
                 value={scanSource}
                 onChange={(event) => setScanSource(event.target.value)}
                 placeholder="Scanner source"
@@ -458,6 +493,9 @@ function EventDetailsTab({
   const [detailsNotice, setDetailsNotice] = useState('');
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const additionalImagesInputRef = useRef<HTMLInputElement>(null);
+  const fieldIdPrefix = useId();
+  const isBlobUrl = (url: string) => url.startsWith('blob:');
+  const getFieldId = (field: string) => `${fieldIdPrefix}-${field}`;
 
   useEffect(() => {
     setDetailsForm(eventDetails ?? fallbackEventDetails);
@@ -483,18 +521,37 @@ function EventDetailsTab({
   const handleMainImageUpload = (file: File | undefined) => {
     if (!file) return;
     const imageUrl = URL.createObjectURL(file);
+    if (detailsForm.mainImage && isBlobUrl(detailsForm.mainImage) && detailsForm.mainImage !== imageUrl) {
+      URL.revokeObjectURL(detailsForm.mainImage);
+    }
     updateDetailField('mainImage', imageUrl);
+  };
+
+  const handleRemoveMainImage = () => {
+    if (detailsForm.mainImage && isBlobUrl(detailsForm.mainImage)) {
+      URL.revokeObjectURL(detailsForm.mainImage);
+    }
+    updateDetailField('mainImage', '');
   };
 
   const handleAdditionalImagesUpload = (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
     const nextImages = Array.from(files).map((file) => URL.createObjectURL(file));
-    const mergedImages = [...(detailsForm.additionalImages || []), ...nextImages].slice(0, 10);
-    updateDetailField('additionalImages', mergedImages);
+    const mergedImages = [...(detailsForm.additionalImages || []), ...nextImages];
+    const allowedImages = mergedImages.slice(0, 10);
+    const droppedImages = mergedImages.slice(10);
+    droppedImages.forEach((image) => {
+      if (isBlobUrl(image)) URL.revokeObjectURL(image);
+    });
+    updateDetailField('additionalImages', allowedImages);
   };
 
   const removeAdditionalImage = (index: number) => {
+    const imageToRemove = detailsForm.additionalImages?.[index];
+    if (imageToRemove && isBlobUrl(imageToRemove)) {
+      URL.revokeObjectURL(imageToRemove);
+    }
     updateDetailField(
       'additionalImages',
       (detailsForm.additionalImages || []).filter((_, imageIndex) => imageIndex !== index)
@@ -502,6 +559,22 @@ function EventDetailsTab({
   };
 
   const handleCancelEdit = () => {
+    const sourceMainImage = eventDetails?.mainImage || fallbackEventDetails.mainImage;
+    if (
+      detailsForm.mainImage &&
+      detailsForm.mainImage !== sourceMainImage &&
+      isBlobUrl(detailsForm.mainImage)
+    ) {
+      URL.revokeObjectURL(detailsForm.mainImage);
+    }
+
+    const sourceAdditionalImages = eventDetails?.additionalImages || fallbackEventDetails.additionalImages;
+    (detailsForm.additionalImages || []).forEach((image) => {
+      if (!sourceAdditionalImages.includes(image) && isBlobUrl(image)) {
+        URL.revokeObjectURL(image);
+      }
+    });
+
     setDetailsForm(eventDetails ?? fallbackEventDetails);
     setIsEditing(false);
   };
@@ -562,8 +635,9 @@ function EventDetailsTab({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Event Title</label>
+            <label htmlFor={getFieldId('title')} className="block text-sm font-medium text-gray-700 mb-2">Event Title</label>
             <input
+              id={getFieldId('title')}
               type="text"
               value={detailsForm.title}
               onChange={(event) => updateDetailField('title', event.target.value)}
@@ -573,8 +647,9 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Event Type</label>
+            <label htmlFor={getFieldId('type')} className="block text-sm font-medium text-gray-700 mb-2">Event Type</label>
             <input
+              id={getFieldId('type')}
               type="text"
               value={detailsForm.type}
               onChange={(event) => updateDetailField('type', event.target.value)}
@@ -584,8 +659,9 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+            <label htmlFor={getFieldId('category')} className="block text-sm font-medium text-gray-700 mb-2">Category</label>
             <input
+              id={getFieldId('category')}
               type="text"
               value={detailsForm.category}
               onChange={(event) => updateDetailField('category', event.target.value)}
@@ -595,8 +671,9 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+            <label htmlFor={getFieldId('tags')} className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
             <input
+              id={getFieldId('tags')}
               type="text"
               value={detailsForm.tags.join(', ')}
               onChange={(event) => handleTagChange(event.target.value)}
@@ -606,8 +683,9 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Location Type</label>
+            <label htmlFor={getFieldId('location-type')} className="block text-sm font-medium text-gray-700 mb-2">Location Type</label>
             <input
+              id={getFieldId('location-type')}
               type="text"
               value={detailsForm.locationType}
               onChange={(event) => updateDetailField('locationType', event.target.value)}
@@ -617,8 +695,9 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+            <label htmlFor={getFieldId('location')} className="block text-sm font-medium text-gray-700 mb-2">Location</label>
             <input
+              id={getFieldId('location')}
               type="text"
               value={detailsForm.location}
               onChange={(event) => updateDetailField('location', event.target.value)}
@@ -628,8 +707,9 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+            <label htmlFor={getFieldId('start-date')} className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
             <input
+              id={getFieldId('start-date')}
               type="date"
               value={detailsForm.startDate}
               onChange={(event) => updateDetailField('startDate', event.target.value)}
@@ -638,8 +718,9 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+            <label htmlFor={getFieldId('start-time')} className="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
             <input
+              id={getFieldId('start-time')}
               type="time"
               value={detailsForm.startTime}
               onChange={(event) => updateDetailField('startTime', event.target.value)}
@@ -648,8 +729,9 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+            <label htmlFor={getFieldId('end-date')} className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
             <input
+              id={getFieldId('end-date')}
               type="date"
               value={detailsForm.endDate}
               onChange={(event) => updateDetailField('endDate', event.target.value)}
@@ -658,8 +740,9 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+            <label htmlFor={getFieldId('end-time')} className="block text-sm font-medium text-gray-700 mb-2">End Time</label>
             <input
+              id={getFieldId('end-time')}
               type="time"
               value={detailsForm.endTime}
               onChange={(event) => updateDetailField('endTime', event.target.value)}
@@ -669,7 +752,7 @@ function EventDetailsTab({
           </div>
           <div className="md:col-span-2">
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">Main Event Image</label>
+              <label htmlFor={getFieldId('main-image')} className="block text-sm font-medium text-gray-700">Main Event Image</label>
               {isEditing && (
                 <div className="flex items-center gap-2">
                   <button
@@ -682,7 +765,7 @@ function EventDetailsTab({
                   {detailsForm.mainImage && (
                     <button
                       type="button"
-                      onClick={() => updateDetailField('mainImage', '')}
+                      onClick={handleRemoveMainImage}
                       className="px-3 py-1.5 text-xs border border-red-200 text-red-700 rounded-lg hover:bg-red-50 transition-colors"
                     >
                       Remove
@@ -692,6 +775,7 @@ function EventDetailsTab({
               )}
             </div>
             <input
+              id={getFieldId('main-image')}
               ref={mainImageInputRef}
               type="file"
               accept="image/*"
@@ -716,7 +800,7 @@ function EventDetailsTab({
 
           <div className="md:col-span-2">
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">Additional Uploaded Images</label>
+              <label htmlFor={getFieldId('additional-images')} className="block text-sm font-medium text-gray-700">Additional Uploaded Images</label>
               {isEditing && (
                 <button
                   type="button"
@@ -728,6 +812,7 @@ function EventDetailsTab({
               )}
             </div>
             <input
+              id={getFieldId('additional-images')}
               ref={additionalImagesInputRef}
               type="file"
               accept="image/*"
@@ -763,8 +848,9 @@ function EventDetailsTab({
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Event Video URL</label>
+            <label htmlFor={getFieldId('video-url')} className="block text-sm font-medium text-gray-700 mb-2">Event Video URL</label>
             <input
+              id={getFieldId('video-url')}
               type="url"
               value={detailsForm.videoUrl}
               onChange={(event) => updateDetailField('videoUrl', event.target.value)}
@@ -774,8 +860,9 @@ function EventDetailsTab({
             />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Summary</label>
+            <label htmlFor={getFieldId('summary')} className="block text-sm font-medium text-gray-700 mb-2">Summary</label>
             <textarea
+              id={getFieldId('summary')}
               rows={2}
               value={detailsForm.summary}
               onChange={(event) => updateDetailField('summary', event.target.value)}
@@ -785,8 +872,9 @@ function EventDetailsTab({
             />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Full Description</label>
+            <label htmlFor={getFieldId('full-description')} className="block text-sm font-medium text-gray-700 mb-2">Full Description</label>
             <textarea
+              id={getFieldId('full-description')}
               rows={8}
               value={detailsForm.description}
               onChange={(event) => updateDetailField('description', event.target.value)}
@@ -798,8 +886,9 @@ function EventDetailsTab({
         </div>
 
         <div className="mt-4">
-          <label className="inline-flex items-center gap-2 cursor-pointer">
+          <label htmlFor={getFieldId('is-recurring')} className="inline-flex items-center gap-2 cursor-pointer">
             <input
+              id={getFieldId('is-recurring')}
               type="checkbox"
               checked={detailsForm.isRecurring}
               onChange={(event) => updateDetailField('isRecurring', event.target.checked)}
@@ -1104,7 +1193,6 @@ function SettingsTab() {
     setCancellationPolicy(cancellationDraft.trim());
     setShowCancellationModal(false);
     setPolicySavedNotice('Cancellation policy updated.');
-    console.log('[Settings] Cancellation policy updated', { length: cancellationDraft.trim().length });
   };
 
   return (
@@ -1245,8 +1333,9 @@ function SettingsTab() {
 
             <div className="ticketing-modal-body space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Policy Details</label>
+                <label htmlFor="event-policy-details" className="block text-sm font-medium text-gray-700 mb-2">Policy Details</label>
                 <textarea
+                  id="event-policy-details"
                   value={cancellationDraft}
                   onChange={(event) => setCancellationDraft(event.target.value)}
                   rows={12}

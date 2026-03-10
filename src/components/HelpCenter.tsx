@@ -59,11 +59,6 @@ export function HelpCenter() {
       return;
     }
 
-    console.log('[Help] Request submitted', {
-      ...helpForm,
-      message
-    });
-
     setNotice('Help request submitted. Our support team will reach out shortly.');
     setHelpForm((currentForm) => ({
       ...currentForm,
@@ -98,8 +93,9 @@ export function HelpCenter() {
           <form onSubmit={handleSubmitHelpRequest} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                <label htmlFor="help-full-name" className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                 <input
+                  id="help-full-name"
                   type="text"
                   value={helpForm.fullName}
                   onChange={(event) => updateHelpField('fullName', event.target.value)}
@@ -107,8 +103,9 @@ export function HelpCenter() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                <label htmlFor="help-email-address" className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                 <input
+                  id="help-email-address"
                   type="email"
                   value={helpForm.email}
                   onChange={(event) => updateHelpField('email', event.target.value)}
@@ -118,8 +115,9 @@ export function HelpCenter() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Topic</label>
+              <label htmlFor="help-topic" className="block text-sm font-medium text-gray-700 mb-2">Topic</label>
               <select
+                id="help-topic"
                 value={helpForm.topic}
                 onChange={(event) => updateHelpField('topic', event.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
@@ -133,8 +131,9 @@ export function HelpCenter() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+              <label htmlFor="help-message" className="block text-sm font-medium text-gray-700 mb-2">Message</label>
               <textarea
+                id="help-message"
                 rows={5}
                 value={helpForm.message}
                 onChange={(event) => updateHelpField('message', event.target.value)}
@@ -143,7 +142,7 @@ export function HelpCenter() {
               />
             </div>
 
-            {notice && <p className="text-sm text-[#7626c6]">{notice}</p>}
+            {notice && <p className="text-sm text-[#7626c6]" aria-live="polite">{notice}</p>}
 
             <div className="flex justify-end">
               <button

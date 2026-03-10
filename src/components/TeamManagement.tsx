@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Plus, Mail, Shield, Edit2, Trash2, QrCode, CreditCard as CreditCardIcon, Ticket } from 'lucide-react';
 import { ContentState } from './ui/ContentState';
 import { useModalA11y } from '../hooks/useModalA11y';
@@ -23,6 +23,7 @@ type TeamMember = {
 };
 
 export function TeamManagement({ eventOptions = defaultEventOptions }: TeamManagementProps) {
+  const fieldIdPrefix = useId();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(mockTeamMembers);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
@@ -39,6 +40,7 @@ export function TeamManagement({ eventOptions = defaultEventOptions }: TeamManag
   const [inviteAccess, setInviteAccess] = useState<InviteAccess>('all');
   const [inviteError, setInviteError] = useState('');
   const [inviteLoading, setInviteLoading] = useState(false);
+  const getFieldId = (field: string) => `${fieldIdPrefix}-${field}`;
   const availableEventOptions = Array.from(new Set(eventOptions.map((eventName) => eventName.trim()).filter(Boolean)));
   const {
     dialogRef: inviteDialogRef,
@@ -174,7 +176,6 @@ export function TeamManagement({ eventOptions = defaultEventOptions }: TeamManag
     const mailtoUrl = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailtoUrl;
 
-    console.log('[Team] Invite mailto generated', { email, role: inviteRole, access: inviteAccess, inviteLink });
     setShowInviteModal(false);
     setInviteError('');
     setInviteLoading(false);
@@ -444,10 +445,11 @@ export function TeamManagement({ eventOptions = defaultEventOptions }: TeamManag
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor={getFieldId('invite-email')} className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address
                 </label>
                 <input
+                  id={getFieldId('invite-email')}
                   type="email"
                   value={inviteEmail}
                   onChange={(event) => {
@@ -460,10 +462,11 @@ export function TeamManagement({ eventOptions = defaultEventOptions }: TeamManag
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor={getFieldId('invite-role')} className="block text-sm font-medium text-gray-700 mb-2">
                   Role
                 </label>
                 <select
+                  id={getFieldId('invite-role')}
                   value={inviteRole}
                   onChange={(event) => {
                     setInviteRole(event.target.value as InviteRole);
@@ -480,10 +483,11 @@ export function TeamManagement({ eventOptions = defaultEventOptions }: TeamManag
 
               {inviteRole === 'custom' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor={getFieldId('invite-custom-role')} className="block text-sm font-medium text-gray-700 mb-2">
                     Custom Role Name
                   </label>
                   <input
+                    id={getFieldId('invite-custom-role')}
                     type="text"
                     value={inviteCustomRole}
                     onChange={(event) => {
@@ -497,10 +501,11 @@ export function TeamManagement({ eventOptions = defaultEventOptions }: TeamManag
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor={getFieldId('invite-access')} className="block text-sm font-medium text-gray-700 mb-2">
                   Event Access
                 </label>
                 <select
+                  id={getFieldId('invite-access')}
                   value={inviteAccess}
                   onChange={(event) => {
                     setInviteAccess(event.target.value);
@@ -570,10 +575,11 @@ export function TeamManagement({ eventOptions = defaultEventOptions }: TeamManag
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor={getFieldId('edit-full-name')} className="block text-sm font-medium text-gray-700 mb-2">
                   Full Name
                 </label>
                 <input
+                  id={getFieldId('edit-full-name')}
                   type="text"
                   value={editName}
                   onChange={(event) => {
@@ -586,10 +592,11 @@ export function TeamManagement({ eventOptions = defaultEventOptions }: TeamManag
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor={getFieldId('edit-email')} className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address
                 </label>
                 <input
+                  id={getFieldId('edit-email')}
                   type="email"
                   value={editEmail}
                   onChange={(event) => {
@@ -602,10 +609,11 @@ export function TeamManagement({ eventOptions = defaultEventOptions }: TeamManag
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor={getFieldId('edit-role')} className="block text-sm font-medium text-gray-700 mb-2">
                   Role
                 </label>
                 <select
+                  id={getFieldId('edit-role')}
                   value={editRole}
                   onChange={(event) => setEditRole(event.target.value as TeamMemberRole)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
@@ -677,10 +685,10 @@ export function TeamManagement({ eventOptions = defaultEventOptions }: TeamManag
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor={getFieldId('ticket-event')} className="block text-sm font-medium text-gray-700 mb-2">
                   Select Event
                 </label>
-                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent">
+                <select id={getFieldId('ticket-event')} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent">
                   <option>Summer Music Festival 2026</option>
                   <option>Tech Conference 2026</option>
                   <option>Food & Wine Expo</option>
@@ -689,9 +697,9 @@ export function TeamManagement({ eventOptions = defaultEventOptions }: TeamManag
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <p className="block text-sm font-medium text-gray-700 mb-3">
                   Available Ticket Types
-                </label>
+                </p>
                 <div className="space-y-2">
                   <label className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-purple-50 cursor-pointer transition-colors">
                     <input type="checkbox" className="w-4 h-4 text-[#7626c6] rounded focus:ring-[#7626c6]" />

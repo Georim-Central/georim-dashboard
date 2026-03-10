@@ -1,5 +1,5 @@
 import { Mail, Phone, Plus } from 'lucide-react';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useId, useState } from 'react';
 import { ContentState } from '../ui/ContentState';
 import { useModalA11y } from '../../hooks/useModalA11y';
 
@@ -14,6 +14,7 @@ type ListingSettings = {
 };
 
 export function MarketingSection() {
+  const fieldIdPrefix = useId();
   const [campaignType, setCampaignType] = useState<'email' | 'sms'>('email');
   const [showCampaignModal, setShowCampaignModal] = useState(false);
   const [isBoosted, setIsBoosted] = useState(false);
@@ -41,6 +42,7 @@ export function MarketingSection() {
     subject: '',
     message: ''
   });
+  const getFieldId = (field: string) => `${fieldIdPrefix}-${field}`;
   const {
     dialogRef: campaignDialogRef,
     titleId: campaignTitleId,
@@ -85,7 +87,6 @@ export function MarketingSection() {
     setIsBoosted((currentValue) => {
       const nextValue = !currentValue;
       setGeorimNotice(nextValue ? 'Boost visibility enabled for this listing.' : 'Boost visibility turned off.');
-      console.log(`[Georim] Boost visibility ${nextValue ? 'enabled' : 'disabled'}`);
       return nextValue;
     });
   };
@@ -116,12 +117,10 @@ export function MarketingSection() {
         ? 'Listing updated and visible on Georim Explore.'
         : 'Listing updated and currently paused.'
     );
-    console.log('[Georim] Listing settings saved', nextSettings);
   };
 
   const createCampaign = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(`[Marketing] New ${campaignDraft.channel.toUpperCase()} campaign created`, campaignDraft);
     setShowCampaignModal(false);
   };
 
@@ -237,7 +236,7 @@ export function MarketingSection() {
             Manage Listing
           </button>
         </div>
-        {georimNotice && <p className="mt-3 text-sm text-white/90">{georimNotice}</p>}
+        {georimNotice && <p className="mt-3 text-sm text-white/90" aria-live="polite">{georimNotice}</p>}
       </div>
 
       {/* Campaigns - Email or SMS */}
@@ -373,7 +372,7 @@ export function MarketingSection() {
                     <>
                       <div>
                         <div className="text-gray-600">Open Rate</div>
-                        <div className="font-medium text-gray-900">{campaign.openRate}</div>
+                        <div className="font-medium text-gray-900">{'openRate' in campaign ? campaign.openRate : 'N/A'}</div>
                       </div>
                       <div>
                         <div className="text-gray-600">Click Rate</div>
@@ -384,7 +383,7 @@ export function MarketingSection() {
                     <>
                       <div>
                         <div className="text-gray-600">Delivered</div>
-                        <div className="font-medium text-gray-900">{campaign.deliveryRate}</div>
+                        <div className="font-medium text-gray-900">{'deliveryRate' in campaign ? campaign.deliveryRate : 'N/A'}</div>
                       </div>
                       <div>
                         <div className="text-gray-600">Click Rate</div>
@@ -423,8 +422,8 @@ export function MarketingSection() {
             <form onSubmit={createCampaign} className="flex flex-col min-h-0">
               <div className="ticketing-modal-body space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Campaign Channel</label>
-                  <div className="flex items-center gap-2 p-1 bg-gray-100 rounded-lg">
+                  <p id={getFieldId('campaign-channel')} className="block text-sm font-medium text-gray-700 mb-2">Campaign Channel</p>
+                  <div className="flex items-center gap-2 p-1 bg-gray-100 rounded-lg" role="group" aria-labelledby={getFieldId('campaign-channel')}>
                     <button
                       type="button"
                       onClick={() => updateCampaignDraft('channel', 'email')}
@@ -453,8 +452,9 @@ export function MarketingSection() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Campaign Name</label>
+                  <label htmlFor={getFieldId('campaign-name')} className="block text-sm font-medium text-gray-700 mb-2">Campaign Name</label>
                   <input
+                    id={getFieldId('campaign-name')}
                     required
                     type="text"
                     value={campaignDraft.name}
@@ -466,8 +466,9 @@ export function MarketingSection() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Audience</label>
+                    <label htmlFor={getFieldId('campaign-audience')} className="block text-sm font-medium text-gray-700 mb-2">Audience</label>
                     <select
+                      id={getFieldId('campaign-audience')}
                       value={campaignDraft.audience}
                       onChange={(event) => updateCampaignDraft('audience', event.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
@@ -479,8 +480,9 @@ export function MarketingSection() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Send Date</label>
+                    <label htmlFor={getFieldId('campaign-send-date')} className="block text-sm font-medium text-gray-700 mb-2">Send Date</label>
                     <input
+                      id={getFieldId('campaign-send-date')}
                       required
                       type="datetime-local"
                       value={campaignDraft.sendAt}
@@ -492,8 +494,9 @@ export function MarketingSection() {
 
                 {campaignDraft.channel === 'email' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Subject Line</label>
+                    <label htmlFor={getFieldId('campaign-subject')} className="block text-sm font-medium text-gray-700 mb-2">Subject Line</label>
                     <input
+                      id={getFieldId('campaign-subject')}
                       required
                       type="text"
                       value={campaignDraft.subject}
@@ -505,10 +508,11 @@ export function MarketingSection() {
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor={getFieldId('campaign-message')} className="block text-sm font-medium text-gray-700 mb-2">
                     {campaignDraft.channel === 'email' ? 'Email Message' : 'SMS Message'}
                   </label>
                   <textarea
+                    id={getFieldId('campaign-message')}
                     required
                     rows={4}
                     value={campaignDraft.message}
@@ -566,8 +570,9 @@ export function MarketingSection() {
               <div className="ticketing-modal-body space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Listing Status</label>
+                    <label htmlFor={getFieldId('listing-status')} className="block text-sm font-medium text-gray-700 mb-2">Listing Status</label>
                     <select
+                      id={getFieldId('listing-status')}
                       value={listingDraft.status}
                       onChange={(event) => updateListingDraft('status', event.target.value as ListingStatus)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
@@ -577,8 +582,9 @@ export function MarketingSection() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <label htmlFor={getFieldId('listing-category')} className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                     <select
+                      id={getFieldId('listing-category')}
                       value={listingDraft.category}
                       onChange={(event) => updateListingDraft('category', event.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
@@ -592,8 +598,9 @@ export function MarketingSection() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Discovery Radius (miles)</label>
+                  <label htmlFor={getFieldId('listing-radius')} className="block text-sm font-medium text-gray-700 mb-2">Discovery Radius (miles)</label>
                   <input
+                    id={getFieldId('listing-radius')}
                     type="number"
                     min={1}
                     value={listingDraft.geoRadius}
@@ -603,8 +610,9 @@ export function MarketingSection() {
                 </div>
 
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label htmlFor={getFieldId('listing-discovery')} className="flex items-center gap-2 cursor-pointer">
                     <input
+                      id={getFieldId('listing-discovery')}
                       type="checkbox"
                       checked={listingDraft.discoveryEnabled}
                       onChange={(event) => updateListingDraft('discoveryEnabled', event.target.checked)}
@@ -612,8 +620,9 @@ export function MarketingSection() {
                     />
                     <span className="text-sm text-gray-700">Enable location-based discovery</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label htmlFor={getFieldId('listing-push-notifications')} className="flex items-center gap-2 cursor-pointer">
                     <input
+                      id={getFieldId('listing-push-notifications')}
                       type="checkbox"
                       checked={listingDraft.pushNotifications}
                       onChange={(event) => updateListingDraft('pushNotifications', event.target.checked)}

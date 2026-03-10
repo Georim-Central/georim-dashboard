@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Plus, Edit2, Trash2, Tag, Clock } from 'lucide-react';
 import { ContentState } from '../ui/ContentState';
 import { useModalA11y } from '../../hooks/useModalA11y';
@@ -35,6 +35,8 @@ type TicketFormState = {
 };
 
 export function TicketingSection() {
+  const ticketFormIdPrefix = useId();
+  const promoFormIdPrefix = useId();
   const [tickets, setTickets] = useState<TicketType[]>(mockTickets);
   const [showAddTicketModal, setShowAddTicketModal] = useState(false);
   const [showCreateCodeModal, setShowCreateCodeModal] = useState(false);
@@ -42,6 +44,8 @@ export function TicketingSection() {
   const [ticketForm, setTicketForm] = useState<TicketFormState>(emptyTicketFormState);
   const [ticketFormError, setTicketFormError] = useState('');
   const [promoCodes, setPromoCodes] = useState(mockPromoCodes);
+  const getTicketFieldId = (field: string) => `${ticketFormIdPrefix}-${field}`;
+  const getPromoFieldId = (field: string) => `${promoFormIdPrefix}-${field}`;
 
   const closeTicketModal = () => {
     setShowAddTicketModal(false);
@@ -184,11 +188,10 @@ export function TicketingSection() {
     onClose: () => setShowCreateCodeModal(false)
   });
 
-  const handleDeletePromoCode = (promoId: string, promoCode: string) => {
+  const handleDeletePromoCode = (promoId: string) => {
     setPromoCodes((currentPromoCodes) =>
       currentPromoCodes.filter((promo) => promo.id !== promoId)
     );
-    console.log(`[Ticketing] Promo code removed: ${promoCode}`);
   };
 
   return (
@@ -344,7 +347,7 @@ export function TicketingSection() {
                 <button
                   type="button"
                   aria-label={`Delete promo code ${promo.code}`}
-                  onClick={() => handleDeletePromoCode(promo.id, promo.code)}
+                  onClick={() => handleDeletePromoCode(promo.id)}
                   className="p-2 rounded-lg text-red-600 hover:bg-red-100 transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -402,8 +405,9 @@ export function TicketingSection() {
             <div className="ticketing-modal-body space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Ticket Name</label>
+                  <label htmlFor={getTicketFieldId('name')} className="block text-sm font-medium text-gray-700 mb-2">Ticket Name</label>
                   <input
+                    id={getTicketFieldId('name')}
                     type="text"
                     value={ticketForm.name}
                     onChange={(event) => handleTicketFormChange('name', event.target.value)}
@@ -412,8 +416,9 @@ export function TicketingSection() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Ticket Type</label>
+                  <label htmlFor={getTicketFieldId('type')} className="block text-sm font-medium text-gray-700 mb-2">Ticket Type</label>
                   <select
+                    id={getTicketFieldId('type')}
                     value={ticketForm.type}
                     onChange={(event) => handleTicketFormChange('type', event.target.value as TicketType['type'])}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
@@ -427,8 +432,9 @@ export function TicketingSection() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Price</label>
+                  <label htmlFor={getTicketFieldId('price')} className="block text-sm font-medium text-gray-700 mb-2">Price</label>
                   <input
+                    id={getTicketFieldId('price')}
                     type="number"
                     value={ticketForm.price}
                     onChange={(event) => handleTicketFormChange('price', event.target.value)}
@@ -437,8 +443,9 @@ export function TicketingSection() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                  <label htmlFor={getTicketFieldId('quantity')} className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
                   <input
+                    id={getTicketFieldId('quantity')}
                     type="number"
                     value={ticketForm.quantity}
                     onChange={(event) => handleTicketFormChange('quantity', event.target.value)}
@@ -447,9 +454,11 @@ export function TicketingSection() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Min/Max per Order</label>
+                  <label htmlFor={getTicketFieldId('min-per-order')} className="block text-sm font-medium text-gray-700 mb-2">Min/Max per Order</label>
                   <div className="flex gap-2">
                     <input
+                      id={getTicketFieldId('min-per-order')}
+                      aria-label="Minimum per order"
                       type="number"
                       value={ticketForm.minPerOrder}
                       onChange={(event) => handleTicketFormChange('minPerOrder', event.target.value)}
@@ -457,6 +466,8 @@ export function TicketingSection() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
                     />
                     <input
+                      id={getTicketFieldId('max-per-order')}
+                      aria-label="Maximum per order"
                       type="number"
                       value={ticketForm.maxPerOrder}
                       onChange={(event) => handleTicketFormChange('maxPerOrder', event.target.value)}
@@ -468,8 +479,9 @@ export function TicketingSection() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <label htmlFor={getTicketFieldId('description')} className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                 <textarea
+                  id={getTicketFieldId('description')}
                   rows={3}
                   value={ticketForm.description}
                   onChange={(event) => handleTicketFormChange('description', event.target.value)}
@@ -555,16 +567,17 @@ export function TicketingSection() {
             <div className="ticketing-modal-body space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Promo Code</label>
+                  <label htmlFor={getPromoFieldId('code')} className="block text-sm font-medium text-gray-700 mb-2">Promo Code</label>
                   <input
+                    id={getPromoFieldId('code')}
                     type="text"
                     placeholder="e.g., SUMMER2026"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Discount Type</label>
-                  <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent">
+                  <label htmlFor={getPromoFieldId('discount-type')} className="block text-sm font-medium text-gray-700 mb-2">Discount Type</label>
+                  <select id={getPromoFieldId('discount-type')} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent">
                     <option value="percent">Percentage (%)</option>
                     <option value="fixed">Fixed Amount ($)</option>
                   </select>
@@ -573,16 +586,18 @@ export function TicketingSection() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Discount Value</label>
+                  <label htmlFor={getPromoFieldId('discount-value')} className="block text-sm font-medium text-gray-700 mb-2">Discount Value</label>
                   <input
+                    id={getPromoFieldId('discount-value')}
                     type="number"
                     placeholder="20"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Usage Limit</label>
+                  <label htmlFor={getPromoFieldId('usage-limit')} className="block text-sm font-medium text-gray-700 mb-2">Usage Limit</label>
                   <input
+                    id={getPromoFieldId('usage-limit')}
                     type="number"
                     placeholder="100"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
@@ -592,15 +607,17 @@ export function TicketingSection() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                  <label htmlFor={getPromoFieldId('start-date')} className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
                   <input
+                    id={getPromoFieldId('start-date')}
                     type="date"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                  <label htmlFor={getPromoFieldId('end-date')} className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
                   <input
+                    id={getPromoFieldId('end-date')}
                     type="date"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
                   />
@@ -608,8 +625,8 @@ export function TicketingSection() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Applies To</label>
-                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent">
+                <label htmlFor={getPromoFieldId('applies-to')} className="block text-sm font-medium text-gray-700 mb-2">Applies To</label>
+                <select id={getPromoFieldId('applies-to')} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent">
                   <option>All ticket types</option>
                   <option>General Admission only</option>
                   <option>VIP tickets only</option>

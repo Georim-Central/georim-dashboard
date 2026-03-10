@@ -19,10 +19,11 @@ import {
 import { ComponentType, useEffect, useState } from 'react';
 
 type EventTab = 'details' | 'ticketing' | 'orders' | 'checked-in' | 'marketing' | 'reports' | 'settings';
+type AppView = 'dashboard' | 'create-event' | 'event-management' | 'analytics' | 'team' | 'finance' | 'profile' | 'help';
 
 interface SidebarProps {
-  currentView: string;
-  onViewChange: (view: string) => void;
+  currentView: AppView;
+  onViewChange: (view: AppView) => void;
   contextMode: 'organization' | 'event';
   onBackToOrganization: () => void;
   selectedEventName?: string | null;
@@ -48,6 +49,7 @@ export function Sidebar({
   onEventTabSelect,
 }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const handleDownloadAppClick = () => undefined;
 
   const handleLogoClick = () => {
     if (contextMode === 'event') {
@@ -181,7 +183,6 @@ export function Sidebar({
       label: 'Logout',
       icon: Repeat,
       onClick: () => {
-        console.log('[Sidebar] Logout clicked');
         onBackToOrganization();
       },
       active: false,
@@ -272,7 +273,7 @@ export function Sidebar({
             <p className="text-xs text-gray-300 mt-1">Get easy in another way</p>
             <button
               type="button"
-              onClick={() => console.log('[Sidebar] Download app clicked')}
+              onClick={handleDownloadAppClick}
               className="mt-3 w-full flex items-center justify-center gap-2 bg-[#7626c6] text-white btn-glass px-3 py-2 rounded-lg hover:bg-[#5f1fa3] transition-colors text-sm"
             >
               <Download className="w-4 h-4" />
@@ -287,7 +288,7 @@ export function Sidebar({
         <div className="p-3 border-t border-white/10">
           <button
             type="button"
-            onClick={() => console.log('[Sidebar] Download app clicked')}
+            onClick={handleDownloadAppClick}
             className="w-full flex items-center justify-center p-3 rounded-lg text-gray-300 hover:bg-white/10 transition-colors"
             title="Download Mobile App"
           >

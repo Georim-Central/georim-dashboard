@@ -13,10 +13,13 @@ test('ticketing modal buttons open and close correctly', async ({ page }) => {
   await page.goto('/');
 
   await page.getByRole('heading', { name: 'Summer Music Festival 2026' }).click();
-  await page.getByRole('main').getByRole('button', { name: 'Ticketing' }).first().click();
+  await page.getByRole('tab', { name: 'Ticketing' }).click();
 
   await page.getByRole('button', { name: 'Add Ticket Type' }).click();
   await expect(page.getByRole('heading', { name: 'Add Ticket Type' })).toBeVisible();
+  await page.getByPlaceholder('e.g., General Admission').fill('QA Ticket');
+  await page.getByPlaceholder('50.00').fill('25');
+  await page.getByPlaceholder('100').fill('50');
   await page.getByRole('button', { name: 'Create Ticket' }).click();
   await expect(page.getByRole('heading', { name: 'Add Ticket Type' })).toHaveCount(0);
 
