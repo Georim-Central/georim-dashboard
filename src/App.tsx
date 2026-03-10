@@ -3,6 +3,7 @@ import { GlobalAIChat } from './components/GlobalAIChat';
 import { Sidebar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
 import { ContentState } from './components/ui/ContentState';
+import { AppView, EventManagementTab, ProfileSection } from './types/navigation';
 import { EventDraft, EventDraftUpdate } from './types/event';
 
 const Dashboard = lazy(() => import('./components/Dashboard').then((module) => ({ default: module.Dashboard })));
@@ -14,8 +15,6 @@ const Finance = lazy(() => import('./components/Finance').then((module) => ({ de
 const ProfileSettings = lazy(() => import('./components/ProfileSettings').then((module) => ({ default: module.ProfileSettings })));
 const HelpCenter = lazy(() => import('./components/HelpCenter').then((module) => ({ default: module.HelpCenter })));
 
-type View = 'dashboard' | 'create-event' | 'event-management' | 'analytics' | 'team' | 'finance' | 'profile' | 'help';
-type EventManagementTab = 'details' | 'ticketing' | 'orders' | 'checked-in' | 'marketing' | 'reports' | 'settings';
 const defaultTeamEventOptions = [
   'Summer Music Festival 2026',
   'Tech Conference 2026',
@@ -99,11 +98,13 @@ const seededEventDetails: Record<string, EventDraft> = {
 };
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<View>('dashboard');
+  const currentUserFirstName = 'John';
+  const [currentView, setCurrentView] = useState<AppView>('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
   const [contextMode, setContextMode] = useState<'organization' | 'event'>('organization');
   const [eventManagementTab, setEventManagementTab] = useState<EventManagementTab>('details');
+  const [activeProfileSection, setActiveProfileSection] = useState<ProfileSection>('profile');
   const [teamEventOptions, setTeamEventOptions] = useState<string[]>(defaultTeamEventOptions);
   const [eventDetailsById, setEventDetailsById] = useState<Record<string, EventDraft>>(seededEventDetails);
 
@@ -200,12 +201,17 @@ export default function App() {
         selectedEventName={selectedEventName}
         activeEventTab={eventManagementTab}
         onEventTabSelect={handleEventTabSelect}
+        activeProfileSection={activeProfileSection}
+        onProfileSectionChange={setActiveProfileSection}
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar
           contextMode={contextMode}
-          onOpenProfile={() => setCurrentView('profile')}
+          onOpenProfile={() => {
+            setActiveProfileSection('profile');
+            setCurrentView('profile');
+          }}
         />
         
         <main className="flex-1 overflow-y-auto" aria-live="polite">
@@ -220,6 +226,7 @@ export default function App() {
           >
             {currentView === 'dashboard' && (
               <Dashboard
+                firstName={currentUserFirstName}
                 onCreateEvent={() => setCurrentView('create-event')}
                 onEventSelect={handleEventSelect}
               />
@@ -258,7 +265,7 @@ export default function App() {
               <Finance />
             )}
             {currentView === 'profile' && (
-              <ProfileSettings />
+              <ProfileSettings activeSection={activeProfileSection} />
             )}
             {currentView === 'help' && (
               <HelpCenter />

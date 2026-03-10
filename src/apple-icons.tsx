@@ -15,6 +15,7 @@ import {
   IoCheckmark,
   IoCheckmarkCircleOutline,
   IoChevronBack,
+  IoChevronDownOutline,
   IoChevronForward,
   IoClose,
   IoCloseCircleOutline,
@@ -66,6 +67,7 @@ export const Mail = IoMailOutline;
 export const Settings = IoSettingsOutline;
 export const DollarSign = IoCashOutline;
 export const ChevronLeft = IoChevronBack;
+export const ChevronDown = IoChevronDownOutline;
 export const ChevronRight = IoChevronForward;
 export const Check = IoCheckmark;
 export const Plus = IoAdd;

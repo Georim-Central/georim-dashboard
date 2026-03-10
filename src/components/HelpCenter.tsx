@@ -1,5 +1,9 @@
-import { FormEvent, useState } from 'react';
-import { Search, Shield, MessageCircle } from 'lucide-react';
+import { FormEvent, useRef, useState } from 'react';
+import { MessageCircle, Shield, Sparkles, X } from 'lucide-react';
+
+import { FaqSection } from '@/components/ui/faq';
+import { TestimonialsSection } from '@/components/ui/testimonials-with-marquee';
+import { useModalA11y } from '@/hooks/useModalA11y';
 
 type HelpForm = {
   fullName: string;
@@ -12,41 +16,78 @@ const defaultHelpForm: HelpForm = {
   fullName: 'John Doe',
   email: 'john.doe@georim.com',
   topic: 'dashboard',
-  message: ''
+  message: '',
 };
+
+const testimonials = [
+  {
+    author: {
+      name: 'Maya Patel',
+      handle: '@mayaops',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face',
+    },
+    text: 'The Help Center made onboarding our event coordinators fast. We solved setup questions without waiting on a call.',
+  },
+  {
+    author: {
+      name: 'Daniel Kim',
+      handle: '@danieldata',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+    },
+    text: 'The support flows feel built for operators. The FAQ answers the real questions our team hits during live events.',
+  },
+  {
+    author: {
+      name: 'Sofia Rodriguez',
+      handle: '@sofiaevents',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
+    },
+    text: 'Submitting a support request from inside the dashboard is much cleaner now. We can explain issues without leaving our workflow.',
+  },
+];
 
 const faqItems = [
   {
-    id: 'faq-dashboard',
     question: 'How do I manage all events from the dashboard?',
-    answer: 'Use Dashboard to open any event card, then switch to Event Management tabs for details, ticketing, orders, and reports.'
+    answer: 'Use Dashboard to open any event card, then switch to Event Management tabs for details, ticketing, orders, and reports.',
   },
   {
-    id: 'faq-team',
     question: 'How can I invite team members with event access?',
-    answer: 'Go to Team, click Invite Team Member, choose role and event access, then send the invite.'
+    answer: 'Go to Team, click Invite Team Member, choose role and event access, then send the invite.',
   },
   {
-    id: 'faq-ticketing',
     question: 'Where do I edit or delete ticket types?',
-    answer: 'Open an event, go to Ticketing, and use the Edit and Delete icons on each ticket type.'
+    answer: 'Open an event, go to Ticketing, and use the Edit and Delete icons on each ticket type.',
   },
   {
-    id: 'faq-reports',
     question: 'Where can I download reports?',
-    answer: 'Inside Event Management, open Reports to export attendee and performance information.'
-  }
+    answer: 'Inside Event Management, open Reports to export attendee and performance information.',
+  },
+  {
+    question: 'How fast does support usually respond?',
+    answer: 'Most dashboard and event-operations requests are reviewed quickly. Use the contact form for account issues, event blockers, or questions that need follow-up from the Georim team.',
+  },
 ];
 
 export function HelpCenter() {
   const [helpForm, setHelpForm] = useState<HelpForm>(defaultHelpForm);
-  const [openFaqId, setOpenFaqId] = useState<string | null>(faqItems[0].id);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const initialFocusRef = useRef<HTMLTextAreaElement>(null);
+
+  const { dialogRef, titleId, descriptionId } = useModalA11y({
+    isOpen: isContactModalOpen,
+    onClose: () => {
+      setIsContactModalOpen(false);
+      setNotice(null);
+    },
+    initialFocusRef,
+  });
 
   const updateHelpField = <K extends keyof HelpForm>(field: K, value: HelpForm[K]) => {
     setHelpForm((currentForm) => ({
       ...currentForm,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -62,132 +103,154 @@ export function HelpCenter() {
     setNotice('Help request submitted. Our support team will reach out shortly.');
     setHelpForm((currentForm) => ({
       ...currentForm,
-      message: ''
+      message: '',
     }));
   };
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 rounded-lg bg-[#7626c6]/10">
-            <Shield className="w-5 h-5 text-[#7626c6]" />
+    <div className="help-center-page p-8 space-y-6">
+      <div className="help-center-hero bg-white rounded-xl border border-gray-200 p-6">
+        <div className="help-center-hero__content">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 rounded-lg bg-[#7626c6]/10">
+              <Shield className="w-5 h-5 text-[#7626c6]" />
+            </div>
+            <h1 className="text-2xl font-semibold text-gray-900">Help Center</h1>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900">Help Center</h1>
+          <p className="text-sm text-gray-600 help-center-hero__copy">
+            Browse proven workflows, common answers, and guided support for day-to-day event operations.
+          </p>
         </div>
-        <p className="text-sm text-gray-600">
-          Get dashboard support and browse FAQs for common event-management tasks.
-        </p>
+        <div className="help-center-hero__badge">
+          <Sparkles className="w-4 h-4" />
+          <span>In-app support for organizers and event teams</span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <MessageCircle className="w-5 h-5 text-[#7626c6]" />
-            <h2 className="text-lg font-semibold text-gray-900">Contact Support</h2>
-          </div>
-          <p className="text-sm text-gray-600 mb-5">
-            Your login details are prefilled to speed up support requests.
-          </p>
+      <TestimonialsSection
+        title="Teams rely on Georim support when the event clock is running"
+        description="From setup questions to live operations, the Help Center keeps guidance close to the work."
+        testimonials={testimonials}
+      />
 
-          <form onSubmit={handleSubmitHelpRequest} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <MessageCircle className="w-5 h-5 text-[#7626c6]" />
+          <h2 className="text-lg font-semibold text-gray-900">Browse Help Topics</h2>
+        </div>
+        <FaqSection
+          title="FAQs"
+          description="Common answers for dashboard, team, and event-management workflows."
+          items={faqItems}
+          contactInfo={{
+            title: 'Still have questions?',
+            description: 'Open a support request and send the details directly from the dashboard.',
+            buttonText: 'Contact Support',
+            onContact: () => {
+              setNotice(null);
+              setIsContactModalOpen(true);
+            },
+          }}
+          className="pt-0"
+        />
+      </div>
+
+      {isContactModalOpen && (
+        <div className="help-center-modal-overlay">
+          <div className="help-center-modal-backdrop" onClick={() => setIsContactModalOpen(false)} />
+          <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            aria-describedby={descriptionId}
+            tabIndex={-1}
+            className="help-center-modal-card bg-white rounded-2xl border border-gray-200"
+          >
+            <div className="help-center-modal-card__header">
               <div>
-                <label htmlFor="help-full-name" className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                <input
-                  id="help-full-name"
-                  type="text"
-                  value={helpForm.fullName}
-                  onChange={(event) => updateHelpField('fullName', event.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
-                />
+                <h2 id={titleId} className="text-xl font-semibold text-gray-900">Contact Support</h2>
+                <p id={descriptionId} className="text-sm text-gray-600">
+                  Your account details are prefilled to speed up submission.
+                </p>
               </div>
-              <div>
-                <label htmlFor="help-email-address" className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                <input
-                  id="help-email-address"
-                  type="email"
-                  value={helpForm.email}
-                  onChange={(event) => updateHelpField('email', event.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="help-topic" className="block text-sm font-medium text-gray-700 mb-2">Topic</label>
-              <select
-                id="help-topic"
-                value={helpForm.topic}
-                onChange={(event) => updateHelpField('topic', event.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
-              >
-                <option value="dashboard">Dashboard</option>
-                <option value="events">Event Management</option>
-                <option value="ticketing">Ticketing</option>
-                <option value="orders">Orders & Check-in</option>
-                <option value="account">Account & Login</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="help-message" className="block text-sm font-medium text-gray-700 mb-2">Message</label>
-              <textarea
-                id="help-message"
-                rows={5}
-                value={helpForm.message}
-                onChange={(event) => updateHelpField('message', event.target.value)}
-                placeholder="Describe the issue you need help with..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent resize-none"
-              />
-            </div>
-
-            {notice && <p className="text-sm text-[#7626c6]" aria-live="polite">{notice}</p>}
-
-            <div className="flex justify-end">
               <button
-                type="submit"
-                className="px-4 py-2 bg-[#7626c6] text-white btn-glass rounded-lg hover:bg-[#5f1fa3] transition-colors"
+                type="button"
+                onClick={() => setIsContactModalOpen(false)}
+                className="help-center-modal-card__close"
+                aria-label="Close support form"
               >
-                Send Help Request
+                <X className="w-4 h-4" />
               </button>
             </div>
-          </form>
-        </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Search className="w-5 h-5 text-[#7626c6]" />
-            <h2 className="text-lg font-semibold text-gray-900">FAQs</h2>
-          </div>
-
-          <div className="space-y-3">
-            {faqItems.map((faq) => {
-              const isOpen = openFaqId === faq.id;
-
-              return (
-                <div key={faq.id} className="border border-gray-200 rounded-lg">
-                  <button
-                    type="button"
-                    onClick={() => setOpenFaqId(isOpen ? null : faq.id)}
-                    className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
-                    aria-expanded={isOpen}
-                    aria-controls={`${faq.id}-panel`}
-                  >
-                    <span className="font-medium text-gray-900">{faq.question}</span>
-                  </button>
-
-                  {isOpen && (
-                    <div id={`${faq.id}-panel`} className="px-4 pb-4 text-sm text-gray-600">
-                      {faq.answer}
-                    </div>
-                  )}
+            <form onSubmit={handleSubmitHelpRequest} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="help-full-name" className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                  <input
+                    id="help-full-name"
+                    type="text"
+                    value={helpForm.fullName}
+                    onChange={(event) => updateHelpField('fullName', event.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
+                  />
                 </div>
-              );
-            })}
+                <div>
+                  <label htmlFor="help-email-address" className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                  <input
+                    id="help-email-address"
+                    type="email"
+                    value={helpForm.email}
+                    onChange={(event) => updateHelpField('email', event.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="help-topic" className="block text-sm font-medium text-gray-700 mb-2">Topic</label>
+                <select
+                  id="help-topic"
+                  value={helpForm.topic}
+                  onChange={(event) => updateHelpField('topic', event.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
+                >
+                  <option value="dashboard">Dashboard</option>
+                  <option value="events">Event Management</option>
+                  <option value="ticketing">Ticketing</option>
+                  <option value="orders">Orders & Check-in</option>
+                  <option value="account">Account & Login</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="help-message" className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                <textarea
+                  id="help-message"
+                  ref={initialFocusRef}
+                  rows={5}
+                  value={helpForm.message}
+                  onChange={(event) => updateHelpField('message', event.target.value)}
+                  placeholder="Describe the issue you need help with..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7626c6] focus:border-transparent resize-none"
+                />
+              </div>
+
+              {notice && <p className="text-sm text-[#7626c6]" aria-live="polite">{notice}</p>}
+
+              <div className="flex justify-end gap-3">
+                <button type="button" onClick={() => setIsContactModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg">
+                  Cancel
+                </button>
+                <button type="submit" className="px-4 py-2 bg-[#7626c6] text-white rounded-lg">
+                  Send Help Request
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

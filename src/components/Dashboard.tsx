@@ -5,6 +5,7 @@ import { ContentState } from './ui/ContentState';
 interface DashboardProps {
   onCreateEvent: () => void;
   onEventSelect: (eventId: string, eventName?: string) => void;
+  firstName: string;
 }
 
 // Mock data
@@ -141,7 +142,7 @@ const recentActivity = [
   }
 ];
 
-export function Dashboard({ onCreateEvent, onEventSelect }: DashboardProps) {
+export function Dashboard({ onCreateEvent, onEventSelect, firstName }: DashboardProps) {
   const isLoading = false;
   const dataError: string | null = null;
 
@@ -157,7 +158,7 @@ export function Dashboard({ onCreateEvent, onEventSelect }: DashboardProps) {
       {/* Header */}
       <div className="flex items-center justify-between mb-8 motion-row">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Events Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Welcome {firstName}</h1>
           <p className="text-gray-600 mt-1">Manage and monitor all your events</p>
         </div>
         <button
