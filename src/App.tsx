@@ -10,8 +10,9 @@ const Analytics = lazy(() => import('./components/Analytics').then((module) => (
 const TeamManagement = lazy(() => import('./components/TeamManagement').then((module) => ({ default: module.TeamManagement })));
 const Finance = lazy(() => import('./components/Finance').then((module) => ({ default: module.Finance })));
 const ProfileSettings = lazy(() => import('./components/ProfileSettings').then((module) => ({ default: module.ProfileSettings })));
+const HelpCenter = lazy(() => import('./components/HelpCenter').then((module) => ({ default: module.HelpCenter })));
 
-type View = 'dashboard' | 'create-event' | 'event-management' | 'analytics' | 'team' | 'finance' | 'profile';
+type View = 'dashboard' | 'create-event' | 'event-management' | 'analytics' | 'team' | 'finance' | 'profile' | 'help';
 type EventManagementTab = 'details' | 'ticketing' | 'orders' | 'checked-in' | 'marketing' | 'reports' | 'settings';
 const defaultTeamEventOptions = [
   'Summer Music Festival 2026',
@@ -141,6 +142,9 @@ export default function App() {
             )}
             {currentView === 'profile' && (
               <ProfileSettings />
+            )}
+            {currentView === 'help' && (
+              <HelpCenter />
             )}
           </Suspense>
         </main>

@@ -173,8 +173,8 @@ export function Sidebar({
       id: 'help',
       label: 'Help',
       icon: MessageCircle,
-      onClick: () => console.log('[Sidebar] Help clicked'),
-      active: false,
+      onClick: () => onViewChange('help'),
+      active: currentView === 'help',
     },
     {
       id: 'logout',
