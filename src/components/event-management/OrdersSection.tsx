@@ -539,30 +539,6 @@ export function OrdersSection() {
         </div>
       </div>
 
-      {/* Custom Form Responses */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Custom Form Questions</h3>
-        <div className="space-y-4">
-          <div>
-            <h4 className="font-medium text-gray-900 mb-2">Dietary Restrictions</h4>
-            <div className="flex gap-2">
-              <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">Vegetarian (47)</span>
-              <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">Vegan (23)</span>
-              <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">Gluten-Free (18)</span>
-              <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">None (712)</span>
-            </div>
-          </div>
-          <div>
-            <h4 className="font-medium text-gray-900 mb-2">How did you hear about us?</h4>
-            <div className="flex gap-2">
-              <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">Social Media (423)</span>
-              <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">Friend (298)</span>
-              <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">Email (89)</span>
-              <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">Other (37)</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
