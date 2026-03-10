@@ -187,7 +187,6 @@ export function createOrganizationSidebarGroups({
           id: 'settings-root',
           label: 'Settings',
           icon: Settings,
-          description: 'Profile, security, billing, subscriptions, and notification preferences.',
           children: accountSettingsChildren,
         },
         {
@@ -312,7 +311,6 @@ export function createEventSidebarGroups({
           id: 'settings-root',
           label: 'Settings',
           icon: Settings,
-          description: 'Profile, security, billing, subscriptions, and notification preferences.',
           children: accountSettingsChildren,
         },
         {

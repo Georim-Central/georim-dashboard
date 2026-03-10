@@ -2483,12 +2483,25 @@ button.btn-glass:focus-visible {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 2px rgba(15, 23, 42, 0.04);
   border-radius: var(--ui-radius-sm);
   min-height: 44px;
+  background-clip: padding-box;
+  outline: none;
+  outline-offset: 0;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
 }
 
 .app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+.app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus-visible,
 .app-shell select:focus,
-.app-shell textarea:focus {
+.app-shell select:focus-visible,
+.app-shell textarea:focus,
+.app-shell textarea:focus-visible {
   background-color: #fff;
+  border-color: var(--ui-focus-border);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    0 0 0 1px rgba(118, 38, 198, 0.24),
+    0 0 0 4px var(--ui-focus-ring-soft);
+  outline: none;
 }
 
 .app-shell button.btn-glass[class*="px-"] {
@@ -2666,13 +2679,15 @@ button.btn-glass:focus-visible {
 /* Shared accessibility and state primitives */
 :root {
   --ui-focus-ring: rgba(118, 38, 198, 0.36);
+  --ui-focus-ring-soft: rgba(118, 38, 198, 0.14);
+  --ui-focus-border: rgba(118, 38, 198, 0.52);
   --ui-state-surface: rgba(248, 250, 252, 0.9);
   --ui-state-border: rgba(148, 163, 184, 0.35);
   --ui-state-text: #475569;
   --ui-state-icon: #64748b;
 }
 
-.app-shell :is(button, input, select, textarea, [role="button"], a, [tabindex]):focus-visible {
+.app-shell :is(button, [role="button"], a, [tabindex]):focus-visible {
   outline: 2px solid var(--ui-focus-ring);
   outline-offset: 2px;
 }
@@ -2821,6 +2836,8 @@ button.btn-glass:focus-visible {
   color: #0f172a;
   padding: 0.95rem 1rem;
   resize: vertical;
+  background-clip: padding-box;
+  outline: none;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
 }
 
@@ -2828,24 +2845,28 @@ button.btn-glass:focus-visible {
   color: #94a3b8;
 }
 
-.ui-textarea:focus {
+.ui-textarea:focus,
+.ui-textarea:focus-visible {
+  border-color: var(--ui-focus-border);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    0 0 0 1px rgba(118, 38, 198, 0.24),
+    0 0 0 4px var(--ui-focus-ring-soft);
   outline: none;
-  border-color: rgba(118, 38, 198, 0.36);
-  box-shadow: 0 0 0 3px rgba(118, 38, 198, 0.12);
 }
 
 .ai-chat-root {
   position: fixed;
   z-index: 70;
-  bottom: 24px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
 }
 
 .ai-chat-root--bottom-right {
-  right: 24px;
+  right: 20px;
 }
 
 .ai-chat-root--bottom-left {
-  left: 24px;
+  left: 20px;
 }
 
 .ai-chat-panel {
@@ -2916,18 +2937,32 @@ button.btn-glass:focus-visible {
 }
 
 .ai-chat-toggle {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: 9999px;
   box-shadow: 0 16px 34px rgba(81, 34, 143, 0.28);
+}
+
+.ai-chat-toggle--idle {
+  animation: ai-chat-toggle-float 4.2s ease-in-out infinite;
 }
 
 .ai-chat-toggle svg,
 .ai-chat-mobile-close svg,
 .ai-chat-scroll-button__icon,
 .ai-chat-composer__submit svg {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
+}
+
+@keyframes ai-chat-toggle-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
 }
 
 .ai-chat-mobile-close {
@@ -3182,9 +3217,9 @@ button.btn-glass:focus-visible {
 
 @media (max-width: 640px) {
   .ai-chat-root {
-    right: 16px;
+    right: 14px;
     left: auto;
-    bottom: 16px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
   }
 
   .ai-chat-panel {

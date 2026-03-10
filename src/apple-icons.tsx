@@ -46,6 +46,7 @@ import {
   IoSettingsOutline,
   IoShieldCheckmarkOutline,
   IoSparklesOutline,
+  IoStar,
   IoTimeOutline,
   IoTicketOutline,
   IoTrashOutline,
@@ -96,6 +97,7 @@ export const Paperclip = IoAttachOutline;
 export const Mic = IoMicOutline;
 export const Bot = IoHardwareChipOutline;
 export const Sparkles = IoSparklesOutline;
+export const Star = IoStar;
 export const Send = IoSendOutline;
 export const CornerDownLeft = IoArrowUndoOutline;
 export const Bold = IoReorderThreeOutline;

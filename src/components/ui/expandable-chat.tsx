@@ -98,7 +98,7 @@ const ExpandableChatToggle: React.FC<ExpandableChatToggleProps> = ({
   <Button
     variant="default"
     onClick={toggleChat}
-    className={cn('ai-chat-toggle', className)}
+    className={cn('ai-chat-toggle', !isOpen && 'ai-chat-toggle--idle', className)}
     aria-label={isOpen ? 'Close AI chat' : 'Open AI chat'}
     {...props}
   >

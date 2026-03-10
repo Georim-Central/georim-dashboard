@@ -52,8 +52,9 @@ describe('App core flows', () => {
 
     await user.click(screen.getByRole('button', { name: /john doe/i }));
 
-    expect(await screen.findByRole('heading', { name: /profile settings/i })).toBeInTheDocument();
-    expect(screen.getByText(/update your profile picture, login information, and security details/i)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /^profile$/i })).toBeInTheDocument();
+    expect(screen.getAllByText(/account settings/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/update your profile picture, identity, and organizer details/i)).toBeInTheDocument();
   });
 
   it('opens help center from sidebar help', async () => {

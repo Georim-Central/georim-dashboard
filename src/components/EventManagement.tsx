@@ -399,7 +399,7 @@ function CheckedInTab({
         <div className="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h3 className="text-lg font-semibold text-gray-900">Live Check-In Log</h3>
           <div className="w-full sm:max-w-sm">
-            <div className="flex items-center rounded-lg border border-gray-300 bg-white focus-within:ring-2 focus-within:ring-[#7626c6] focus-within:border-transparent">
+            <div className="flex items-center rounded-lg border border-gray-300 bg-white focus-within:border-[#7626c6]/50 focus-within:ring-2 focus-within:ring-[#7626c6]/20">
               <Search className="ml-3 mr-2 w-4 h-4 text-gray-400 shrink-0" />
               <input
                 value={searchQuery}
