@@ -43,7 +43,7 @@ export function ShineBorder({
     observer.observe(child);
 
     return () => observer.disconnect();
-  }, [active, children]);
+  }, [active]);
 
   if (!active) {
     return <>{children}</>;
