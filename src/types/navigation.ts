@@ -5,7 +5,6 @@ export type AppView =
   | 'analytics'
   | 'team'
   | 'finance'
-  | 'profile'
   | 'help';
 
 export type EventManagementTab =
@@ -16,11 +15,3 @@ export type EventManagementTab =
   | 'marketing'
   | 'reports'
   | 'settings';
-
-export type ProfileSection =
-  | 'profile'
-  | 'security'
-  | 'payments'
-  | 'billing'
-  | 'premium-subscriptions'
-  | 'notifications';

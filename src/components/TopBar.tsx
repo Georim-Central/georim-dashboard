@@ -4,10 +4,9 @@ import { useModalA11y } from '../hooks/useModalA11y';
 
 interface TopBarProps {
   contextMode: 'organization' | 'event';
-  onOpenProfile: () => void;
 }
 
-export function TopBar({ contextMode, onOpenProfile }: TopBarProps) {
+export function TopBar({ contextMode }: TopBarProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([
     { id: 1, type: 'order', message: 'New order: 2x VIP tickets ($240)', time: '5m ago', read: false },
@@ -169,16 +168,12 @@ export function TopBar({ contextMode, onOpenProfile }: TopBarProps) {
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={onOpenProfile}
-            className="flex items-center gap-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors"
-          >
+          <div className="flex items-center gap-2 rounded-lg px-3 py-2">
             <div className="w-8 h-8 bg-[#7626c6] rounded-full flex items-center justify-center overflow-hidden">
               <User className="w-5 h-5 text-white" />
             </div>
             <span className="text-sm font-medium text-gray-700">John Doe</span>
-          </button>
+          </div>
         </div>
       </div>
     </div>

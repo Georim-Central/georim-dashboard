@@ -46,15 +46,11 @@ describe('App core flows', () => {
     expect(screen.getByRole('button', { name: /^edit$/i })).toBeInTheDocument();
   });
 
-  it('opens profile as a full dashboard page from top bar', async () => {
-    const user = userEvent.setup();
+  it('shows the signed-in user in the top bar without exposing a profile page route', () => {
     render(<App />);
 
-    await user.click(screen.getByRole('button', { name: /john doe/i }));
-
-    expect(await screen.findByRole('heading', { name: /^profile$/i })).toBeInTheDocument();
-    expect(screen.getAllByText(/account settings/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/update your profile picture, identity, and organizer details/i)).toBeInTheDocument();
+    expect(screen.getByText(/john doe/i)).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /^profile$/i })).not.toBeInTheDocument();
   });
 
   it('opens help center from sidebar help', async () => {

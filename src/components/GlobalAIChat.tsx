@@ -23,7 +23,6 @@ type AppView =
   | 'analytics'
   | 'team'
   | 'finance'
-  | 'profile'
   | 'help';
 
 interface GlobalAIChatProps {
@@ -73,7 +72,6 @@ const viewTitles: Record<AppView, string> = {
   analytics: 'analytics',
   team: 'team management',
   finance: 'finance',
-  profile: 'profile settings',
   help: 'help center',
 };
 

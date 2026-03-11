@@ -3,7 +3,7 @@ import { GlobalAIChat } from './components/GlobalAIChat';
 import { Sidebar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
 import { ContentState } from './components/ui/ContentState';
-import { AppView, EventManagementTab, ProfileSection } from './types/navigation';
+import { AppView, EventManagementTab } from './types/navigation';
 import { EventDraft, EventDraftUpdate } from './types/event';
 
 const Dashboard = lazy(() => import('./components/Dashboard').then((module) => ({ default: module.Dashboard })));
@@ -12,7 +12,6 @@ const EventManagement = lazy(() => import('./components/EventManagement').then((
 const Analytics = lazy(() => import('./components/Analytics').then((module) => ({ default: module.Analytics })));
 const TeamManagement = lazy(() => import('./components/TeamManagement').then((module) => ({ default: module.TeamManagement })));
 const Finance = lazy(() => import('./components/Finance').then((module) => ({ default: module.Finance })));
-const ProfileSettings = lazy(() => import('./components/ProfileSettings').then((module) => ({ default: module.ProfileSettings })));
 const HelpCenter = lazy(() => import('./components/HelpCenter').then((module) => ({ default: module.HelpCenter })));
 
 const defaultTeamEventOptions = [
@@ -21,29 +20,6 @@ const defaultTeamEventOptions = [
   'Food & Wine Expo',
   'Georim Founders Circle'
 ];
-
-const profileSections: ProfileSection[] = [
-  'profile',
-  'security',
-  'payments',
-  'billing',
-  'premium-subscriptions',
-  'notifications'
-];
-
-const resolveInitialView = (): AppView => {
-  if (typeof window === 'undefined') return 'dashboard';
-
-  const requestedView = new URLSearchParams(window.location.search).get('view');
-  return requestedView === 'profile' ? 'profile' : 'dashboard';
-};
-
-const resolveInitialProfileSection = (): ProfileSection => {
-  if (typeof window === 'undefined') return 'profile';
-
-  const requestedSection = new URLSearchParams(window.location.search).get('section');
-  return profileSections.find((section) => section === requestedSection) ?? 'profile';
-};
 
 const createEmptyEventDraft = (overrides: Partial<EventDraft> = {}): EventDraft => ({
   title: '',
@@ -122,12 +98,11 @@ const seededEventDetails: Record<string, EventDraft> = {
 
 export default function App() {
   const currentUserFirstName = 'John';
-  const [currentView, setCurrentView] = useState<AppView>(resolveInitialView);
+  const [currentView, setCurrentView] = useState<AppView>('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
   const [contextMode, setContextMode] = useState<'organization' | 'event'>('organization');
   const [eventManagementTab, setEventManagementTab] = useState<EventManagementTab>('details');
-  const [activeProfileSection, setActiveProfileSection] = useState<ProfileSection>(resolveInitialProfileSection);
   const [teamEventOptions, setTeamEventOptions] = useState<string[]>(defaultTeamEventOptions);
   const [eventDetailsById, setEventDetailsById] = useState<Record<string, EventDraft>>(seededEventDetails);
 
@@ -224,18 +199,10 @@ export default function App() {
         selectedEventName={selectedEventName}
         activeEventTab={eventManagementTab}
         onEventTabSelect={handleEventTabSelect}
-        activeProfileSection={activeProfileSection}
-        onProfileSectionChange={setActiveProfileSection}
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <TopBar
-          contextMode={contextMode}
-          onOpenProfile={() => {
-            setActiveProfileSection('profile');
-            setCurrentView('profile');
-          }}
-        />
+        <TopBar contextMode={contextMode} />
         
         <main className="flex-1 overflow-y-auto" aria-live="polite">
           <Suspense
@@ -287,9 +254,6 @@ export default function App() {
             )}
             {currentView === 'finance' && (
               <Finance />
-            )}
-            {currentView === 'profile' && (
-              <ProfileSettings activeSection={activeProfileSection} />
             )}
             {currentView === 'help' && (
               <HelpCenter />

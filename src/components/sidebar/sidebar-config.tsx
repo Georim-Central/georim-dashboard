@@ -2,7 +2,6 @@ import { ComponentType } from 'react';
 import {
   ArrowLeft,
   BarChart3,
-  Bell,
   Calendar,
   CreditCard,
   DollarSign,
@@ -12,14 +11,11 @@ import {
   QrCode,
   Repeat,
   Settings,
-  Shield,
-  Sparkles,
   Ticket,
-  User,
   Users,
 } from 'lucide-react';
 
-import { AppView, EventManagementTab, ProfileSection } from '@/types/navigation';
+import { AppView, EventManagementTab } from '@/types/navigation';
 
 type SidebarIcon = ComponentType<{ className?: string }>;
 
@@ -27,7 +23,6 @@ export type SidebarNavAction =
   | {
       kind: 'view';
       view: AppView;
-      profileSection?: ProfileSection;
     }
   | {
       kind: 'event-tab';
@@ -74,75 +69,6 @@ interface EventNavigationConfig extends SharedNavigationHandlers {
   selectedEventName?: string | null;
 }
 
-const accountSettingsChildren: SidebarNavGroup[] = [
-  {
-    id: 'account-settings',
-    label: 'Account Settings',
-    items: [
-      {
-        id: 'settings-profile',
-        label: 'Profile',
-        icon: User,
-        action: {
-          kind: 'view',
-          view: 'profile',
-          profileSection: 'profile',
-        },
-      },
-      {
-        id: 'settings-security',
-        label: 'Security',
-        icon: Shield,
-        action: {
-          kind: 'view',
-          view: 'profile',
-          profileSection: 'security',
-        },
-      },
-      {
-        id: 'settings-payments',
-        label: 'Payments',
-        icon: CreditCard,
-        action: {
-          kind: 'view',
-          view: 'profile',
-          profileSection: 'payments',
-        },
-      },
-      {
-        id: 'settings-billing',
-        label: 'Billing',
-        icon: DollarSign,
-        action: {
-          kind: 'view',
-          view: 'profile',
-          profileSection: 'billing',
-        },
-      },
-      {
-        id: 'settings-premium-subscriptions',
-        label: 'Premium Subscriptions',
-        icon: Sparkles,
-        action: {
-          kind: 'view',
-          view: 'profile',
-          profileSection: 'premium-subscriptions',
-        },
-      },
-      {
-        id: 'settings-notifications',
-        label: 'Notifications',
-        icon: Bell,
-        action: {
-          kind: 'view',
-          view: 'profile',
-          profileSection: 'notifications',
-        },
-      },
-    ],
-  },
-];
-
 export const isSidebarParentItem = (item: SidebarNavItem): item is SidebarNavParentItem => 'children' in item;
 
 export function createOrganizationSidebarGroups({
@@ -183,12 +109,6 @@ export function createOrganizationSidebarGroups({
       id: 'workspace',
       label: 'Workspace',
       items: [
-        {
-          id: 'settings-root',
-          label: 'Settings',
-          icon: Settings,
-          children: accountSettingsChildren,
-        },
         {
           id: 'help',
           label: 'Help',
@@ -307,12 +227,6 @@ export function createEventSidebarGroups({
       id: 'event-workspace',
       label: 'Workspace',
       items: [
-        {
-          id: 'settings-root',
-          label: 'Settings',
-          icon: Settings,
-          children: accountSettingsChildren,
-        },
         {
           id: 'help',
           label: 'Help',

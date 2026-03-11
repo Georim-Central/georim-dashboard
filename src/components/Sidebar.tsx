@@ -11,7 +11,7 @@ import {
   createOrganizationSidebarGroups,
   isSidebarParentItem,
 } from '@/components/sidebar/sidebar-config';
-import { AppView, EventManagementTab, ProfileSection } from '@/types/navigation';
+import { AppView, EventManagementTab } from '@/types/navigation';
 
 interface SidebarProps {
   currentView: AppView;
@@ -21,8 +21,6 @@ interface SidebarProps {
   selectedEventName?: string | null;
   activeEventTab: EventManagementTab;
   onEventTabSelect: (tab: EventManagementTab) => void;
-  activeProfileSection: ProfileSection;
-  onProfileSectionChange: (section: ProfileSection) => void;
 }
 
 const PRIMARY_WIDTH_EXPANDED = 16;
@@ -45,8 +43,6 @@ export function Sidebar({
   selectedEventName,
   activeEventTab,
   onEventTabSelect,
-  activeProfileSection,
-  onProfileSectionChange,
 }: SidebarProps) {
   const [isManuallyCollapsed, setIsManuallyCollapsed] = useState(false);
 
@@ -71,11 +67,7 @@ export function Sidebar({
 
   const matchesAction = useCallback((action: SidebarNavAction) => {
     if (action.kind === 'view') {
-      if (action.view !== currentView) return false;
-      if (action.view === 'profile' && action.profileSection) {
-        return activeProfileSection === action.profileSection;
-      }
-      return true;
+      return action.view === currentView;
     }
 
     if (action.kind === 'event-tab') {
@@ -83,7 +75,7 @@ export function Sidebar({
     }
 
     return false;
-  }, [activeEventTab, activeProfileSection, currentView]);
+  }, [activeEventTab, currentView]);
 
   const hasActiveChild = useCallback(function checkActiveChild(item: SidebarNavParentItem): boolean {
     return item.children.some((group) =>
@@ -121,9 +113,6 @@ export function Sidebar({
 
   const executeAction = (action: SidebarNavAction) => {
     if (action.kind === 'view') {
-      if (action.profileSection) {
-        onProfileSectionChange(action.profileSection);
-      }
       onViewChange(action.view);
       return;
     }
@@ -269,7 +258,6 @@ export function Sidebar({
         {openParent && (
           <>
             <div className="georim-sidebar-secondary__header">
-              <div className="georim-sidebar-secondary__eyebrow">Contextual Menu</div>
               <h2 className="georim-sidebar-secondary__title">{openParent.label}</h2>
               {openParent.description && (
                 <p className="georim-sidebar-secondary__description">{openParent.description}</p>

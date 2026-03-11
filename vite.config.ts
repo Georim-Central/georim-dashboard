@@ -4,14 +4,13 @@
   import path from 'path';
 
   export default defineConfig({
-    plugins: [react()],
-    resolve: {
-      extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
-      alias: {
-        'lucide-react': path.resolve(__dirname, './src/apple-icons.tsx'),
-        '@': path.resolve(__dirname, './src'),
-      },
+  plugins: [react()],
+  resolve: {
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+    alias: {
+      '@': path.resolve(__dirname, './src'),
     },
+  },
     build: {
       target: 'esnext',
       outDir: 'build',
