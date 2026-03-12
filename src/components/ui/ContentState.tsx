@@ -1,5 +1,7 @@
 import { ReactNode } from 'react';
-import { AlertTriangle, Calendar, Clock } from 'lucide-react';
+import { AlertTriangle, Calendar } from 'lucide-react';
+
+import { BouncingDots } from '@/components/ui/bouncing-dots';
 
 type ContentStateProps = {
   isLoading?: boolean;
@@ -17,7 +19,7 @@ export function ContentState({
   error = null,
   isEmpty = false,
   emptyMessage,
-  loadingMessage = 'Loading data...',
+  loadingMessage = 'Loading...',
   className = 'py-10',
   onRetry,
   children
@@ -25,8 +27,12 @@ export function ContentState({
   if (isLoading) {
     return (
       <div className={`ui-state-block ${className}`} role="status" aria-live="polite">
-        <Clock className="ui-state-icon animate-spin" aria-hidden="true" />
-        <p className="ui-state-message">{loadingMessage}</p>
+        <BouncingDots
+          message={loadingMessage}
+          messagePlacement="bottom"
+          className="bg-foreground"
+          aria-hidden="true"
+        />
       </div>
     );
   }

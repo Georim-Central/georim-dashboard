@@ -621,6 +621,12 @@ export default function App() {
     setContextMode('organization');
   };
 
+  const handleOpenProfileSettings = () => {
+    setSettingsSection('profile');
+    setCurrentView('settings');
+    setContextMode('organization');
+  };
+
   return (
     <div className="app-shell flex h-screen">
       <Sidebar
@@ -647,6 +653,7 @@ export default function App() {
           onMarkAllNotificationsRead={handleMarkAllNotificationsRead}
           onNotificationOpen={openNotificationTarget}
           onOpenNotificationCenter={handleOpenNotificationCenter}
+          onOpenProfileSettings={handleOpenProfileSettings}
         />
         
         <main className="flex-1 overflow-y-auto" aria-live="polite">

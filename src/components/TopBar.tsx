@@ -15,6 +15,7 @@ interface TopBarProps {
   onMarkAllNotificationsRead: () => void;
   onNotificationOpen: (notification: OrganizerNotification) => void;
   onOpenNotificationCenter: () => void;
+  onOpenProfileSettings: () => void;
 }
 
 function getSearchResultBadgeClass(type: GlobalSearchResult['type']) {
@@ -34,7 +35,8 @@ export function TopBar({
   notifications,
   onMarkAllNotificationsRead,
   onNotificationOpen,
-  onOpenNotificationCenter
+  onOpenNotificationCenter,
+  onOpenProfileSettings
 }: TopBarProps) {
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -233,12 +235,17 @@ export function TopBar({
             )}
           </div>
 
-          <div className="flex items-center gap-2 rounded-lg px-3 py-2">
+          <button
+            type="button"
+            onClick={onOpenProfileSettings}
+            className="flex items-center gap-2 rounded-lg px-3 py-2 transition hover:bg-gray-100"
+            aria-label="Open profile settings"
+          >
             <div className="w-8 h-8 bg-[#7626c6] rounded-full flex items-center justify-center overflow-hidden">
               <User className="w-5 h-5 text-white" />
             </div>
             <span className="text-sm font-medium text-gray-700">John Doe</span>
-          </div>
+          </button>
         </div>
       </div>
     </div>

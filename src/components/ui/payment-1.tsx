@@ -73,11 +73,11 @@ export function PaymentMethodSelector({
     visible: { opacity: 1, y: 0 },
   };
 
-  const cardClasses = `w-full rounded-xl border border-gray-200 bg-white p-6 text-gray-900 shadow-sm ${className || ""}`;
+  const cardClasses = `w-full rounded-xl border border-gray-200 bg-white p-5 text-gray-900 shadow-sm sm:p-6 lg:p-8 ${className || ""}`;
 
   return (
     <div className={cardClasses}>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-5 flex items-center justify-between sm:mb-6">
         <h3 className="text-xl font-semibold leading-none tracking-tight">
           {title}
         </h3>
@@ -92,7 +92,7 @@ export function PaymentMethodSelector({
       </div>
 
       <motion.div
-        className="space-y-4"
+        className="space-y-3 sm:space-y-4"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -110,7 +110,7 @@ export function PaymentMethodSelector({
                 (event.key === " " || event.key === "Enter") &&
                 handleSelect(method.id)
               }
-              className="flex cursor-pointer items-center rounded-lg border p-4 transition-all duration-300 hover:bg-gray-50"
+              className="flex w-full cursor-pointer items-center justify-between rounded-lg border p-4 transition-all duration-300 hover:bg-gray-50 sm:p-5"
               style={{
                 borderColor: isSelected ? "#7626c6" : "#e5e7eb",
                 boxShadow: isSelected
@@ -121,15 +121,17 @@ export function PaymentMethodSelector({
               aria-checked={isSelected}
               tabIndex={0}
             >
-              <div className="flex-shrink-0">{method.icon}</div>
-              <div className="ml-4 flex-grow">
-                <p className="font-medium text-gray-900">{method.label}</p>
-                <p className="text-sm text-gray-500">
-                  {method.description}
-                </p>
+              <div className="flex min-w-0 flex-1 items-center gap-4 pr-4">
+                <div className="flex-shrink-0">{method.icon}</div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-gray-900">{method.label}</p>
+                  <p className="text-sm text-gray-500">
+                    {method.description}
+                  </p>
+                </div>
               </div>
               <div
-                className="ml-4 flex h-6 w-6 items-center justify-center rounded-full border-2"
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2"
                 style={{
                   borderColor: isSelected ? "#7626c6" : "#d1d5db",
                 }}

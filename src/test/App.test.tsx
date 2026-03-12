@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
 import { EventManagement } from '../components/EventManagement';
@@ -52,6 +52,16 @@ describe('App core flows', () => {
     expect(screen.getByText(/john doe/i)).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /^profile$/i })).not.toBeInTheDocument();
   });
+
+  it('opens profile settings from the top-right account identity control', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /open profile settings/i }));
+
+    expect(await screen.findByRole('heading', { name: /^profile$/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /your profile/i })).toBeInTheDocument();
+  }, 10000);
 
   it('opens help center from sidebar help', async () => {
     const user = userEvent.setup();
@@ -128,6 +138,27 @@ describe('App core flows', () => {
     expect(await screen.findByRole('heading', { name: /team management/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /pending invites/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /on-site tools/i })).toBeInTheDocument();
+  });
+
+  it('renders the finance page with payment summary above finance activity', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /^finance$/i }));
+
+    expect(await screen.findByRole('heading', { name: /^finance$/i }, { timeout: 10000 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /payment summary/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /finance activity/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /payout schedule/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /finance controls/i })).toBeInTheDocument();
+    expect(screen.getByText(/gross revenue/i)).toBeInTheDocument();
+    expect(screen.getByText(/available to withdraw/i)).toBeInTheDocument();
+    expect(screen.getByText(/^jan$/i)).toBeInTheDocument();
+    expect(screen.getByText(/available balance/i)).toBeInTheDocument();
+
+    const paymentSummaryHeading = screen.getByRole('heading', { name: /payment summary/i });
+    const financeActivityHeading = screen.getByRole('heading', { name: /finance activity/i });
+    expect(paymentSummaryHeading.compareDocumentPosition(financeActivityHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('routes dashboard support buttons into live organizer workflows', async () => {
@@ -227,9 +258,9 @@ describe('App core flows', () => {
     await user.click(await screen.findByRole('button', { name: /^payments$/i }));
 
     await user.click(screen.getByRole('button', { name: /add new method/i }));
-    await user.type(await screen.findByLabelText(/payment method label/i), 'Visa **** 2222');
-    await user.type(screen.getByLabelText(/description/i), 'Travel card for settlement backup');
-    await user.selectOptions(screen.getByRole('combobox', { name: /provider/i }), 'wallet');
+    fireEvent.change(await screen.findByLabelText(/payment method label/i), { target: { value: 'Visa **** 2222' } });
+    fireEvent.change(screen.getByLabelText(/description/i), { target: { value: 'Travel card for settlement backup' } });
+    fireEvent.change(screen.getByRole('combobox', { name: /provider/i }), { target: { value: 'wallet' } });
     await user.click(screen.getByRole('button', { name: /add method/i }));
 
     expect(await screen.findByText(/visa \*\*\*\* 2222 added and selected for future billing actions/i)).toBeInTheDocument();
@@ -246,9 +277,9 @@ describe('App core flows', () => {
     expect(await screen.findByRole('heading', { name: /premium subscriptions/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /choose your plan/i })).toBeInTheDocument();
     expect(screen.getAllByText(/professional/i).length).toBeGreaterThan(0);
-    expect(screen.getByRole('switch', { name: /billing cycle/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^monthly$/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /yearly/i })).toBeInTheDocument();
+    expect(screen.getByRole('radiogroup', { name: /billing cycle/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /monthlypay month to month/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /yearlysave 20% annually/i })).toBeInTheDocument();
   });
 
   it('selects a premium plan and opens the settings assistant dialog', async () => {

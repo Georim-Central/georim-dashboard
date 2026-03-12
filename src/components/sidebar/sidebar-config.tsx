@@ -114,6 +114,12 @@ export function createOrganizationSidebarGroups({
           icon: Users,
           action: { kind: 'view', view: 'team' },
         },
+        {
+          id: 'finance',
+          label: 'Finance',
+          icon: DollarSign,
+          action: { kind: 'view', view: 'finance' },
+        },
       ],
     },
     {

@@ -3,6 +3,7 @@ import { Users, DollarSign, Ticket, Download, Calendar, Eye, MousePointer } from
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { downloadReportPdf } from '../utils/reportExport';
 import { ContentState } from './ui/ContentState';
+import InlineAnalyticsTable from './ui/inline-analytics-table';
 
 interface AnalyticsProps {
   selectedEventId: string | null;
@@ -496,6 +497,13 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
               </div>
             </div>
           </div>
+
+          <InlineAnalyticsTable
+            title="Regional Revenue Pulse"
+            subtitle="A compact operating view of sales, revenue, and growth across your strongest organizer markets."
+            caption="Regional trend table for organization-wide commercial performance."
+            items={orgRegionalPerformance}
+          />
         </>
       )}
       </div>
@@ -548,6 +556,14 @@ const orgEventStatusData = [
   { month: 'Dec', active: 12, completed: 10 },
   { month: 'Jan', active: 12, completed: 12 },
   { month: 'Feb', active: 14, completed: 11 }
+];
+
+const orgRegionalPerformance = [
+  { id: 'region-1', region: 'North America', sales: 1834, revenue: 42100, growth: 18 },
+  { id: 'region-2', region: 'Europe', sales: 1286, revenue: 28750, growth: 9 },
+  { id: 'region-3', region: 'Asia Pacific', sales: 1542, revenue: 33840, growth: 22 },
+  { id: 'region-4', region: 'South America', sales: 734, revenue: 15420, growth: 7 },
+  { id: 'region-5', region: 'Africa', sales: 512, revenue: 10280, growth: -4 },
 ];
 
 const orgGeographyData = {

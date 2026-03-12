@@ -248,6 +248,14 @@ const SECONDARY_BUTTON_CLASS =
   'inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50';
 const SOFT_BUTTON_CLASS =
   'inline-flex items-center justify-center gap-2 rounded-xl bg-[#f3e8fc] px-5 py-3 text-sm font-medium text-gray-800 transition hover:bg-[#ebdefb] disabled:cursor-not-allowed disabled:opacity-50';
+const SETTINGS_PAGE_STACK_CLASS = 'space-y-5 sm:space-y-6 lg:space-y-7';
+const SETTINGS_SECTION_GRID_CLASS = 'grid grid-cols-1 gap-5 md:grid-cols-2 lg:gap-6';
+const SETTINGS_COLUMN_STACK_CLASS = 'space-y-5 sm:space-y-6';
+const SETTINGS_CONTENT_STACK_CLASS = 'space-y-4 sm:space-y-5';
+const SETTINGS_FORM_GRID_CLASS = 'grid grid-cols-1 gap-5 sm:gap-6';
+const SETTINGS_PANEL_CLASS = 'rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4 sm:px-6 sm:py-5';
+const SETTINGS_PADDED_PANEL_CLASS = 'rounded-xl border border-gray-200 bg-[#fafafa] p-4 sm:p-5';
+const SETTINGS_CARD_PADDING_CLASS = 'p-5 sm:p-6 lg:p-8';
 
 function createPaymentMethodVisual(provider: PaymentMethodDraft['provider']) {
   if (provider === 'visa') {
@@ -285,8 +293,8 @@ function SettingsCard({
   headerRight?: ReactNode;
 }) {
   return (
-    <section className={`rounded-xl border border-gray-200 bg-white p-8 shadow-sm ${className}`}>
-      <div className="mb-7 flex items-start justify-between gap-4">
+    <section className={`rounded-xl border border-gray-200 bg-white shadow-sm ${SETTINGS_CARD_PADDING_CLASS} ${className}`}>
+      <div className="mb-5 flex items-start justify-between gap-4 sm:mb-6 lg:mb-7">
         <h2 className="text-[1.05rem] font-semibold tracking-[-0.02em] text-gray-950">{title}</h2>
         {headerRight}
       </div>
@@ -304,7 +312,7 @@ function SettingsFeedback({
     <div
       role="status"
       aria-live="polite"
-      className="rounded-xl border border-[#e7d8fa] bg-[#fbf7ff] px-5 py-4 text-sm font-medium text-[#5c2a99]"
+      className="rounded-xl border border-[#e7d8fa] bg-[#fbf7ff] px-5 py-4 text-sm font-medium text-[#5c2a99] sm:px-6 sm:py-5"
     >
       {message}
     </div>
@@ -325,8 +333,8 @@ function FieldInput({
   placeholder?: string;
 }) {
   return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-medium text-gray-500">{label}</span>
+    <label className="grid gap-2">
+      <span className="text-sm font-medium text-gray-500">{label}</span>
       <input
         type={type}
         value={value}
@@ -412,15 +420,15 @@ function SettingsModal({
   const descriptionId = React.useId();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 sm:px-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 sm:px-6 sm:py-8">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-6 shadow-2xl"
+        className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-5 shadow-2xl sm:p-6"
       >
-        <div className="mb-6 flex items-start justify-between gap-4">
+        <div className="mb-5 flex items-start justify-between gap-4 sm:mb-6">
           <div className="space-y-2">
             <h2 id={titleId} className="text-2xl font-semibold tracking-[-0.03em] text-gray-950">{title}</h2>
             <p id={descriptionId} className="text-sm leading-6 text-gray-500">{description}</p>
@@ -435,9 +443,9 @@ function SettingsModal({
           </button>
         </div>
 
-        <div className="space-y-5">{children}</div>
+        <div className="space-y-4 sm:space-y-5">{children}</div>
 
-        <div className="mt-8 flex items-center justify-end gap-3">
+        <div className="mt-6 flex items-center justify-end gap-3 sm:mt-8">
           <button
             type="button"
             onClick={onClose}
@@ -489,7 +497,7 @@ function ProfileMetric({
   detail: string;
 }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-4 shadow-sm">
+    <div className={`${SETTINGS_PADDED_PANEL_CLASS} shadow-sm`}>
       <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f]">
         {icon}
       </div>
@@ -514,7 +522,7 @@ function ProfileSnapshotItem({
   meta: string;
 }) {
   return (
-    <div className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4 shadow-sm">
+    <div className={`flex items-start gap-4 shadow-sm ${SETTINGS_PANEL_CLASS}`}>
       <div className="mt-0.5 flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f]">
         {icon}
       </div>
@@ -706,11 +714,11 @@ function ProfileSettingsContent() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className={SETTINGS_PAGE_STACK_CLASS}>
       {feedback ? <SettingsFeedback message={feedback} /> : null}
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="space-y-6">
+      <div className={SETTINGS_SECTION_GRID_CLASS}>
+        <div className={SETTINGS_COLUMN_STACK_CLASS}>
           <SettingsCard
             title={<ProfileCardTitle icon={<UserRound className="h-4 w-4" />} title="Your profile" />}
             headerRight={
@@ -720,9 +728,9 @@ function ProfileSettingsContent() {
             }
             className="border-gray-200 bg-[linear-gradient(145deg,rgba(255,255,255,0.98)_0%,rgba(249,249,251,0.96)_56%,rgba(255,250,240,0.94)_100%)] shadow-sm"
           >
-            <div className="space-y-6">
-              <div className="flex flex-col gap-6">
-                <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className={SETTINGS_PAGE_STACK_CLASS}>
+              <div className="flex flex-col gap-5 sm:gap-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
                   <div className="flex items-center gap-4">
                     <div className="relative">
                       <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-[radial-gradient(circle_at_top_left,#4b4b58,#1f1f29_65%)] text-3xl font-semibold text-white shadow-sm ring-4 ring-white/90">
@@ -753,7 +761,7 @@ function ProfileSettingsContent() {
                       </label>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 sm:space-y-3">
                       <span className="inline-flex rounded-full border border-[#d7c3f5] bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#6b32b0]">
                         Lead Organizer
                       </span>
@@ -780,7 +788,7 @@ function ProfileSettingsContent() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
                 <ProfileMetric
                   icon={<CheckCircle2 className="h-5 w-5" />}
                   label="Profile Completeness"
@@ -795,32 +803,6 @@ function ProfileSettingsContent() {
                 />
               </div>
 
-              <div className="grid gap-3">
-                {primaryEmail ? (
-                  <ProfileSnapshotItem
-                    icon={<Mail className="h-5 w-5" />}
-                    label="Primary Email"
-                    value={primaryEmailPreview || primaryEmail.value}
-                    meta="Used for billing notices, recovery flows, and workspace updates."
-                  />
-                ) : null}
-                {primaryPhone ? (
-                  <ProfileSnapshotItem
-                    icon={<Smartphone className="h-5 w-5" />}
-                    label="Direct Line"
-                    value={primaryPhone.value}
-                    meta="Used for urgent organizer coordination and day-of-event contact."
-                  />
-                ) : null}
-                {primaryAddress ? (
-                  <ProfileSnapshotItem
-                    icon={<Building2 className="h-5 w-5" />}
-                    label="Primary Address"
-                    value={primaryAddress.lines.join(', ')}
-                    meta="Shown across invoices, payout records, and legal account details."
-                  />
-                ) : null}
-              </div>
             </div>
           </SettingsCard>
 
@@ -829,13 +811,13 @@ function ProfileSettingsContent() {
             headerRight={<span className="text-sm font-medium text-gray-500">{emails.length} total</span>}
             className="shadow-[0_18px_42px_rgba(15,23,42,0.06)]"
           >
-            <div className="space-y-4">
+            <div className={SETTINGS_CONTENT_STACK_CLASS}>
               {visibleEmails.map((email) => (
-                <div key={email.id} className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] p-4">
+                <div key={email.id} className={`flex items-start gap-4 ${SETTINGS_PADDED_PANEL_CLASS}`}>
                   <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f] shadow-sm">
                     <Mail className="h-5 w-5" />
                   </div>
-                  <div className="min-w-0 flex-1 space-y-3">
+                  <div className="min-w-0 flex-1 space-y-2 sm:space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
                       {email.primary ? (
                         <span className="inline-flex rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">
@@ -883,7 +865,7 @@ function ProfileSettingsContent() {
                 </div>
               ))}
 
-              <div className="flex flex-wrap items-center gap-3 pt-2">
+              <div className="flex flex-wrap items-center gap-3 pt-1 sm:pt-2">
                 <button
                   type="button"
                   onClick={() => setShowAllEmails((current) => !current)}
@@ -915,13 +897,13 @@ function ProfileSettingsContent() {
             title={<ProfileCardTitle icon={<Phone className="h-4 w-4" />} title="Phone Number" />}
             className="shadow-[0_18px_42px_rgba(15,23,42,0.06)]"
           >
-            <div className="space-y-4">
+            <div className={SETTINGS_CONTENT_STACK_CLASS}>
               {phones.map((phone) => (
-                <div key={phone.id} className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] p-4">
+                <div key={phone.id} className={`flex items-start gap-4 ${SETTINGS_PADDED_PANEL_CLASS}`}>
                   <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f] shadow-sm">
                     <Smartphone className="h-5 w-5" />
                   </div>
-                  <div className="min-w-0 flex-1 space-y-3">
+                  <div className="min-w-0 flex-1 space-y-2 sm:space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
                       {phone.primary ? (
                         <span className="inline-flex rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">
@@ -956,19 +938,19 @@ function ProfileSettingsContent() {
           </SettingsCard>
         </div>
 
-        <div className="space-y-6">
+        <div className={SETTINGS_COLUMN_STACK_CLASS}>
           <SettingsCard
             title={<ProfileCardTitle icon={<MapPinned className="h-4 w-4" />} title="Address" />}
             headerRight={<span className="text-sm font-medium text-gray-500">{addresses.length} saved</span>}
             className="shadow-[0_18px_42px_rgba(15,23,42,0.06)]"
           >
-            <div className="space-y-4">
+            <div className={SETTINGS_CONTENT_STACK_CLASS}>
               {addresses.map((address) => (
-                <div key={address.id} className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] p-4">
+                <div key={address.id} className={`flex items-start gap-4 ${SETTINGS_PADDED_PANEL_CLASS}`}>
                   <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f] shadow-sm">
                     <Building2 className="h-5 w-5" />
                   </div>
-                  <div className="min-w-0 flex-1 space-y-3">
+                  <div className="min-w-0 flex-1 space-y-2 sm:space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
                       {address.label ? (
                         <span className="inline-flex rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">
@@ -1011,8 +993,8 @@ function ProfileSettingsContent() {
             title={<ProfileCardTitle icon={<SlidersHorizontal className="h-4 w-4" />} title="Account Options" />}
             className="shadow-[0_18px_42px_rgba(15,23,42,0.06)]"
           >
-            <div className="space-y-6">
-              <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-5">
+            <div className={SETTINGS_PAGE_STACK_CLASS}>
+              <div className={SETTINGS_PANEL_CLASS}>
                 <div className="flex items-start gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f] shadow-sm">
                     <Laptop className="h-5 w-5" />
@@ -1026,7 +1008,7 @@ function ProfileSettingsContent() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-6">
+              <div className={SETTINGS_FORM_GRID_CLASS}>
                 <label className="block">
                   <span className="mb-3 block text-sm font-medium text-gray-500">Language</span>
                   <div className="relative">
@@ -1104,7 +1086,7 @@ function ProfileSettingsContent() {
             onChange={(value) => setEditor({ ...editor, value })}
             placeholder="name@example.com"
           />
-          <label className="flex items-center gap-3 rounded-xl border border-gray-200 bg-[#fafafa] px-4 py-4">
+          <label className={`flex items-center gap-3 ${SETTINGS_PANEL_CLASS}`}>
             <input
               type="checkbox"
               checked={editor.primary}
@@ -1125,7 +1107,7 @@ function ProfileSettingsContent() {
           saveDisabled={!editor.value.trim()}
         >
           <FieldInput label="Phone Number" value={editor.value} onChange={(value) => setEditor({ ...editor, value })} />
-          <label className="flex items-center gap-3 rounded-xl border border-gray-200 bg-[#fafafa] px-4 py-4">
+          <label className={`flex items-center gap-3 ${SETTINGS_PANEL_CLASS}`}>
             <input
               type="checkbox"
               checked={editor.primary}
@@ -1211,11 +1193,11 @@ function PaymentsSettingsContent() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className={SETTINGS_PAGE_STACK_CLASS}>
       {feedback ? <SettingsFeedback message={feedback} /> : null}
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="space-y-6">
+      <div className={SETTINGS_SECTION_GRID_CLASS}>
+        <div className={SETTINGS_COLUMN_STACK_CLASS}>
           <PaymentMethodSelector
             title="Choose how to pay"
             actionText="Add new method"
@@ -1223,11 +1205,11 @@ function PaymentsSettingsContent() {
             defaultSelectedId={selectedPaymentMethod}
             onActionClick={handleAddPaymentMethod}
             onSelectionChange={handleSelectionChange}
-            className="max-w-none rounded-xl border-gray-200 p-8 shadow-sm"
+            className="max-w-none rounded-xl border-gray-200 shadow-sm"
           />
 
           <SettingsCard title="Payout Preferences">
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-2">
               <label className="block">
                 <span className="mb-3 block text-sm font-medium text-gray-500">Default Payout Method</span>
                 <div className="relative">
@@ -1277,35 +1259,15 @@ function PaymentsSettingsContent() {
           </SettingsCard>
         </div>
 
-        <div className="space-y-6">
-          <SettingsCard title="Payment Summary">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-5">
-                <div className="mb-2 text-sm font-medium text-gray-500">Available Balance</div>
-                <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">$18,420</div>
-                <div className="mt-2 text-sm text-emerald-600">Ready to withdraw</div>
-              </div>
-              <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-5">
-                <div className="mb-2 text-sm font-medium text-gray-500">Pending Payouts</div>
-                <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">$4,860</div>
-                <div className="mt-2 text-sm text-amber-600">2 transfers in review</div>
-              </div>
-              <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-5">
-                <div className="mb-2 text-sm font-medium text-gray-500">Processing Fee</div>
-                <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">2.9%</div>
-                <div className="mt-2 text-sm text-gray-500">Standard domestic rate</div>
-              </div>
-            </div>
-          </SettingsCard>
-
+        <div className={SETTINGS_COLUMN_STACK_CLASS}>
           <SettingsCard title="Recent Transactions">
-            <div className="space-y-4">
+            <div className={SETTINGS_CONTENT_STACK_CLASS}>
               {[
                 { id: 'TX-2048', title: 'Summer Music Festival payout', amount: '+$6,240', status: 'Completed' },
                 { id: 'TX-2049', title: 'Premium workspace renewal', amount: '-$199', status: 'Processed' },
                 { id: 'TX-2050', title: 'Marketing credit top-up', amount: '-$350', status: 'Pending' },
               ].map((transaction) => (
-                <div key={transaction.id} className="flex items-center justify-between rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4">
+                <div key={transaction.id} className={`flex items-center justify-between ${SETTINGS_PANEL_CLASS}`}>
                   <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
                       <DollarSign className="h-5 w-5" />
@@ -1423,16 +1385,16 @@ function SecuritySettingsContent() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className={SETTINGS_PAGE_STACK_CLASS}>
       {feedback ? <SettingsFeedback message={feedback} /> : null}
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="space-y-6">
+      <div className={SETTINGS_SECTION_GRID_CLASS}>
+        <div className={SETTINGS_COLUMN_STACK_CLASS}>
           <SettingsCard
             title="Password & Access"
             headerRight={<span className="rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">Recommended</span>}
           >
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2">
               <div className="md:col-span-2">
                 <PasswordField
                   label="Previous Password"
@@ -1463,7 +1425,7 @@ function SecuritySettingsContent() {
               <p className="mt-4 text-sm font-medium text-amber-600">The new password needs at least 8 characters.</p>
             ) : null}
 
-            <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4">
+            <div className={`mt-6 flex flex-wrap items-center justify-between gap-4 sm:mt-8 ${SETTINGS_PANEL_CLASS}`}>
               <div>
                 <div className="text-sm font-medium text-gray-900">Password strength</div>
                 <div className="mt-1 text-sm text-gray-500">
@@ -1486,7 +1448,7 @@ function SecuritySettingsContent() {
           </SettingsCard>
 
           <SettingsCard title="Security Overview">
-            <div className="space-y-4">
+            <div className={SETTINGS_CONTENT_STACK_CLASS}>
               {[
                 {
                   id: 'overview-1',
@@ -1504,7 +1466,7 @@ function SecuritySettingsContent() {
                   detail: '3 active devices trusted in the last 30 days.',
                 },
               ].map((item) => (
-                <div key={item.id} className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4">
+                <div key={item.id} className={`flex items-start gap-4 ${SETTINGS_PANEL_CLASS}`}>
                   <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
                     <CheckCircle2 className="h-4 w-4" />
                   </div>
@@ -1518,9 +1480,9 @@ function SecuritySettingsContent() {
           </SettingsCard>
         </div>
 
-        <div className="space-y-6">
+        <div className={SETTINGS_COLUMN_STACK_CLASS}>
           <SettingsCard title="Recent Security Activity">
-            <div className="space-y-4">
+            <div className={SETTINGS_CONTENT_STACK_CLASS}>
               {[
                 {
                   id: 'activity-1',
@@ -1544,7 +1506,7 @@ function SecuritySettingsContent() {
                 const Icon = activity.icon;
 
                 return (
-                  <div key={activity.id} className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4">
+                  <div key={activity.id} className={`flex items-start gap-4 ${SETTINGS_PANEL_CLASS}`}>
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
                       <Icon className="h-5 w-5" />
                     </div>
@@ -1559,7 +1521,7 @@ function SecuritySettingsContent() {
           </SettingsCard>
 
           <SettingsCard title="Trusted Devices">
-            <div className="space-y-4">
+            <div className={SETTINGS_CONTENT_STACK_CLASS}>
               {[
                 {
                   id: 'device-1',
@@ -1579,7 +1541,7 @@ function SecuritySettingsContent() {
                 const Icon = device.icon;
 
                 return (
-                  <div key={device.id} className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4">
+                  <div key={device.id} className={`flex items-center justify-between gap-4 ${SETTINGS_PANEL_CLASS}`}>
                     <div className="flex items-center gap-4">
                       <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
                         <Icon className="h-5 w-5" />
@@ -1657,7 +1619,7 @@ function PremiumSubscriptionsContent() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className={SETTINGS_PAGE_STACK_CLASS}>
       {feedback ? <SettingsFeedback message={feedback} /> : null}
 
       <SettingsCard
@@ -1670,18 +1632,18 @@ function PremiumSubscriptionsContent() {
           ) : null
         }
       >
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-5">
+        <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-3">
+          <div className={`${SETTINGS_PANEL_CLASS} pl-7 pr-6 sm:pl-8 sm:pr-7`}>
             <div className="mb-2 text-sm font-medium text-gray-500">Active Plan</div>
             <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">Professional</div>
             <div className="mt-2 text-sm text-[#7626c6]">Renews annually on Aug 14</div>
           </div>
-          <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-5">
+          <div className={`${SETTINGS_PANEL_CLASS} pl-7 pr-6 sm:pl-8 sm:pr-7`}>
             <div className="mb-2 text-sm font-medium text-gray-500">Team Seats</div>
             <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">18 / 25</div>
             <div className="mt-2 text-sm text-gray-500">7 seats available</div>
           </div>
-          <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-5">
+          <div className={`${SETTINGS_PANEL_CLASS} pl-7 pr-6 sm:pl-8 sm:pr-7`}>
             <div className="mb-2 text-sm font-medium text-gray-500">Savings This Year</div>
             <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">$36</div>
             <div className="mt-2 text-sm text-emerald-600">Yearly discount applied</div>
@@ -1689,7 +1651,7 @@ function PremiumSubscriptionsContent() {
         </div>
       </SettingsCard>
 
-      <section className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
+      <section className="rounded-xl border border-gray-200 bg-white p-2 sm:p-3 shadow-sm">
         <PricingTable plans={premiumPlans} onPlanSelect={handlePlanSelect} />
       </section>
     </div>
@@ -1714,9 +1676,9 @@ function SettingsAssistantModal({
       onSave={onClose}
       saveLabel="Close Assistant"
     >
-      <div className="space-y-3">
+      <div className="space-y-3 sm:space-y-4">
         {suggestions.map((suggestion) => (
-          <div key={suggestion} className="rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4 text-sm leading-6 text-gray-600">
+          <div key={suggestion} className={`${SETTINGS_PANEL_CLASS} text-sm leading-6 text-gray-600`}>
             {suggestion}
           </div>
         ))}
@@ -1737,7 +1699,7 @@ function NotificationToggle({
   onToggle: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-5 rounded-xl border border-gray-200 bg-[#fafafa] px-6 py-5">
+    <div className={`flex items-center justify-between gap-5 ${SETTINGS_PANEL_CLASS}`}>
       <div className="space-y-1.5 pr-4">
         <div className="font-medium text-gray-950">{label}</div>
         <div className="text-sm text-gray-500">{description}</div>
@@ -1776,10 +1738,10 @@ function NotificationsSettingsContent() {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-      <div className="space-y-6">
+    <div className={SETTINGS_SECTION_GRID_CLASS}>
+      <div className={SETTINGS_COLUMN_STACK_CLASS}>
         <SettingsCard title="Delivery Channels">
-          <div className="space-y-4">
+          <div className={SETTINGS_CONTENT_STACK_CLASS}>
             <NotificationToggle
               label="Email Notifications"
               description="Receive organizer summaries, attendee updates, and subscription notices by email."
@@ -1802,7 +1764,7 @@ function NotificationsSettingsContent() {
         </SettingsCard>
 
         <SettingsCard title="Notification Digest">
-          <div className="space-y-4">
+          <div className={SETTINGS_CONTENT_STACK_CLASS}>
             {[
               {
                 id: 'digest-email',
@@ -1826,7 +1788,7 @@ function NotificationsSettingsContent() {
               const Icon = item.icon;
 
               return (
-                <div key={item.id} className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4">
+                <div key={item.id} className={`flex items-start gap-4 ${SETTINGS_PANEL_CLASS}`}>
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
                     <Icon className="h-5 w-5" />
                   </div>
@@ -1841,9 +1803,9 @@ function NotificationsSettingsContent() {
         </SettingsCard>
       </div>
 
-      <div className="space-y-6">
+      <div className={SETTINGS_COLUMN_STACK_CLASS}>
         <SettingsCard title="Event Alerts">
-          <div className="space-y-4">
+          <div className={SETTINGS_CONTENT_STACK_CLASS}>
             <NotificationToggle
               label="Ticket Sales"
               description="Instant notifications when ticket velocity spikes or a pricing tier sells out."
@@ -1872,8 +1834,8 @@ function NotificationsSettingsContent() {
         </SettingsCard>
 
         <SettingsCard title="Quiet Hours">
-          <div className="space-y-6">
-            <div className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4">
+          <div className={SETTINGS_PAGE_STACK_CLASS}>
+            <div className={`flex items-start gap-4 ${SETTINGS_PANEL_CLASS}`}>
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
                 <Clock3 className="h-5 w-5" />
               </div>
@@ -1883,7 +1845,7 @@ function NotificationsSettingsContent() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2">
               <label className="block">
                 <span className="mb-3 block text-sm font-medium text-gray-500">Quiet Hours Start</span>
                 <div className="relative">
@@ -1921,7 +1883,7 @@ function PlaceholderSettingsContent({ section }: { section: SettingsSection }) {
 
   return (
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-      <section className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm xl:col-span-2">
+      <section className={`rounded-xl border border-gray-200 bg-white shadow-sm xl:col-span-2 ${SETTINGS_CARD_PADDING_CLASS}`}>
         <div className="flex items-start gap-4">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
             <Icon className="h-6 w-6" />
@@ -1942,14 +1904,14 @@ export function SettingsPage({ section }: SettingsPageProps) {
 
   return (
     <div
-      className="min-h-full p-8"
+      className="min-h-full p-5 sm:p-6 lg:p-8"
       style={{
         background:
           'radial-gradient(circle at top left, rgba(118, 38, 198, 0.08), transparent 28%), linear-gradient(180deg, #f7f5fb 0%, #f4f5f8 100%)',
       }}
     >
       <div className="mx-auto max-w-[1380px]">
-        <div className="mb-10 space-y-2">
+        <div className="mb-8 space-y-2 sm:mb-9 sm:space-y-3 lg:mb-10">
           <h1 className="text-5xl font-semibold tracking-[-0.04em] text-[#2c1451]">{sectionData.title}</h1>
           <p className="text-xl text-[#2c1451]/85">{sectionData.subtitle}</p>
         </div>

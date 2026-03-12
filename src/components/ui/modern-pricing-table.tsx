@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { MinimalToggle } from "@/components/ui/toggle";
 
 export interface Plan {
   title: string;
@@ -160,39 +159,46 @@ const PricingTable: React.FC<PricingTableProps> = ({ plans, onPlanSelect }) => {
           transition={{ delay: 0.3, duration: 0.6 }}
         >
           <div className="relative flex flex-col items-center gap-3">
-            <div className="inline-flex items-center gap-4 rounded-full border border-gray-200 bg-white px-4 py-3 shadow-sm">
-              <button
-                type="button"
-                onClick={() => updateBillingCycle(false)}
-                className={`rounded-xl px-3 py-2 text-base font-semibold transition ${
-                  isYearly ? "text-gray-400" : "text-gray-950"
-                }`}
-                aria-pressed={!isYearly}
-              >
-                Monthly
-              </button>
-
-              <MinimalToggle
-                role="switch"
+            <div className="w-full max-w-[380px] space-y-2">
+              <div className="text-center text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+                Billing cycle
+              </div>
+              <div
+                className="relative grid grid-cols-2 rounded-2xl border border-gray-200 bg-[#f4f5f7] p-1.5"
+                role="radiogroup"
                 aria-label="Billing cycle"
-                aria-checked={isYearly}
-                checked={isYearly}
-                onChange={(event) => updateBillingCycle(event.target.checked)}
-              />
-
-              <button
-                type="button"
-                onClick={() => updateBillingCycle(true)}
-                className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-base font-semibold transition ${
-                  isYearly ? "text-gray-950" : "text-gray-400"
-                }`}
-                aria-pressed={isYearly}
               >
-                <span>Yearly</span>
-                <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
-                  Save 20%
-                </span>
-              </button>
+                <motion.span
+                  aria-hidden="true"
+                  className="absolute bottom-1.5 left-1.5 top-1.5 w-[calc(50%-0.375rem)] rounded-[14px] border border-white/80 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.08)]"
+                  animate={{ x: isYearly ? "100%" : "0%" }}
+                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                />
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={!isYearly}
+                  onClick={() => updateBillingCycle(false)}
+                  className={`relative z-10 flex flex-col items-center gap-1 rounded-[14px] px-4 py-3 text-center transition ${
+                    isYearly ? "text-gray-500" : "text-gray-950"
+                  }`}
+                >
+                  <span className="text-sm font-semibold">Monthly</span>
+                  <span className="text-xs leading-5 text-gray-500">Pay month to month</span>
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={isYearly}
+                  onClick={() => updateBillingCycle(true)}
+                  className={`relative z-10 flex flex-col items-center gap-1 rounded-[14px] px-4 py-3 text-center transition ${
+                    isYearly ? "text-gray-950" : "text-gray-500"
+                  }`}
+                >
+                  <span className="text-sm font-semibold">Yearly</span>
+                  <span className="text-xs leading-5 text-emerald-700">Save 20% annually</span>
+                </button>
+              </div>
             </div>
 
             <AnimatePresence>

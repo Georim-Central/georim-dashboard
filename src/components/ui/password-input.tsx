@@ -13,8 +13,8 @@ interface PasswordFieldProps {
 
 export function PasswordField({ label, placeholder, hint, value, onChange }: PasswordFieldProps) {
   return (
-    <ArkPasswordInput.Root>
-      <ArkPasswordInput.Label className="mb-2 block text-sm font-medium text-gray-500">
+    <ArkPasswordInput.Root className="grid gap-2">
+      <ArkPasswordInput.Label className="text-sm font-medium text-gray-500">
         {label}
       </ArkPasswordInput.Label>
       <ArkPasswordInput.Control className="relative h-14 overflow-hidden rounded-xl border border-gray-200 bg-[#fafafa] shadow-sm transition-all focus-within:border-[#7626c6] focus-within:ring-4 focus-within:ring-[#7626c6]/10">
@@ -33,7 +33,7 @@ export function PasswordField({ label, placeholder, hint, value, onChange }: Pas
           </ArkPasswordInput.Indicator>
         </ArkPasswordInput.VisibilityTrigger>
       </ArkPasswordInput.Control>
-      {hint ? <p className="mt-2 text-sm text-gray-500">{hint}</p> : null}
+      {hint ? <p className="text-sm text-gray-500">{hint}</p> : null}
     </ArkPasswordInput.Root>
   );
 }

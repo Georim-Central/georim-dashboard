@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import Interactive3DAnalyticsDashboardCard from '@/components/ui/interactive-3d-analytics-dashboard-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
@@ -218,7 +219,7 @@ function MetricCard({
   helper: string;
 }) {
   return (
-    <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm shadow-slate-200/60">
+    <div className="h-full rounded-3xl border border-gray-200 bg-white p-6 shadow-sm shadow-slate-200/60">
       <div className="mb-5 flex items-start justify-between">
         <div className={cn('rounded-2xl p-3', tone)}>
           <Icon className="h-5 w-5" />
@@ -287,7 +288,7 @@ export function Finance() {
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <MetricCard
             icon={DollarSign}
             tone="bg-violet-100 text-[#7626c6]"
@@ -317,6 +318,25 @@ export function Finance() {
             helper="Processing fees and subscription costs billed this cycle."
           />
         </div>
+
+        <Interactive3DAnalyticsDashboardCard
+          title="Payment Summary"
+          subtitle="Settlement performance across recent payout cycles"
+          data={[
+            { label: 'Jan', value: 12400 },
+            { label: 'Feb', value: 16800 },
+            { label: 'Mar', value: 15200 },
+            { label: 'Apr', value: 19100 },
+            { label: 'May', value: 22400 },
+            { label: 'Jun', value: 23800 },
+            { label: 'Jul', value: 27120 },
+          ]}
+          stats={[
+            { label: 'Available Balance', value: '$18,420', detail: 'Ready to withdraw', tone: 'positive' },
+            { label: 'Pending Payouts', value: '$4,860', detail: '2 transfers in review', tone: 'warning' },
+            { label: 'Processing Fee', value: '2.9%', detail: 'Standard domestic rate' },
+          ]}
+        />
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.95fr)]">
           <FinanceCard
@@ -538,106 +558,108 @@ export function Finance() {
           </FinanceCard>
 
           <div className="space-y-6">
-            <FinanceCard
-              title="Payout Schedule"
-              description="Your next cash-out run and reserve breakdown."
-            >
-              <div className="space-y-5">
-                <div className="rounded-2xl bg-[#f4ecfb] p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7626c6]">
-                        Next payout
-                      </p>
-                      <h3 className="mt-2 text-2xl font-semibold text-gray-950">March 14, 2026</h3>
-                      <p className="mt-1 text-sm text-gray-600">
-                        Estimated transfer of {formatCurrency(6200)} to Chase Checking •••• 4408.
-                      </p>
-                    </div>
-                    <div className="rounded-2xl bg-white p-3 text-[#7626c6] shadow-sm">
-                      <Landmark className="h-5 w-5" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between rounded-2xl border border-gray-200 p-4">
-                    <div className="flex items-center gap-3">
-                      <ArrowUpRight className="h-4 w-4 text-emerald-600" />
+            <div className="grid gap-6 md:grid-cols-2">
+              <FinanceCard
+                title="Payout Schedule"
+                description="Your next cash-out run and reserve breakdown."
+              >
+                <div className="space-y-5">
+                  <div className="rounded-2xl bg-[#f4ecfb] p-4">
+                    <div className="flex items-start justify-between gap-4">
                       <div>
-                        <div className="text-sm font-semibold text-gray-900">Connected payout account</div>
-                        <div className="text-xs text-gray-500">Chase Checking •••• 4408</div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7626c6]">
+                          Next payout
+                        </p>
+                        <h3 className="mt-2 text-2xl font-semibold text-gray-950">March 14, 2026</h3>
+                        <p className="mt-1 text-sm text-gray-600">
+                          Estimated transfer of {formatCurrency(6200)} to Chase Checking •••• 4408.
+                        </p>
+                      </div>
+                      <div className="rounded-2xl bg-white p-3 text-[#7626c6] shadow-sm">
+                        <Landmark className="h-5 w-5" />
                       </div>
                     </div>
-                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
-                      Verified
-                    </span>
                   </div>
-                  <div className="flex items-center justify-between rounded-2xl border border-gray-200 p-4">
-                    <div className="flex items-center gap-3">
-                      <ArrowDownLeft className="h-4 w-4 text-amber-600" />
-                      <div>
-                        <div className="text-sm font-semibold text-gray-900">Reserve hold</div>
-                        <div className="text-xs text-gray-500">5-7 business day protection window</div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between rounded-2xl border border-gray-200 p-4">
+                      <div className="flex items-center gap-3">
+                        <ArrowUpRight className="h-4 w-4 text-emerald-600" />
+                        <div>
+                          <div className="text-sm font-semibold text-gray-900">Connected payout account</div>
+                          <div className="text-xs text-gray-500">Chase Checking •••• 4408</div>
+                        </div>
                       </div>
+                      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+                        Verified
+                      </span>
                     </div>
-                    <span className="text-sm font-semibold text-gray-900">{formatCurrency(pendingBalance)}</span>
+                    <div className="flex items-center justify-between rounded-2xl border border-gray-200 p-4">
+                      <div className="flex items-center gap-3">
+                        <ArrowDownLeft className="h-4 w-4 text-amber-600" />
+                        <div>
+                          <div className="text-sm font-semibold text-gray-900">Reserve hold</div>
+                          <div className="text-xs text-gray-500">5-7 business day protection window</div>
+                        </div>
+                      </div>
+                      <span className="text-sm font-semibold text-gray-900">{formatCurrency(pendingBalance)}</span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="rounded-2xl border border-dashed border-violet-200 bg-violet-50/60 p-4">
-                  <div className="flex items-start gap-3">
-                    <CircleAlert className="mt-0.5 h-4 w-4 text-[#7626c6]" />
-                    <p className="text-sm text-gray-600">
-                      Withdrawals requested before 3:00 PM CT are bundled into the next available payout run.
-                    </p>
+                  <div className="rounded-2xl border border-dashed border-violet-200 bg-violet-50/60 p-4">
+                    <div className="flex items-start gap-3">
+                      <CircleAlert className="mt-0.5 h-4 w-4 text-[#7626c6]" />
+                      <p className="text-sm text-gray-600">
+                        Withdrawals requested before 3:00 PM CT are bundled into the next available payout run.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </FinanceCard>
+              </FinanceCard>
 
-            <FinanceCard
-              title="Finance Controls"
-              description="Key organizer settings tied to payouts and subscriptions."
-            >
-              <div className="space-y-4">
-                <div className="flex items-start gap-3 rounded-2xl border border-gray-200 p-4">
-                  <div className="rounded-2xl bg-sky-100 p-2 text-sky-700">
-                    <CreditCard className="h-4 w-4" />
+              <FinanceCard
+                title="Finance Controls"
+                description="Key organizer settings tied to payouts and subscriptions."
+              >
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3 rounded-2xl border border-gray-200 p-4">
+                    <div className="rounded-2xl bg-sky-100 p-2 text-sky-700">
+                      <CreditCard className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-gray-900">Primary payout method</h3>
+                      <p className="mt-1 text-sm text-gray-500">
+                        Visa ending in 0912 is used for subscription charges and bank verification.
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-gray-900">Primary payout method</h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Visa ending in 0912 is used for subscription charges and bank verification.
-                    </p>
-                  </div>
-                </div>
 
-                <div className="flex items-start gap-3 rounded-2xl border border-gray-200 p-4">
-                  <div className="rounded-2xl bg-emerald-100 p-2 text-emerald-700">
-                    <ShieldCheck className="h-4 w-4" />
+                  <div className="flex items-start gap-3 rounded-2xl border border-gray-200 p-4">
+                    <div className="rounded-2xl bg-emerald-100 p-2 text-emerald-700">
+                      <ShieldCheck className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-gray-900">Tax documents on file</h3>
+                      <p className="mt-1 text-sm text-gray-500">
+                        W-9 verified. Finance contact receives payout notices and invoice reminders.
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-gray-900">Tax documents on file</h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      W-9 verified. Finance contact receives payout notices and invoice reminders.
-                    </p>
-                  </div>
-                </div>
 
-                <div className="flex items-start gap-3 rounded-2xl border border-gray-200 p-4">
-                  <div className="rounded-2xl bg-amber-100 p-2 text-amber-700">
-                    <CalendarDays className="h-4 w-4" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-gray-900">Subscription renewal</h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Pro Organizer renews on April 1, 2026 for {formatCurrency(149)} unless upgraded first.
-                    </p>
+                  <div className="flex items-start gap-3 rounded-2xl border border-gray-200 p-4">
+                    <div className="rounded-2xl bg-amber-100 p-2 text-amber-700">
+                      <CalendarDays className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-gray-900">Subscription renewal</h3>
+                      <p className="mt-1 text-sm text-gray-500">
+                        Pro Organizer renews on April 1, 2026 for {formatCurrency(149)} unless upgraded first.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </FinanceCard>
+              </FinanceCard>
+            </div>
           </div>
         </div>
       </div>
