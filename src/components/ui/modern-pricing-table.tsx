@@ -22,6 +22,7 @@ export interface Plan {
 
 interface PricingTableProps {
   plans: Plan[];
+  onPlanSelect?: (plan: Plan, billingCycle: "monthly" | "yearly") => void;
 }
 
 const CONFETTI_PARTICLES = [
@@ -69,7 +70,7 @@ const ScrollingNumber: React.FC<{ value: number }> = ({ value }) => {
   );
 };
 
-const PricingTable: React.FC<PricingTableProps> = ({ plans }) => {
+const PricingTable: React.FC<PricingTableProps> = ({ plans, onPlanSelect }) => {
   const [isYearly, setIsYearly] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
@@ -163,7 +164,7 @@ const PricingTable: React.FC<PricingTableProps> = ({ plans }) => {
               <button
                 type="button"
                 onClick={() => updateBillingCycle(false)}
-                className={`text-base font-semibold transition ${
+                className={`rounded-xl px-3 py-2 text-base font-semibold transition ${
                   isYearly ? "text-gray-400" : "text-gray-950"
                 }`}
                 aria-pressed={!isYearly}
@@ -182,7 +183,7 @@ const PricingTable: React.FC<PricingTableProps> = ({ plans }) => {
               <button
                 type="button"
                 onClick={() => updateBillingCycle(true)}
-                className={`inline-flex items-center gap-2 text-base font-semibold transition ${
+                className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-base font-semibold transition ${
                   isYearly ? "text-gray-950" : "text-gray-400"
                 }`}
                 aria-pressed={isYearly}
@@ -305,12 +306,12 @@ const PricingTable: React.FC<PricingTableProps> = ({ plans }) => {
                 transition={{ delay: 0.8 + index * 0.1 }}
               >
                 <Button
-                  asChild
                   variant={plan.isFeatured ? "default" : "outline"}
                   size="lg"
-                  className="w-full"
+                  className="w-full px-6"
+                  onClick={() => onPlanSelect?.(plan, isYearly ? "yearly" : "monthly")}
                 >
-                  <a href={plan.ctaHref}>{plan.ctaText}</a>
+                  {plan.ctaText}
                 </Button>
               </motion.div>
             </div>

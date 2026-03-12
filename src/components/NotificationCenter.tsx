@@ -71,7 +71,7 @@ function MetricCard({
   tone: string;
 }) {
   return (
-    <div className="h-full rounded-3xl border border-gray-200 bg-white p-5 shadow-sm shadow-slate-200/60">
+    <div className="h-full rounded-xl border border-gray-200 bg-white p-5 shadow-sm shadow-slate-200/60">
       <div className={`mb-4 inline-flex rounded-2xl px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] ${tone}`}>
         {label}
       </div>
@@ -177,8 +177,8 @@ export function NotificationCenter({
           />
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_380px]">
-          <section className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm shadow-slate-200/60">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm shadow-slate-200/60">
             <div className="mb-5 flex flex-col gap-4 border-b border-gray-100 pb-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="text-xl font-semibold text-gray-950">Activity Feed</h2>
@@ -209,7 +209,7 @@ export function NotificationCenter({
             </div>
 
             {filteredNotifications.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-14 text-center">
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-6 py-14 text-center">
                 <Bell className="mx-auto h-10 w-10 text-gray-300" />
                 <div className="mt-4 text-lg font-semibold text-gray-900">No notifications in this view</div>
                 <p className="mt-2 text-sm text-gray-500">
@@ -232,14 +232,14 @@ export function NotificationCenter({
                           onToggleRead(notification.id);
                         }
                       }}
-                      className={`w-full rounded-2xl border p-4 text-left transition ${
+                      className={`w-full rounded-xl border p-4 text-left transition ${
                         isSelected
                           ? 'border-[#7626c6]/30 bg-[#faf5ff] shadow-sm'
                           : 'border-gray-200 bg-white hover:border-[#7626c6]/20 hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex items-start gap-4">
-                        <div className={`mt-1 rounded-2xl p-3 ${getCategoryBadgeClass(notification.category)}`}>
+                        <div className={`mt-1 rounded-xl p-3 ${getCategoryBadgeClass(notification.category)}`}>
                           <Icon className="h-4 w-4" />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -273,7 +273,7 @@ export function NotificationCenter({
             )}
           </section>
 
-          <aside className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm shadow-slate-200/60">
+          <aside className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm shadow-slate-200/60">
             <div className="mb-5 flex items-start justify-between gap-3 border-b border-gray-100 pb-4">
               <div>
                 <h2 className="text-xl font-semibold text-gray-950">Detail Review</h2>
@@ -288,7 +288,7 @@ export function NotificationCenter({
 
             {selectedNotification ? (
               <div className="space-y-5">
-                <div className="rounded-2xl bg-[#faf5ff] p-4">
+                <div className="rounded-xl border border-gray-200 bg-[#faf5ff] p-4">
                   <div className="flex items-center gap-2">
                     <Layers3 className="h-4 w-4 text-[#7626c6]" />
                     <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7626c6]">
@@ -311,7 +311,7 @@ export function NotificationCenter({
                     <button
                       type="button"
                       onClick={() => onOpenNotification(selectedNotification)}
-                      className="rounded-2xl bg-[#7626c6] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#6420a7]"
+                      className="rounded-xl bg-[#7626c6] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#6420a7]"
                     >
                       {selectedNotification.ctaLabel || 'Open linked workflow'}
                     </button>
@@ -319,20 +319,20 @@ export function NotificationCenter({
                   <button
                     type="button"
                     onClick={() => onToggleRead(selectedNotification.id)}
-                    className="rounded-2xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                    className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                   >
                     {selectedNotification.read ? 'Mark unread' : 'Mark read'}
                   </button>
                   <button
                     type="button"
                     onClick={() => onArchive(selectedNotification.id)}
-                    className="rounded-2xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                    className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                   >
                     Archive
                   </button>
                 </div>
 
-                <div className="rounded-2xl border border-dashed border-violet-200 bg-violet-50/60 p-4">
+                <div className="rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-4">
                   <div className="flex items-start gap-3">
                     <CircleAlert className="mt-0.5 h-4 w-4 text-[#7626c6]" />
                     <p className="text-sm text-gray-600">
@@ -355,7 +355,7 @@ export function NotificationCenter({
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-5 py-12 text-center">
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-5 py-12 text-center">
                 <Bell className="mx-auto h-10 w-10 text-gray-300" />
                 <div className="mt-4 text-lg font-semibold text-gray-900">No notification selected</div>
                 <p className="mt-2 text-sm text-gray-500">
@@ -372,7 +372,7 @@ export function NotificationCenter({
 
 function DetailItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-gray-200 p-4">
+    <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-4">
       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">{label}</div>
       <div className="mt-2 text-sm font-medium capitalize text-gray-900">{value}</div>
     </div>
@@ -389,8 +389,8 @@ function MiniActionCard({
   description: string;
 }) {
   return (
-    <div className="rounded-2xl border border-gray-200 p-4">
-      <div className="inline-flex rounded-2xl bg-gray-100 p-2 text-gray-700">
+    <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-4">
+      <div className="inline-flex rounded-xl bg-gray-100 p-2 text-gray-700">
         <Icon className="h-4 w-4" />
       </div>
       <div className="mt-3 text-sm font-semibold text-gray-900">{title}</div>

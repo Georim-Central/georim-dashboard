@@ -7,17 +7,21 @@ interface PasswordFieldProps {
   label: string;
   placeholder?: string;
   hint?: string;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
-export function PasswordField({ label, placeholder, hint }: PasswordFieldProps) {
+export function PasswordField({ label, placeholder, hint, value, onChange }: PasswordFieldProps) {
   return (
     <ArkPasswordInput.Root>
       <ArkPasswordInput.Label className="mb-2 block text-sm font-medium text-gray-500">
         {label}
       </ArkPasswordInput.Label>
-      <ArkPasswordInput.Control className="relative h-14 overflow-hidden rounded-2xl border border-gray-200 bg-[#fafafa] shadow-sm transition-all focus-within:border-[#7626c6] focus-within:ring-4 focus-within:ring-[#7626c6]/10">
+      <ArkPasswordInput.Control className="relative h-14 overflow-hidden rounded-xl border border-gray-200 bg-[#fafafa] shadow-sm transition-all focus-within:border-[#7626c6] focus-within:ring-4 focus-within:ring-[#7626c6]/10">
         <ArkPasswordInput.Input
           placeholder={placeholder}
+          value={value}
+          onChange={(event) => onChange?.(event.target.value)}
           className="h-full w-full border-none bg-transparent px-4 pr-12 text-[1.02rem] text-gray-900 outline-none placeholder:text-gray-400"
         />
         <ArkPasswordInput.VisibilityTrigger

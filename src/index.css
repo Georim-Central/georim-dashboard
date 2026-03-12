@@ -3829,6 +3829,7 @@ button.btn-glass:focus-visible {
   opacity: 0;
   transform: translateX(-0.85rem);
   pointer-events: none;
+  overflow: hidden;
   transition: opacity 220ms ease, transform 220ms ease;
 }
 
@@ -3871,7 +3872,7 @@ button.btn-glass:focus-visible {
   flex-direction: column;
   gap: 1rem;
   padding: 1rem 0.25rem 0;
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 
 @media (max-width: 1120px) {

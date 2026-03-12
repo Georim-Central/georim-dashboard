@@ -51,6 +51,10 @@ export function PaymentMethodSelector({
     defaultSelectedId ?? (methods.length > 0 ? methods[0].id : null)
   );
 
+  React.useEffect(() => {
+    setSelectedId(defaultSelectedId ?? (methods.length > 0 ? methods[0].id : null));
+  }, [defaultSelectedId, methods]);
+
   const handleSelect = (id: string | number) => {
     setSelectedId(id);
     onSelectionChange?.(id);
@@ -80,7 +84,7 @@ export function PaymentMethodSelector({
         <button
           type="button"
           onClick={onActionClick}
-          className="flex items-center gap-1 text-sm font-medium text-[#7626c6] transition-colors hover:text-[#5f1fa3]"
+          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-[#7626c6] transition-colors hover:bg-gray-50 hover:text-[#5f1fa3]"
         >
           <PlusIcon className="h-4 w-4" />
           {actionText}

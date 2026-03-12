@@ -2,6 +2,7 @@ import * as React from 'react';
 import type { ReactNode } from 'react';
 
 import {
+  AtSign,
   Bell,
   Building2,
   Camera,
@@ -13,14 +14,18 @@ import {
   KeyRound,
   Laptop,
   Mail,
+  MapPinned,
   MessageSquare,
   MoreVertical,
   PencilLine,
+  Phone,
   Plus,
   Save,
   Shield,
+  SlidersHorizontal,
   Sparkles,
   Smartphone,
+  UserRound,
   Wallet,
   X,
 } from 'lucide-react';
@@ -61,7 +66,7 @@ const defaultProfileAvatar =
 
 const paymentMethods = [
   {
-    id: 1,
+    id: 'payment-1',
     icon: (
       <div className="flex h-11 w-14 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
         <CreditCard className="h-5 w-5" />
@@ -71,7 +76,7 @@ const paymentMethods = [
     description: 'Default card for organizer payouts and renewals.',
   },
   {
-    id: 2,
+    id: 'payment-2',
     icon: (
       <div className="flex h-11 w-14 items-center justify-center rounded-xl bg-orange-50 text-orange-500">
         <Building2 className="h-5 w-5" />
@@ -81,7 +86,7 @@ const paymentMethods = [
     description: 'Backup card used for premium plan renewals.',
   },
   {
-    id: 3,
+    id: 'payment-3',
     icon: (
       <div className="flex h-11 w-14 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
         <Wallet className="h-5 w-5" />
@@ -231,25 +236,78 @@ type ProfileEditorState =
       line2: string;
     };
 
+type PaymentMethodDraft = {
+  label: string;
+  description: string;
+  provider: 'visa' | 'mastercard' | 'wallet';
+};
+
+const PRIMARY_BUTTON_CLASS =
+  'inline-flex items-center justify-center gap-2 rounded-xl bg-[#7626c6] px-5 py-3 text-sm font-medium text-white shadow-[0_12px_24px_rgba(118,38,198,0.22)] transition hover:bg-[#6620ab] disabled:cursor-not-allowed disabled:opacity-50';
+const SECONDARY_BUTTON_CLASS =
+  'inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50';
+const SOFT_BUTTON_CLASS =
+  'inline-flex items-center justify-center gap-2 rounded-xl bg-[#f3e8fc] px-5 py-3 text-sm font-medium text-gray-800 transition hover:bg-[#ebdefb] disabled:cursor-not-allowed disabled:opacity-50';
+
+function createPaymentMethodVisual(provider: PaymentMethodDraft['provider']) {
+  if (provider === 'visa') {
+    return (
+      <div className="flex h-11 w-14 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+        <CreditCard className="h-5 w-5" />
+      </div>
+    );
+  }
+
+  if (provider === 'mastercard') {
+    return (
+      <div className="flex h-11 w-14 items-center justify-center rounded-xl bg-orange-50 text-orange-500">
+        <Building2 className="h-5 w-5" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-11 w-14 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+      <Wallet className="h-5 w-5" />
+    </div>
+  );
+}
+
 function SettingsCard({
   title,
   children,
   className = '',
   headerRight,
 }: {
-  title: string;
+  title: ReactNode;
   children: ReactNode;
   className?: string;
   headerRight?: ReactNode;
 }) {
   return (
-    <section className={`rounded-[28px] border border-gray-200 bg-white p-8 shadow-sm ${className}`}>
+    <section className={`rounded-xl border border-gray-200 bg-white p-8 shadow-sm ${className}`}>
       <div className="mb-7 flex items-start justify-between gap-4">
         <h2 className="text-[1.05rem] font-semibold tracking-[-0.02em] text-gray-950">{title}</h2>
         {headerRight}
       </div>
       {children}
     </section>
+  );
+}
+
+function SettingsFeedback({
+  message,
+}: {
+  message: string;
+}) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="rounded-xl border border-[#e7d8fa] bg-[#fbf7ff] px-5 py-4 text-sm font-medium text-[#5c2a99]"
+    >
+      {message}
+    </div>
   );
 }
 
@@ -274,7 +332,7 @@ function FieldInput({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="h-14 w-full rounded-2xl border border-gray-200 bg-[#fafafa] px-4 text-[1.02rem] text-gray-900 shadow-sm outline-none transition focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10"
+        className="h-14 w-full rounded-xl border border-gray-200 bg-[#fafafa] px-4 text-[1.02rem] text-gray-900 shadow-sm outline-none transition focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10"
       />
     </label>
   );
@@ -350,13 +408,22 @@ function SettingsModal({
   saveDisabled?: boolean;
   children: ReactNode;
 }) {
+  const titleId = React.useId();
+  const descriptionId = React.useId();
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1b102f]/35 p-6">
-      <div className="w-full max-w-xl rounded-[30px] border border-gray-200 bg-white p-8 shadow-[0_30px_80px_rgba(24,14,44,0.22)]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 sm:px-6">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+        className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-6 shadow-2xl"
+      >
         <div className="mb-6 flex items-start justify-between gap-4">
           <div className="space-y-2">
-            <h2 className="text-2xl font-semibold tracking-[-0.03em] text-gray-950">{title}</h2>
-            <p className="text-sm leading-6 text-gray-500">{description}</p>
+            <h2 id={titleId} className="text-2xl font-semibold tracking-[-0.03em] text-gray-950">{title}</h2>
+            <p id={descriptionId} className="text-sm leading-6 text-gray-500">{description}</p>
           </div>
           <button
             type="button"
@@ -374,7 +441,7 @@ function SettingsModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+            className={SECONDARY_BUTTON_CLASS}
           >
             Cancel
           </button>
@@ -382,7 +449,7 @@ function SettingsModal({
             type="button"
             onClick={onSave}
             disabled={saveDisabled}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#7626c6] px-5 py-3 text-sm font-medium text-white shadow-[0_12px_24px_rgba(118,38,198,0.22)] transition hover:bg-[#6620ab] disabled:cursor-not-allowed disabled:opacity-50"
+            className={PRIMARY_BUTTON_CLASS}
           >
             <Save className="h-4 w-4" />
             {saveLabel}
@@ -391,6 +458,86 @@ function SettingsModal({
       </div>
     </div>
   );
+}
+
+function ProfileCardTitle({
+  icon,
+  title,
+}: {
+  icon: ReactNode;
+  title: string;
+}) {
+  return (
+    <span className="inline-flex items-center gap-3">
+      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f]">
+        {icon}
+      </span>
+      <span>{title}</span>
+    </span>
+  );
+}
+
+function ProfileMetric({
+  icon,
+  label,
+  value,
+  detail,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  detail: string;
+}) {
+  return (
+    <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-4 shadow-sm">
+      <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f]">
+        {icon}
+      </div>
+      <div className="space-y-1">
+        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">{label}</div>
+        <div className="text-2xl font-semibold tracking-[-0.04em] text-gray-950">{value}</div>
+        <p className="text-sm leading-6 text-gray-500">{detail}</p>
+      </div>
+    </div>
+  );
+}
+
+function ProfileSnapshotItem({
+  icon,
+  label,
+  value,
+  meta,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  meta: string;
+}) {
+  return (
+    <div className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4 shadow-sm">
+      <div className="mt-0.5 flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f]">
+        {icon}
+      </div>
+      <div className="min-w-0 space-y-1">
+        <div className="text-sm font-medium text-gray-500">{label}</div>
+        <div className="break-words text-base font-semibold text-gray-950">{value}</div>
+        <div className="text-sm text-gray-500">{meta}</div>
+      </div>
+    </div>
+  );
+}
+
+function getMaskedEmail(value: string) {
+  const [localPart, domain] = value.split('@');
+
+  if (!localPart || !domain) {
+    return value;
+  }
+
+  const visibleLocal = localPart.slice(0, Math.min(2, localPart.length));
+  const maskedLocal = `${visibleLocal}${localPart.length > 2 ? '***' : '*'}`;
+
+  return `${maskedLocal}@${domain}`;
 }
 
 function ProfileSettingsContent() {
@@ -407,7 +554,7 @@ function ProfileSettingsContent() {
   const [activeMenu, setActiveMenu] = React.useState<string | null>(null);
   const [showAllEmails, setShowAllEmails] = React.useState(false);
   const [feedback, setFeedback] = React.useState<string | null>(null);
-  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const avatarInputId = React.useId();
 
   React.useEffect(() => {
     if (!feedback) {
@@ -426,6 +573,19 @@ function ProfileSettingsContent() {
     .map((part) => part[0])
     .join('')
     .toUpperCase();
+  const primaryEmail = emails.find((email) => email.primary) ?? emails[0] ?? null;
+  const primaryPhone = phones.find((phone) => phone.primary) ?? phones[0] ?? null;
+  const primaryAddress = addresses.find((address) => address.label?.toLowerCase() === 'primary') ?? addresses[0] ?? null;
+  const completedProfileFields = [
+    Boolean(profileInfo.name.trim()),
+    Boolean(profileInfo.phone.trim()),
+    Boolean(primaryEmail?.value.trim()),
+    Boolean(primaryAddress?.lines[0]),
+    Boolean(avatarPreview),
+  ].filter(Boolean).length;
+  const profileCompleteness = Math.round((completedProfileFields / 5) * 100);
+  const connectedChannels = emails.length + phones.length;
+  const primaryEmailPreview = primaryEmail ? getMaskedEmail(primaryEmail.value) : null;
 
   const promotePrimary = <T extends { id: string; primary?: boolean }>(items: T[], id: string) =>
     items.map((item) => ({ ...item, primary: item.id === id }));
@@ -546,267 +706,373 @@ function ProfileSettingsContent() {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-      <div className="space-y-6">
-        {feedback ? (
-          <div
-            role="status"
-            aria-live="polite"
-            className="rounded-[22px] border border-[#e7d8fa] bg-[#fbf7ff] px-5 py-4 text-sm font-medium text-[#5c2a99]"
-          >
-            {feedback}
-          </div>
-        ) : null}
+    <div className="space-y-6">
+      {feedback ? <SettingsFeedback message={feedback} /> : null}
 
-        <SettingsCard title="Your profile" headerRight={<span className="text-sm text-gray-500">Joined {profileInfo.joined}</span>}>
-          <div className="flex items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-[radial-gradient(circle_at_top_left,#4b4b58,#1f1f29_65%)] text-3xl font-semibold text-white shadow-sm">
-                  {avatarPreview ? (
-                    <img
-                      src={avatarPreview}
-                      alt={`${profileInfo.name} profile`}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    initials
-                  )}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="space-y-6">
+          <SettingsCard
+            title={<ProfileCardTitle icon={<UserRound className="h-4 w-4" />} title="Your profile" />}
+            headerRight={
+              <span className="rounded-full border border-white/80 bg-white/75 px-4 py-2 text-sm font-medium text-[#5b2d91] shadow-sm">
+                Joined {profileInfo.joined}
+              </span>
+            }
+            className="border-gray-200 bg-[linear-gradient(145deg,rgba(255,255,255,0.98)_0%,rgba(249,249,251,0.96)_56%,rgba(255,250,240,0.94)_100%)] shadow-sm"
+          >
+            <div className="space-y-6">
+              <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-[radial-gradient(circle_at_top_left,#4b4b58,#1f1f29_65%)] text-3xl font-semibold text-white shadow-sm ring-4 ring-white/90">
+                        {avatarPreview ? (
+                          <img
+                            src={avatarPreview}
+                            alt={`${profileInfo.name} profile`}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          initials
+                        )}
+                      </div>
+                      <input
+                        id={avatarInputId}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleAvatarUpload}
+                        aria-label="Profile image uploader"
+                      />
+                      <label
+                        htmlFor={avatarInputId}
+                        className="absolute bottom-0 right-0 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-[#1d1d1f] text-white shadow-[0_10px_24px_rgba(15,23,42,0.2)] transition hover:scale-[1.03]"
+                        aria-label="Update profile image"
+                      >
+                        <Camera className="h-4 w-4" />
+                      </label>
+                    </div>
+
+                    <div className="space-y-2">
+                      <span className="inline-flex rounded-full border border-[#d7c3f5] bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#6b32b0]">
+                        Lead Organizer
+                      </span>
+                      <div className="text-[1.65rem] font-semibold tracking-[-0.03em] text-gray-950">{profileInfo.name}</div>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600">
+                        {primaryEmailPreview ? <span>{primaryEmailPreview}</span> : null}
+                        {primaryEmailPreview ? <span className="text-gray-300">•</span> : null}
+                        <span>{profileInfo.phone}</span>
+                      </div>
+                      <p className="max-w-md text-sm leading-6 text-gray-600">
+                        This identity appears across invoices, attendee receipts, team invites, and organizer contact surfaces.
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={openProfileEditor}
+                    className={SECONDARY_BUTTON_CLASS}
+                  >
+                    <PencilLine className="h-4 w-4" />
+                    Edit
+                  </button>
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleAvatarUpload}
-                  aria-label="Profile image uploader"
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="absolute bottom-1 right-0 flex h-9 w-9 items-center justify-center rounded-full border border-white bg-[#eadbf8] text-[#3f2467] shadow-sm"
-                  aria-label="Update profile image"
-                >
-                  <Camera className="h-4 w-4" />
-                </button>
               </div>
 
-              <div className="space-y-1">
-                <div className="text-[1.1rem] font-semibold tracking-[-0.02em] text-gray-950">{profileInfo.name}</div>
-                <div className="text-[1.05rem] text-gray-500">{profileInfo.phone}</div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <ProfileMetric
+                  icon={<CheckCircle2 className="h-5 w-5" />}
+                  label="Profile Completeness"
+                  value={`${profileCompleteness}%`}
+                  detail="Core identity, contact, and billing fields are active."
+                />
+                <ProfileMetric
+                  icon={<Sparkles className="h-5 w-5" />}
+                  label="Connected Channels"
+                  value={`${connectedChannels}`}
+                  detail="Primary contact routes available for support and alerts."
+                />
+              </div>
+
+              <div className="grid gap-3">
+                {primaryEmail ? (
+                  <ProfileSnapshotItem
+                    icon={<Mail className="h-5 w-5" />}
+                    label="Primary Email"
+                    value={primaryEmailPreview || primaryEmail.value}
+                    meta="Used for billing notices, recovery flows, and workspace updates."
+                  />
+                ) : null}
+                {primaryPhone ? (
+                  <ProfileSnapshotItem
+                    icon={<Smartphone className="h-5 w-5" />}
+                    label="Direct Line"
+                    value={primaryPhone.value}
+                    meta="Used for urgent organizer coordination and day-of-event contact."
+                  />
+                ) : null}
+                {primaryAddress ? (
+                  <ProfileSnapshotItem
+                    icon={<Building2 className="h-5 w-5" />}
+                    label="Primary Address"
+                    value={primaryAddress.lines.join(', ')}
+                    meta="Shown across invoices, payout records, and legal account details."
+                  />
+                ) : null}
               </div>
             </div>
+          </SettingsCard>
 
-            <button
-              type="button"
-              onClick={openProfileEditor}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#f1e5fb] px-4 py-3 text-sm font-medium text-[#3f2467] transition hover:bg-[#ead9fb]"
-            >
-              <PencilLine className="h-4 w-4" />
-              Edit
-            </button>
-          </div>
-        </SettingsCard>
-
-        <SettingsCard title="Emails">
-          <div className="space-y-8">
-            {visibleEmails.map((email) => (
-              <div key={email.id} className="flex items-start justify-between gap-4">
-                <div className="space-y-3">
-                  {email.primary && (
-                    <span className="inline-flex rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">
-                      Primary
-                    </span>
-                  )}
-                  <div className="text-[1.05rem] text-gray-900">{email.value}</div>
-                </div>
-                <ActionMenu
-                  label={`Email actions for ${email.value}`}
-                  isOpen={activeMenu === email.id}
-                  onToggle={() => setActiveMenu((current) => (current === email.id ? null : email.id))}
-                >
-                  <ActionMenuButton
-                    label="Edit Email"
-                    icon={<PencilLine className="h-4 w-4" />}
-                    onClick={() => {
-                      setActiveMenu(null);
-                      setEditor({
-                        kind: 'email',
-                        mode: 'edit',
-                        id: email.id,
-                        value: email.value,
-                        primary: Boolean(email.primary),
-                      });
-                    }}
-                  />
-                  {!email.primary ? (
+          <SettingsCard
+            title={<ProfileCardTitle icon={<AtSign className="h-4 w-4" />} title="Emails" />}
+            headerRight={<span className="text-sm font-medium text-gray-500">{emails.length} total</span>}
+            className="shadow-[0_18px_42px_rgba(15,23,42,0.06)]"
+          >
+            <div className="space-y-4">
+              {visibleEmails.map((email) => (
+                <div key={email.id} className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] p-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f] shadow-sm">
+                    <Mail className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1 space-y-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {email.primary ? (
+                        <span className="inline-flex rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">
+                          Primary
+                        </span>
+                      ) : (
+                        <span className="inline-flex rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm font-medium text-gray-500">
+                          Secondary
+                        </span>
+                      )}
+                    </div>
+                    <div className="break-words text-[1.05rem] text-gray-900">{email.value}</div>
+                  </div>
+                  <ActionMenu
+                    label={`Email actions for ${email.value}`}
+                    isOpen={activeMenu === email.id}
+                    onToggle={() => setActiveMenu((current) => (current === email.id ? null : email.id))}
+                  >
                     <ActionMenuButton
-                      label="Set as Primary"
-                      icon={<Sparkles className="h-4 w-4" />}
+                      label="Edit Email"
+                      icon={<PencilLine className="h-4 w-4" />}
                       onClick={() => {
-                        setEmails((current) => promotePrimary(current, email.id));
                         setActiveMenu(null);
-                        setFeedback('Primary email updated.');
+                        setEditor({
+                          kind: 'email',
+                          mode: 'edit',
+                          id: email.id,
+                          value: email.value,
+                          primary: Boolean(email.primary),
+                        });
                       }}
                     />
-                  ) : null}
-                </ActionMenu>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setShowAllEmails((current) => !current)}
-              className="rounded-xl bg-[#f3e8fc] px-5 py-3 text-sm font-medium text-gray-800 transition hover:bg-[#ebdefb]"
-              aria-pressed={showAllEmails}
-            >
-              {showAllEmails ? 'Show fewer emails' : `See all email (${emails.length})`}
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setEditor({
-                  kind: 'email',
-                  mode: 'add',
-                  value: '',
-                  primary: emails.every((email) => !email.primary),
-                })
-              }
-              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-900 transition hover:bg-gray-50"
-            >
-              <Plus className="h-4 w-4" />
-              Add Email
-            </button>
-          </div>
-        </SettingsCard>
-
-        <SettingsCard title="Phone Number">
-          <div className="space-y-8">
-            {phones.map((phone) => (
-              <div key={phone.id} className="flex items-start justify-between gap-4">
-                <div className="space-y-3">
-                  {phone.primary && (
-                    <span className="inline-flex rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">
-                      Primary
-                    </span>
-                  )}
-                  <div className="text-[1.05rem] text-gray-900">{phone.value}</div>
+                    {!email.primary ? (
+                      <ActionMenuButton
+                        label="Set as Primary"
+                        icon={<Sparkles className="h-4 w-4" />}
+                        onClick={() => {
+                          setEmails((current) => promotePrimary(current, email.id));
+                          setActiveMenu(null);
+                          setFeedback('Primary email updated.');
+                        }}
+                      />
+                    ) : null}
+                  </ActionMenu>
                 </div>
-                <ActionMenu
-                  label={`Phone actions for ${phone.value}`}
-                  isOpen={activeMenu === phone.id}
-                  onToggle={() => setActiveMenu((current) => (current === phone.id ? null : phone.id))}
-                >
-                  <ActionMenuButton
-                    label="Edit Number"
-                    icon={<PencilLine className="h-4 w-4" />}
-                    onClick={() => {
-                      setActiveMenu(null);
-                      setEditor({
-                        kind: 'phone',
-                        id: phone.id,
-                        value: phone.value,
-                        primary: Boolean(phone.primary),
-                      });
-                    }}
-                  />
-                </ActionMenu>
-              </div>
-            ))}
-          </div>
-        </SettingsCard>
-      </div>
+              ))}
 
-      <div className="space-y-6">
-        <SettingsCard title="Address">
-          <div className="space-y-8">
-            {addresses.map((address) => (
-              <div key={address.id} className="flex items-start justify-between gap-4">
-                <div className="space-y-3">
-                  {address.label && (
-                    <span className="inline-flex rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">
-                      {address.label}
-                    </span>
-                  )}
-                  <div className="space-y-0.5 text-[1.05rem] leading-8 text-gray-900">
-                    {address.lines.map((line) => (
-                      <div key={line}>{line}</div>
-                    ))}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAllEmails((current) => !current)}
+                  className={SOFT_BUTTON_CLASS}
+                  aria-pressed={showAllEmails}
+                >
+                  {showAllEmails ? 'Show fewer emails' : `See all email (${emails.length})`}
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditor({
+                      kind: 'email',
+                      mode: 'add',
+                      value: '',
+                      primary: emails.every((email) => !email.primary),
+                    })
+                  }
+                  className={SECONDARY_BUTTON_CLASS}
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Email
+                </button>
+              </div>
+            </div>
+          </SettingsCard>
+
+          <SettingsCard
+            title={<ProfileCardTitle icon={<Phone className="h-4 w-4" />} title="Phone Number" />}
+            className="shadow-[0_18px_42px_rgba(15,23,42,0.06)]"
+          >
+            <div className="space-y-4">
+              {phones.map((phone) => (
+                <div key={phone.id} className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] p-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f] shadow-sm">
+                    <Smartphone className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1 space-y-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {phone.primary ? (
+                        <span className="inline-flex rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">
+                          Primary
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="text-[1.05rem] text-gray-900">{phone.value}</div>
+                  </div>
+                  <ActionMenu
+                    label={`Phone actions for ${phone.value}`}
+                    isOpen={activeMenu === phone.id}
+                    onToggle={() => setActiveMenu((current) => (current === phone.id ? null : phone.id))}
+                  >
+                    <ActionMenuButton
+                      label="Edit Number"
+                      icon={<PencilLine className="h-4 w-4" />}
+                      onClick={() => {
+                        setActiveMenu(null);
+                        setEditor({
+                          kind: 'phone',
+                          id: phone.id,
+                          value: phone.value,
+                          primary: Boolean(phone.primary),
+                        });
+                      }}
+                    />
+                  </ActionMenu>
+                </div>
+              ))}
+            </div>
+          </SettingsCard>
+        </div>
+
+        <div className="space-y-6">
+          <SettingsCard
+            title={<ProfileCardTitle icon={<MapPinned className="h-4 w-4" />} title="Address" />}
+            headerRight={<span className="text-sm font-medium text-gray-500">{addresses.length} saved</span>}
+            className="shadow-[0_18px_42px_rgba(15,23,42,0.06)]"
+          >
+            <div className="space-y-4">
+              {addresses.map((address) => (
+                <div key={address.id} className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] p-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f] shadow-sm">
+                    <Building2 className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1 space-y-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {address.label ? (
+                        <span className="inline-flex rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">
+                          {address.label}
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="space-y-0.5 text-[1.05rem] leading-8 text-gray-900">
+                      {address.lines.map((line) => (
+                        <div key={line}>{line}</div>
+                      ))}
+                    </div>
+                  </div>
+                  <ActionMenu
+                    label={`Address actions for ${address.lines[0]}`}
+                    isOpen={activeMenu === address.id}
+                    onToggle={() => setActiveMenu((current) => (current === address.id ? null : address.id))}
+                  >
+                    <ActionMenuButton
+                      label="Edit Address"
+                      icon={<PencilLine className="h-4 w-4" />}
+                      onClick={() => {
+                        setActiveMenu(null);
+                        setEditor({
+                          kind: 'address',
+                          id: address.id,
+                          label: address.label || '',
+                          line1: address.lines[0] || '',
+                          line2: address.lines[1] || '',
+                        });
+                      }}
+                    />
+                  </ActionMenu>
+                </div>
+              ))}
+            </div>
+          </SettingsCard>
+
+          <SettingsCard
+            title={<ProfileCardTitle icon={<SlidersHorizontal className="h-4 w-4" />} title="Account Options" />}
+            className="shadow-[0_18px_42px_rgba(15,23,42,0.06)]"
+          >
+            <div className="space-y-6">
+              <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-5">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f] shadow-sm">
+                    <Laptop className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="font-semibold text-gray-950">Workspace defaults</div>
+                    <div className="text-sm leading-6 text-gray-500">
+                      These preferences shape how dates, identity, and operational details appear across the dashboard.
+                    </div>
                   </div>
                 </div>
-                <ActionMenu
-                  label={`Address actions for ${address.lines[0]}`}
-                  isOpen={activeMenu === address.id}
-                  onToggle={() => setActiveMenu((current) => (current === address.id ? null : address.id))}
-                >
-                  <ActionMenuButton
-                    label="Edit Address"
-                    icon={<PencilLine className="h-4 w-4" />}
-                    onClick={() => {
-                      setActiveMenu(null);
-                      setEditor({
-                        kind: 'address',
-                        id: address.id,
-                        label: address.label || '',
-                        line1: address.lines[0] || '',
-                        line2: address.lines[1] || '',
-                      });
-                    }}
+              </div>
+
+              <div className="grid grid-cols-1 gap-6">
+                <label className="block">
+                  <span className="mb-3 block text-sm font-medium text-gray-500">Language</span>
+                  <div className="relative">
+                    <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
+                      <option>Bangla</option>
+                      <option>English</option>
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                  </div>
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-sm font-medium text-gray-500">Time zone</span>
+                  <div className="relative">
+                    <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
+                      <option>(GMT+6) Time in Bangladesh</option>
+                      <option>(GMT+1) Central European Time</option>
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                  </div>
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-sm font-medium text-gray-500">Nationality</span>
+                  <div className="relative">
+                    <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
+                      <option>Bangladeshi</option>
+                      <option>American</option>
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                  </div>
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-sm font-medium text-gray-500">Merchant ID</span>
+                  <input
+                    type="text"
+                    value="GRM-29384-2026"
+                    readOnly
+                    className="h-14 w-full rounded-xl border border-gray-200 bg-[#fafafa] px-4 text-[1.05rem] text-gray-900 shadow-sm"
                   />
-                </ActionMenu>
+                </label>
               </div>
-            ))}
-          </div>
-        </SettingsCard>
-
-        <SettingsCard title="Account Options">
-          <div className="space-y-6">
-            <label className="block">
-              <span className="mb-3 block text-sm font-medium text-gray-500">Language</span>
-              <div className="relative">
-                <select className="h-14 w-full appearance-none rounded-2xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
-                  <option>Bangla</option>
-                  <option>English</option>
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              </div>
-            </label>
-
-            <label className="block">
-              <span className="mb-3 block text-sm font-medium text-gray-500">Time zone</span>
-              <div className="relative">
-                <select className="h-14 w-full appearance-none rounded-2xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
-                  <option>(GMT+6) Time in Bangladesh</option>
-                  <option>(GMT+1) Central European Time</option>
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              </div>
-            </label>
-
-            <label className="block">
-              <span className="mb-3 block text-sm font-medium text-gray-500">Nationality</span>
-              <div className="relative">
-                <select className="h-14 w-full appearance-none rounded-2xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
-                  <option>Bangladeshi</option>
-                  <option>American</option>
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              </div>
-            </label>
-
-            <label className="block">
-              <span className="mb-3 block text-sm font-medium text-gray-500">Merchant ID</span>
-              <input
-                type="text"
-                value="GRM-29384-2026"
-                readOnly
-                className="h-14 w-full rounded-2xl border border-gray-200 bg-[#fafafa] px-4 text-[1.05rem] text-gray-900 shadow-sm"
-              />
-            </label>
-          </div>
-        </SettingsCard>
+            </div>
+          </SettingsCard>
+        </div>
       </div>
 
       {editor?.kind === 'profile' ? (
@@ -838,7 +1104,7 @@ function ProfileSettingsContent() {
             onChange={(value) => setEditor({ ...editor, value })}
             placeholder="name@example.com"
           />
-          <label className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-[#fafafa] px-4 py-4">
+          <label className="flex items-center gap-3 rounded-xl border border-gray-200 bg-[#fafafa] px-4 py-4">
             <input
               type="checkbox"
               checked={editor.primary}
@@ -859,7 +1125,7 @@ function ProfileSettingsContent() {
           saveDisabled={!editor.value.trim()}
         >
           <FieldInput label="Phone Number" value={editor.value} onChange={(value) => setEditor({ ...editor, value })} />
-          <label className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-[#fafafa] px-4 py-4">
+          <label className="flex items-center gap-3 rounded-xl border border-gray-200 bg-[#fafafa] px-4 py-4">
             <input
               type="checkbox"
               checked={editor.primary}
@@ -889,296 +1155,533 @@ function ProfileSettingsContent() {
 }
 
 function PaymentsSettingsContent() {
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = React.useState<string | number>(1);
+  const [methods, setMethods] = React.useState(paymentMethods);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = React.useState<string | number>('payment-1');
+  const [feedback, setFeedback] = React.useState<string | null>(null);
+  const [paymentDraft, setPaymentDraft] = React.useState<PaymentMethodDraft | null>(null);
+
+  React.useEffect(() => {
+    if (!feedback) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => setFeedback(null), 2800);
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
+
+  const handleSelectionChange = (id: string | number) => {
+    setSelectedPaymentMethod(id);
+    const method = methods.find((entry) => entry.id === id);
+    if (method) {
+      setFeedback(`${method.label} is now your active payment method.`);
+    }
+  };
+
+  const handleAddPaymentMethod = () => {
+    setPaymentDraft({
+      label: '',
+      description: '',
+      provider: 'visa',
+    });
+  };
+
+  const handleSavePaymentMethod = () => {
+    if (!paymentDraft) {
+      return;
+    }
+
+    const nextLabel = paymentDraft.label.trim();
+    const nextDescription = paymentDraft.description.trim();
+
+    if (!nextLabel || !nextDescription) {
+      return;
+    }
+
+    const nextMethod = {
+      id: `payment-${Date.now()}`,
+      icon: createPaymentMethodVisual(paymentDraft.provider),
+      label: nextLabel,
+      description: nextDescription,
+    };
+
+    setMethods((current) => [...current, nextMethod]);
+    setSelectedPaymentMethod(nextMethod.id);
+    setPaymentDraft(null);
+    setFeedback(`${nextMethod.label} added and selected for future billing actions.`);
+  };
 
   return (
-    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
-      <PaymentMethodSelector
-        title="Choose how to pay"
-        actionText="Add new method"
-        methods={paymentMethods}
-        defaultSelectedId={selectedPaymentMethod}
-        onActionClick={() => undefined}
-        onSelectionChange={setSelectedPaymentMethod}
-        className="max-w-none rounded-[28px] border-gray-200 p-8 shadow-sm"
-      />
+    <div className="space-y-6">
+      {feedback ? <SettingsFeedback message={feedback} /> : null}
 
-      <div className="space-y-6">
-        <SettingsCard title="Payment Summary">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-gray-200 bg-[#fafafa] p-5">
-              <div className="mb-2 text-sm font-medium text-gray-500">Available Balance</div>
-              <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">$18,420</div>
-              <div className="mt-2 text-sm text-emerald-600">Ready to withdraw</div>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="space-y-6">
+          <PaymentMethodSelector
+            title="Choose how to pay"
+            actionText="Add new method"
+            methods={methods}
+            defaultSelectedId={selectedPaymentMethod}
+            onActionClick={handleAddPaymentMethod}
+            onSelectionChange={handleSelectionChange}
+            className="max-w-none rounded-xl border-gray-200 p-8 shadow-sm"
+          />
+
+          <SettingsCard title="Payout Preferences">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <label className="block">
+                <span className="mb-3 block text-sm font-medium text-gray-500">Default Payout Method</span>
+                <div className="relative">
+                  <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
+                    {methods.map((method) => (
+                      <option key={method.id}>{method.label}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                </div>
+              </label>
+
+              <label className="block">
+                <span className="mb-3 block text-sm font-medium text-gray-500">Payout Schedule</span>
+                <div className="relative">
+                  <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
+                    <option>Weekly on Friday</option>
+                    <option>Daily</option>
+                    <option>Monthly</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                </div>
+              </label>
+
+              <label className="block">
+                <span className="mb-3 block text-sm font-medium text-gray-500">Settlement Currency</span>
+                <div className="relative">
+                  <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
+                    <option>USD</option>
+                    <option>BDT</option>
+                    <option>EUR</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                </div>
+              </label>
+
+              <label className="block">
+                <span className="mb-3 block text-sm font-medium text-gray-500">Finance Contact</span>
+                <input
+                  type="email"
+                  value="finance@georim.com"
+                  readOnly
+                  className="h-14 w-full rounded-xl border border-gray-200 bg-[#fafafa] px-4 text-[1.05rem] text-gray-900 shadow-sm"
+                />
+              </label>
             </div>
-            <div className="rounded-2xl border border-gray-200 bg-[#fafafa] p-5">
-              <div className="mb-2 text-sm font-medium text-gray-500">Pending Payouts</div>
-              <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">$4,860</div>
-              <div className="mt-2 text-sm text-amber-600">2 transfers in review</div>
+          </SettingsCard>
+        </div>
+
+        <div className="space-y-6">
+          <SettingsCard title="Payment Summary">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-5">
+                <div className="mb-2 text-sm font-medium text-gray-500">Available Balance</div>
+                <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">$18,420</div>
+                <div className="mt-2 text-sm text-emerald-600">Ready to withdraw</div>
+              </div>
+              <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-5">
+                <div className="mb-2 text-sm font-medium text-gray-500">Pending Payouts</div>
+                <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">$4,860</div>
+                <div className="mt-2 text-sm text-amber-600">2 transfers in review</div>
+              </div>
+              <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-5">
+                <div className="mb-2 text-sm font-medium text-gray-500">Processing Fee</div>
+                <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">2.9%</div>
+                <div className="mt-2 text-sm text-gray-500">Standard domestic rate</div>
+              </div>
             </div>
-            <div className="rounded-2xl border border-gray-200 bg-[#fafafa] p-5">
-              <div className="mb-2 text-sm font-medium text-gray-500">Processing Fee</div>
-              <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">2.9%</div>
-              <div className="mt-2 text-sm text-gray-500">Standard domestic rate</div>
-            </div>
-          </div>
-        </SettingsCard>
+          </SettingsCard>
 
-        <SettingsCard title="Payout Preferences">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <label className="block">
-              <span className="mb-3 block text-sm font-medium text-gray-500">Default Payout Method</span>
-              <div className="relative">
-                <select className="h-14 w-full appearance-none rounded-2xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
-                  <option>Visa ending 0912</option>
-                  <option>Mastercard ending 4821</option>
-                  <option>Georim Wallet</option>
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              </div>
-            </label>
-
-            <label className="block">
-              <span className="mb-3 block text-sm font-medium text-gray-500">Payout Schedule</span>
-              <div className="relative">
-                <select className="h-14 w-full appearance-none rounded-2xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
-                  <option>Weekly on Friday</option>
-                  <option>Daily</option>
-                  <option>Monthly</option>
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              </div>
-            </label>
-
-            <label className="block">
-              <span className="mb-3 block text-sm font-medium text-gray-500">Settlement Currency</span>
-              <div className="relative">
-                <select className="h-14 w-full appearance-none rounded-2xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
-                  <option>USD</option>
-                  <option>BDT</option>
-                  <option>EUR</option>
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              </div>
-            </label>
-
-            <label className="block">
-              <span className="mb-3 block text-sm font-medium text-gray-500">Finance Contact</span>
-              <input
-                type="email"
-                value="finance@georim.com"
-                readOnly
-                className="h-14 w-full rounded-2xl border border-gray-200 bg-[#fafafa] px-4 text-[1.05rem] text-gray-900 shadow-sm"
-              />
-            </label>
-          </div>
-        </SettingsCard>
-
-        <SettingsCard title="Recent Transactions">
-          <div className="space-y-4">
-            {[
-              { id: 'TX-2048', title: 'Summer Music Festival payout', amount: '+$6,240', status: 'Completed' },
-              { id: 'TX-2049', title: 'Premium workspace renewal', amount: '-$199', status: 'Processed' },
-              { id: 'TX-2050', title: 'Marketing credit top-up', amount: '-$350', status: 'Pending' },
-            ].map((transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between rounded-2xl border border-gray-200 bg-[#fafafa] px-5 py-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
-                    <DollarSign className="h-5 w-5" />
+          <SettingsCard title="Recent Transactions">
+            <div className="space-y-4">
+              {[
+                { id: 'TX-2048', title: 'Summer Music Festival payout', amount: '+$6,240', status: 'Completed' },
+                { id: 'TX-2049', title: 'Premium workspace renewal', amount: '-$199', status: 'Processed' },
+                { id: 'TX-2050', title: 'Marketing credit top-up', amount: '-$350', status: 'Pending' },
+              ].map((transaction) => (
+                <div key={transaction.id} className="flex items-center justify-between rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
+                      <DollarSign className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-950">{transaction.title}</div>
+                      <div className="text-sm text-gray-500">{transaction.id}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="font-medium text-gray-950">{transaction.title}</div>
-                    <div className="text-sm text-gray-500">{transaction.id}</div>
+                  <div className="text-right">
+                    <div className="font-semibold text-gray-950">{transaction.amount}</div>
+                    <div className="text-sm text-gray-500">{transaction.status}</div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="font-semibold text-gray-950">{transaction.amount}</div>
-                  <div className="text-sm text-gray-500">{transaction.status}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </SettingsCard>
+              ))}
+            </div>
+          </SettingsCard>
+        </div>
       </div>
+
+      {paymentDraft ? (
+        <SettingsModal
+          title="Add Payment Method"
+          description="Save a new card or wallet so it can be selected for payouts and renewals."
+          onClose={() => setPaymentDraft(null)}
+          onSave={handleSavePaymentMethod}
+          saveLabel="Add Method"
+          saveDisabled={!paymentDraft.label.trim() || !paymentDraft.description.trim()}
+        >
+          <FieldInput
+            label="Payment Method Label"
+            value={paymentDraft.label}
+            onChange={(value) => setPaymentDraft((current) => (current ? { ...current, label: value } : current))}
+            placeholder="Visa **** 4821"
+          />
+          <FieldInput
+            label="Description"
+            value={paymentDraft.description}
+            onChange={(value) => setPaymentDraft((current) => (current ? { ...current, description: value } : current))}
+            placeholder="Default card for organizer payouts"
+          />
+          <label className="block">
+            <span className="mb-2 block text-sm font-medium text-gray-500">Provider</span>
+            <div className="relative">
+              <select
+                value={paymentDraft.provider}
+                onChange={(event) =>
+                  setPaymentDraft((current) =>
+                    current ? { ...current, provider: event.target.value as PaymentMethodDraft['provider'] } : current
+                  )
+                }
+                className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.02rem] text-gray-900 shadow-sm outline-none transition focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10"
+              >
+                <option value="visa">Visa</option>
+                <option value="mastercard">Mastercard</option>
+                <option value="wallet">Wallet</option>
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            </div>
+          </label>
+        </SettingsModal>
+      ) : null}
     </div>
   );
 }
 
 function SecuritySettingsContent() {
+  const [passwords, setPasswords] = React.useState({
+    previous: '',
+    current: '',
+    confirm: '',
+  });
+  const [feedback, setFeedback] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!feedback) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => setFeedback(null), 2800);
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
+
+  const passwordMismatch = Boolean(passwords.current && passwords.confirm && passwords.current !== passwords.confirm);
+  const passwordTooShort = Boolean(passwords.current && passwords.current.length < 8);
+  const canUpdatePassword =
+    Boolean(passwords.previous.trim()) &&
+    Boolean(passwords.current.trim()) &&
+    Boolean(passwords.confirm.trim()) &&
+    !passwordMismatch &&
+    !passwordTooShort;
+
+  const handleUpdatePassword = () => {
+    if (!passwords.previous.trim() || !passwords.current.trim() || !passwords.confirm.trim()) {
+      setFeedback('Complete all password fields before updating access.');
+      return;
+    }
+
+    if (passwords.current.length < 8) {
+      setFeedback('Use at least 8 characters for the new password.');
+      return;
+    }
+
+    if (passwords.current !== passwords.confirm) {
+      setFeedback('The new password and confirmation must match.');
+      return;
+    }
+
+    setPasswords({
+      previous: '',
+      current: '',
+      confirm: '',
+    });
+    setFeedback('Password updated and active sessions remain protected.');
+  };
+
   return (
-    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-      <div className="space-y-6">
-        <SettingsCard
-          title="Password & Access"
-          headerRight={<span className="rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">Recommended</span>}
-        >
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="md:col-span-2">
+    <div className="space-y-6">
+      {feedback ? <SettingsFeedback message={feedback} /> : null}
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="space-y-6">
+          <SettingsCard
+            title="Password & Access"
+            headerRight={<span className="rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">Recommended</span>}
+          >
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="md:col-span-2">
+                <PasswordField
+                  label="Previous Password"
+                  placeholder="Enter your previous password"
+                  hint="Use your last active password before applying a new one."
+                  value={passwords.previous}
+                  onChange={(value) => setPasswords((current) => ({ ...current, previous: value }))}
+                />
+              </div>
               <PasswordField
-                label="Previous Password"
-                placeholder="Enter your previous password"
-                hint="Use your last active password before applying a new one."
+                label="Current Password"
+                placeholder="Create a new secure password"
+                hint="Use at least 8 characters with a mix of letters, numbers, and symbols."
+                value={passwords.current}
+                onChange={(value) => setPasswords((current) => ({ ...current, current: value }))}
+              />
+              <PasswordField
+                label="Confirm Password"
+                placeholder="Re-enter your new password"
+                hint="Make sure this matches the new password exactly."
+                value={passwords.confirm}
+                onChange={(value) => setPasswords((current) => ({ ...current, confirm: value }))}
               />
             </div>
-            <PasswordField
-              label="Current Password"
-              placeholder="Create a new secure password"
-              hint="Use at least 8 characters with a mix of letters, numbers, and symbols."
-            />
-            <PasswordField
-              label="Confirm Password"
-              placeholder="Re-enter your new password"
-              hint="Make sure this matches the new password exactly."
-            />
-          </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-gray-200 bg-[#fafafa] px-5 py-4">
-            <div>
-              <div className="text-sm font-medium text-gray-900">Password strength</div>
-              <div className="mt-1 text-sm text-gray-500">Strong enough for workspace admins and payout access.</div>
-            </div>
-            <button
-              type="button"
-              className="inline-flex items-center justify-center rounded-xl bg-[#7626c6] px-5 py-3 text-sm font-medium text-white shadow-[0_12px_24px_rgba(118,38,198,0.22)] transition hover:bg-[#6620ab]"
-            >
-              Update Password
-            </button>
-          </div>
-        </SettingsCard>
+            {passwordMismatch ? <p className="mt-4 text-sm font-medium text-rose-600">The confirmation must match the new password.</p> : null}
+            {!passwordMismatch && passwordTooShort ? (
+              <p className="mt-4 text-sm font-medium text-amber-600">The new password needs at least 8 characters.</p>
+            ) : null}
 
-        <SettingsCard title="Recent Security Activity">
-          <div className="space-y-4">
-            {[
-              {
-                id: 'activity-1',
-                title: 'Password changed',
-                detail: 'Today, 9:42 AM from Chicago, United States',
-                icon: KeyRound,
-              },
-              {
-                id: 'activity-2',
-                title: 'New desktop session approved',
-                detail: 'MacBook Pro, Safari 18.1',
-                icon: Laptop,
-              },
-              {
-                id: 'activity-3',
-                title: 'Mobile login verified',
-                detail: 'iPhone 16 Pro, Face ID challenge passed',
-                icon: Smartphone,
-              },
-            ].map((activity) => {
-              const Icon = activity.icon;
-
-              return (
-                <div key={activity.id} className="flex items-start gap-4 rounded-2xl border border-gray-200 bg-[#fafafa] px-5 py-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <div className="font-medium text-gray-950">{activity.title}</div>
-                    <div className="text-sm text-gray-500">{activity.detail}</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </SettingsCard>
-      </div>
-
-      <div className="space-y-6">
-        <SettingsCard title="Security Overview">
-          <div className="space-y-4">
-            {[
-              {
-                id: 'overview-1',
-                title: 'Two-factor authentication',
-                detail: 'Authenticator app connected and required for admin actions.',
-              },
-              {
-                id: 'overview-2',
-                title: 'Recovery options',
-                detail: 'Backup email and device prompts are configured.',
-              },
-              {
-                id: 'overview-3',
-                title: 'Session monitoring',
-                detail: '3 active devices trusted in the last 30 days.',
-              },
-            ].map((item) => (
-              <div key={item.id} className="flex items-start gap-4 rounded-2xl border border-gray-200 bg-[#fafafa] px-5 py-4">
-                <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                  <CheckCircle2 className="h-4 w-4" />
-                </div>
-                <div className="space-y-1">
-                  <div className="font-medium text-gray-950">{item.title}</div>
-                  <div className="text-sm text-gray-500">{item.detail}</div>
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4">
+              <div>
+                <div className="text-sm font-medium text-gray-900">Password strength</div>
+                <div className="mt-1 text-sm text-gray-500">
+                  {passwordTooShort
+                    ? 'Use a longer password before saving.'
+                    : passwordMismatch
+                      ? 'Resolve the confirmation mismatch to continue.'
+                      : 'Strong enough for workspace admins and payout access.'}
                 </div>
               </div>
-            ))}
-          </div>
-        </SettingsCard>
+              <button
+                type="button"
+                onClick={handleUpdatePassword}
+                disabled={!canUpdatePassword}
+                className={PRIMARY_BUTTON_CLASS}
+              >
+                Update Password
+              </button>
+            </div>
+          </SettingsCard>
 
-        <SettingsCard title="Trusted Devices">
-          <div className="space-y-4">
-            {[
-              {
-                id: 'device-1',
-                name: 'MacBook Pro 16"',
-                detail: 'Chicago, United States',
-                status: 'Current device',
-                icon: Laptop,
-              },
-              {
-                id: 'device-2',
-                name: 'iPhone 16 Pro',
-                detail: 'Organizer mobile access',
-                status: 'Last active 2 hours ago',
-                icon: Smartphone,
-              },
-            ].map((device) => {
-              const Icon = device.icon;
+          <SettingsCard title="Security Overview">
+            <div className="space-y-4">
+              {[
+                {
+                  id: 'overview-1',
+                  title: 'Two-factor authentication',
+                  detail: 'Authenticator app connected and required for admin actions.',
+                },
+                {
+                  id: 'overview-2',
+                  title: 'Recovery options',
+                  detail: 'Backup email and device prompts are configured.',
+                },
+                {
+                  id: 'overview-3',
+                  title: 'Session monitoring',
+                  detail: '3 active devices trusted in the last 30 days.',
+                },
+              ].map((item) => (
+                <div key={item.id} className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4">
+                  <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                    <CheckCircle2 className="h-4 w-4" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="font-medium text-gray-950">{item.title}</div>
+                    <div className="text-sm text-gray-500">{item.detail}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </SettingsCard>
+        </div>
 
-              return (
-                <div key={device.id} className="flex items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-[#fafafa] px-5 py-4">
-                  <div className="flex items-center gap-4">
+        <div className="space-y-6">
+          <SettingsCard title="Recent Security Activity">
+            <div className="space-y-4">
+              {[
+                {
+                  id: 'activity-1',
+                  title: 'Password changed',
+                  detail: 'Today, 9:42 AM from Chicago, United States',
+                  icon: KeyRound,
+                },
+                {
+                  id: 'activity-2',
+                  title: 'New desktop session approved',
+                  detail: 'MacBook Pro, Safari 18.1',
+                  icon: Laptop,
+                },
+                {
+                  id: 'activity-3',
+                  title: 'Mobile login verified',
+                  detail: 'iPhone 16 Pro, Face ID challenge passed',
+                  icon: Smartphone,
+                },
+              ].map((activity) => {
+                const Icon = activity.icon;
+
+                return (
+                  <div key={activity.id} className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <div>
-                      <div className="font-medium text-gray-950">{device.name}</div>
-                      <div className="text-sm text-gray-500">{device.detail}</div>
+                    <div className="space-y-1">
+                      <div className="font-medium text-gray-950">{activity.title}</div>
+                      <div className="text-sm text-gray-500">{activity.detail}</div>
                     </div>
                   </div>
-                  <span className="rounded-full bg-white px-3 py-1.5 text-sm font-medium text-gray-600 shadow-sm">
-                    {device.status}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </SettingsCard>
+                );
+              })}
+            </div>
+          </SettingsCard>
+
+          <SettingsCard title="Trusted Devices">
+            <div className="space-y-4">
+              {[
+                {
+                  id: 'device-1',
+                  name: 'MacBook Pro 16"',
+                  detail: 'Chicago, United States',
+                  status: 'Current device',
+                  icon: Laptop,
+                },
+                {
+                  id: 'device-2',
+                  name: 'iPhone 16 Pro',
+                  detail: 'Organizer mobile access',
+                  status: 'Last active 2 hours ago',
+                  icon: Smartphone,
+                },
+              ].map((device) => {
+                const Icon = device.icon;
+
+                return (
+                  <div key={device.id} className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-950">{device.name}</div>
+                        <div className="text-sm text-gray-500">{device.detail}</div>
+                      </div>
+                    </div>
+                    <span className="rounded-full bg-white px-3 py-1.5 text-sm font-medium text-gray-600 shadow-sm">
+                      {device.status}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </SettingsCard>
+        </div>
       </div>
     </div>
   );
 }
 
+function getAssistantSuggestions(section: SettingsSection) {
+  const suggestions: Record<SettingsSection, string[]> = {
+    profile: [
+      'Review primary email and phone details before sending organizer invoices.',
+      'Update your public-facing identity before inviting collaborators or publishing events.',
+      'Use the profile editor to keep payout and recovery contact information aligned.',
+    ],
+    security: [
+      'Rotate your password regularly and keep confirmations matched before saving.',
+      'Review trusted devices when you change hardware or sign in from a new location.',
+      'Keep recovery methods current so admin access is not blocked during critical events.',
+    ],
+    payments: [
+      'Set the default payout method before adjusting your payout schedule.',
+      'Use a dedicated finance contact so settlement updates go to the right inbox.',
+      'Review recent transactions after adding or switching billing methods.',
+    ],
+    'premium-subscriptions': [
+      'Compare monthly and yearly billing before switching plans.',
+      'Use featured plans for faster seat expansion and advanced organizer controls.',
+      'Review seat usage before upgrading so your next tier matches team demand.',
+    ],
+    notifications: [
+      'Keep urgent payout and security alerts enabled even when digest summaries are reduced.',
+      'Pair quiet hours with push alerts so critical day-of-event updates still surface.',
+      'Review channel settings after onboarding new team members or changing workflows.',
+    ],
+  };
+
+  return suggestions[section];
+}
+
 function PremiumSubscriptionsContent() {
+  const [feedback, setFeedback] = React.useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = React.useState<{
+    title: string;
+    billingCycle: 'monthly' | 'yearly';
+  } | null>(null);
+
+  React.useEffect(() => {
+    if (!feedback) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => setFeedback(null), 2800);
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
+
+  const handlePlanSelect = (plan: Plan, billingCycle: 'monthly' | 'yearly') => {
+    setSelectedPlan({ title: plan.title, billingCycle });
+    setFeedback(`${plan.title} plan selected with ${billingCycle} billing.`);
+  };
+
   return (
     <div className="space-y-6">
-      <SettingsCard title="Current Subscription">
+      {feedback ? <SettingsFeedback message={feedback} /> : null}
+
+      <SettingsCard
+        title="Current Subscription"
+        headerRight={
+          selectedPlan ? (
+            <span className="rounded-full border border-[#d9c1f5] bg-[#f7efff] px-4 py-1.5 text-sm font-medium text-[#7626c6]">
+              Pending: {selectedPlan.title} ({selectedPlan.billingCycle})
+            </span>
+          ) : null
+        }
+      >
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div className="rounded-2xl border border-gray-200 bg-[#fafafa] p-5">
+          <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-5">
             <div className="mb-2 text-sm font-medium text-gray-500">Active Plan</div>
             <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">Professional</div>
             <div className="mt-2 text-sm text-[#7626c6]">Renews annually on Aug 14</div>
           </div>
-          <div className="rounded-2xl border border-gray-200 bg-[#fafafa] p-5">
+          <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-5">
             <div className="mb-2 text-sm font-medium text-gray-500">Team Seats</div>
             <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">18 / 25</div>
             <div className="mt-2 text-sm text-gray-500">7 seats available</div>
           </div>
-          <div className="rounded-2xl border border-gray-200 bg-[#fafafa] p-5">
+          <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-5">
             <div className="mb-2 text-sm font-medium text-gray-500">Savings This Year</div>
             <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">$36</div>
             <div className="mt-2 text-sm text-emerald-600">Yearly discount applied</div>
@@ -1186,10 +1689,39 @@ function PremiumSubscriptionsContent() {
         </div>
       </SettingsCard>
 
-      <section className="rounded-[28px] border border-gray-200 bg-white p-3 shadow-sm">
-        <PricingTable plans={premiumPlans} />
+      <section className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
+        <PricingTable plans={premiumPlans} onPlanSelect={handlePlanSelect} />
       </section>
     </div>
+  );
+}
+
+function SettingsAssistantModal({
+  section,
+  onClose,
+}: {
+  section: SettingsSection;
+  onClose: () => void;
+}) {
+  const sectionData = settingsMeta[section];
+  const suggestions = getAssistantSuggestions(section);
+
+  return (
+    <SettingsModal
+      title={`${sectionData.title} Assistant`}
+      description={`Quick guidance for this ${sectionData.title.toLowerCase()} section.`}
+      onClose={onClose}
+      onSave={onClose}
+      saveLabel="Close Assistant"
+    >
+      <div className="space-y-3">
+        {suggestions.map((suggestion) => (
+          <div key={suggestion} className="rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4 text-sm leading-6 text-gray-600">
+            {suggestion}
+          </div>
+        ))}
+      </div>
+    </SettingsModal>
   );
 }
 
@@ -1205,7 +1737,7 @@ function NotificationToggle({
   onToggle: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-5 rounded-2xl border border-gray-200 bg-[#fafafa] px-6 py-5">
+    <div className="flex items-center justify-between gap-5 rounded-xl border border-gray-200 bg-[#fafafa] px-6 py-5">
       <div className="space-y-1.5 pr-4">
         <div className="font-medium text-gray-950">{label}</div>
         <div className="text-sm text-gray-500">{description}</div>
@@ -1244,7 +1776,7 @@ function NotificationsSettingsContent() {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <div className="space-y-6">
         <SettingsCard title="Delivery Channels">
           <div className="space-y-4">
@@ -1269,6 +1801,47 @@ function NotificationsSettingsContent() {
           </div>
         </SettingsCard>
 
+        <SettingsCard title="Notification Digest">
+          <div className="space-y-4">
+            {[
+              {
+                id: 'digest-email',
+                title: 'Morning Organizer Brief',
+                detail: 'Daily at 8:00 AM with sales, attendance, and campaign highlights.',
+                icon: Mail,
+              },
+              {
+                id: 'digest-inbox',
+                title: 'Unread Conversations',
+                detail: 'Bundle attendee replies and internal team mentions every 2 hours.',
+                icon: MessageSquare,
+              },
+              {
+                id: 'digest-system',
+                title: 'Critical System Alerts',
+                detail: 'Sent immediately for payment failures, permissions changes, and security notices.',
+                icon: Bell,
+              },
+            ].map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <div key={item.id} className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="font-medium text-gray-950">{item.title}</div>
+                    <div className="text-sm text-gray-500">{item.detail}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </SettingsCard>
+      </div>
+
+      <div className="space-y-6">
         <SettingsCard title="Event Alerts">
           <div className="space-y-4">
             <NotificationToggle
@@ -1297,51 +1870,10 @@ function NotificationsSettingsContent() {
             />
           </div>
         </SettingsCard>
-      </div>
-
-      <div className="space-y-6">
-        <SettingsCard title="Notification Digest">
-          <div className="space-y-4">
-            {[
-              {
-                id: 'digest-email',
-                title: 'Morning Organizer Brief',
-                detail: 'Daily at 8:00 AM with sales, attendance, and campaign highlights.',
-                icon: Mail,
-              },
-              {
-                id: 'digest-inbox',
-                title: 'Unread Conversations',
-                detail: 'Bundle attendee replies and internal team mentions every 2 hours.',
-                icon: MessageSquare,
-              },
-              {
-                id: 'digest-system',
-                title: 'Critical System Alerts',
-                detail: 'Sent immediately for payment failures, permissions changes, and security notices.',
-                icon: Bell,
-              },
-            ].map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <div key={item.id} className="flex items-start gap-4 rounded-2xl border border-gray-200 bg-[#fafafa] px-5 py-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <div className="font-medium text-gray-950">{item.title}</div>
-                    <div className="text-sm text-gray-500">{item.detail}</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </SettingsCard>
 
         <SettingsCard title="Quiet Hours">
           <div className="space-y-6">
-            <div className="flex items-start gap-4 rounded-2xl border border-gray-200 bg-[#fafafa] px-5 py-4">
+            <div className="flex items-start gap-4 rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
                 <Clock3 className="h-5 w-5" />
               </div>
@@ -1355,7 +1887,7 @@ function NotificationsSettingsContent() {
               <label className="block">
                 <span className="mb-3 block text-sm font-medium text-gray-500">Quiet Hours Start</span>
                 <div className="relative">
-                  <select className="h-14 w-full appearance-none rounded-2xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
+                  <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
                     <option>10:00 PM</option>
                     <option>11:00 PM</option>
                     <option>12:00 AM</option>
@@ -1367,7 +1899,7 @@ function NotificationsSettingsContent() {
               <label className="block">
                 <span className="mb-3 block text-sm font-medium text-gray-500">Quiet Hours End</span>
                 <div className="relative">
-                  <select className="h-14 w-full appearance-none rounded-2xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
+                  <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
                     <option>7:00 AM</option>
                     <option>8:00 AM</option>
                     <option>9:00 AM</option>
@@ -1389,7 +1921,7 @@ function PlaceholderSettingsContent({ section }: { section: SettingsSection }) {
 
   return (
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-      <section className="rounded-[28px] border border-gray-200 bg-white p-8 shadow-sm xl:col-span-2">
+      <section className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm xl:col-span-2">
         <div className="flex items-start gap-4">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
             <Icon className="h-6 w-6" />
@@ -1406,6 +1938,7 @@ function PlaceholderSettingsContent({ section }: { section: SettingsSection }) {
 
 export function SettingsPage({ section }: SettingsPageProps) {
   const sectionData = settingsMeta[section];
+  const [assistantOpen, setAssistantOpen] = React.useState(false);
 
   return (
     <div
@@ -1437,11 +1970,14 @@ export function SettingsPage({ section }: SettingsPageProps) {
 
       <button
         type="button"
+        onClick={() => setAssistantOpen(true)}
         className="fixed bottom-8 right-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#8f48eb] to-[#6c20c8] text-white shadow-[0_18px_30px_rgba(118,38,198,0.35)] transition hover:scale-[1.02]"
         aria-label="Open settings assistant"
       >
         <Sparkles className="h-6 w-6" />
       </button>
+
+      {assistantOpen ? <SettingsAssistantModal section={section} onClose={() => setAssistantOpen(false)} /> : null}
     </div>
   );
 }
