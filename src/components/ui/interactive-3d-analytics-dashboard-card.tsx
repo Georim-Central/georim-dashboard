@@ -92,7 +92,7 @@ function AnimatedBar({
           delay: index * 0.08,
         }}
       >
-        <div className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-transparent px-2.5 py-1 text-[11px] font-medium text-black transition-all duration-200 group-hover:bg-[#1f1f29] group-hover:text-white group-hover:shadow-sm dark:text-white dark:group-hover:bg-[#f3f4f6] dark:group-hover:text-gray-900">
+        <div className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-transparent px-2.5 py-1 text-[11px] font-medium text-transparent transition-all duration-200 group-hover:bg-[#1f1f29] group-hover:text-white group-hover:shadow-sm dark:text-transparent dark:group-hover:bg-[#f3f4f6] dark:group-hover:text-gray-900">
           {valueFormatter(value)}
         </div>
       </motion.div>
@@ -121,7 +121,7 @@ export default function Interactive3DAnalyticsDashboardCard({
   hasError = false,
   onRetry,
 }: Interactive3DAnalyticsDashboardCardProps) {
-  const [isDarkMode, setIsDarkMode] = React.useState(false);
+  const [isDarkMode] = React.useState(false);
   const [rotation, setRotation] = React.useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = React.useState(false);
 
@@ -235,7 +235,7 @@ export default function Interactive3DAnalyticsDashboardCard({
                           isDarkMode={isDarkMode}
                           valueFormatter={valueFormatter}
                         />
-                        <div className="mt-2 text-center text-xs text-gray-600 dark:text-gray-400">{item.label}</div>
+                        <div className="mt-4 text-center text-xs text-gray-600 dark:text-gray-400">{item.label}</div>
                       </div>
                     ))}
                   </div>

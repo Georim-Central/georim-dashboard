@@ -1,5 +1,6 @@
 import * as React from 'react';
 import type { ReactNode } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import {
   AtSign,
@@ -7,8 +8,8 @@ import {
   Building2,
   Camera,
   CheckCircle2,
+  ChevronRight,
   Clock3,
-  ChevronDown,
   CreditCard,
   DollarSign,
   KeyRound,
@@ -25,12 +26,22 @@ import {
   SlidersHorizontal,
   Sparkles,
   Smartphone,
+  Ticket,
   UserRound,
   Wallet,
   X,
 } from 'lucide-react';
 
-import PricingTable, { type Plan } from '@/components/ui/modern-pricing-table';
+import {
+  PricingTable,
+  PricingTableHeader,
+  PricingTableBody,
+  PricingTableRow,
+  PricingTableHead,
+  PricingTableCell,
+  PricingTablePlan,
+  type FeatureItem,
+} from '@/components/ui/pricing-table';
 import { PaymentMethodSelector } from '@/components/ui/payment-1';
 import { PasswordField } from '@/components/ui/password-input';
 import { OrangeToggle } from '@/components/ui/toggle';
@@ -97,64 +108,19 @@ const paymentMethods = [
   },
 ];
 
-const premiumPlans: Plan[] = [
-  {
-    title: 'Starter',
-    price: {
-      monthly: 9,
-      yearly: 96,
-    },
-    description: 'Perfect for organizers testing one-off launches and simple event operations.',
-    features: [
-      'Up to 5 active events',
-      'Basic organizer analytics',
-      'Standard attendee exports',
-      'Email support',
-      'Single workspace',
-    ],
-    ctaText: 'Get Started',
-    ctaHref: '#',
-  },
-  {
-    title: 'Professional',
-    price: {
-      monthly: 29,
-      yearly: 312,
-    },
-    description: 'Best for fast-growing teams running multiple campaigns and recurring events.',
-    features: [
-      'Up to 25 active events',
-      'Advanced analytics dashboards',
-      'Marketing and payout controls',
-      'Priority support',
-      'Team collaboration tools',
-      'Custom event branding',
-      'Integrations access',
-    ],
-    ctaText: 'Start Free Trial',
-    ctaHref: '#',
-    isFeatured: true,
-  },
-  {
-    title: 'Enterprise',
-    price: {
-      monthly: 99,
-      yearly: 1068,
-    },
-    description: 'For high-volume organizations that need security, scale, and advanced workflows.',
-    features: [
-      'Unlimited events',
-      'Unlimited team members',
-      '24/7 dedicated support',
-      'Role-based access controls',
-      'Advanced security and audit logs',
-      'Custom integrations',
-      'SSO authentication',
-      'White-glove onboarding',
-    ],
-    ctaText: 'Contact Sales',
-    ctaHref: '#',
-  },
+const PLAN_FEATURES: FeatureItem[] = [
+  { label: 'Active events',         values: ['5',          '25',              'Unlimited'] },
+  { label: 'Team members',          values: ['1',          'Up to 25',        'Unlimited'] },
+  { label: 'Analytics',             values: ['Basic',      'Advanced',        'Enterprise'] },
+  { label: 'Attendee exports',      values: [true,         true,              true] },
+  { label: 'Marketing tools',       values: [false,        true,              true] },
+  { label: 'Payout controls',       values: [false,        true,              true] },
+  { label: 'Custom event branding', values: [false,        true,              true] },
+  { label: 'Integrations',          values: [false,        true,              true] },
+  { label: 'Priority support',      values: [false,        'Business hours',  '24/7'] },
+  { label: 'Role-based access',     values: [false,        false,             true] },
+  { label: 'SSO authentication',    values: [false,        false,             true] },
+  { label: 'White-glove onboarding',values: [false,        false,             true] },
 ];
 
 const settingsMeta: Record<SettingsSection, { title: string; subtitle: string; icon: typeof Shield }> = {
@@ -243,18 +209,14 @@ type PaymentMethodDraft = {
 };
 
 const PRIMARY_BUTTON_CLASS =
-  'inline-flex items-center justify-center gap-2 rounded-xl bg-[#7626c6] px-5 py-3 text-sm font-medium text-white shadow-[0_12px_24px_rgba(118,38,198,0.22)] transition hover:bg-[#6620ab] disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex items-center justify-center gap-2 rounded-xl bg-[#7626c6] px-5 py-2.5 text-sm font-medium text-white shadow-[0_8px_20px_rgba(118,38,198,0.20)] transition duration-[150ms] hover:bg-[#6620ab] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50';
 const SECONDARY_BUTTON_CLASS =
-  'inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50';
-const SOFT_BUTTON_CLASS =
-  'inline-flex items-center justify-center gap-2 rounded-xl bg-[#f3e8fc] px-5 py-3 text-sm font-medium text-gray-800 transition hover:bg-[#ebdefb] disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 transition duration-[150ms] hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50';
 const SETTINGS_PAGE_STACK_CLASS = 'space-y-8';
 const SETTINGS_SECTION_GRID_CLASS = 'grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-8';
 const SETTINGS_COLUMN_STACK_CLASS = 'space-y-6';
 const SETTINGS_CONTENT_STACK_CLASS = 'space-y-4';
-const SETTINGS_FORM_GRID_CLASS = 'grid grid-cols-1 gap-6';
 const SETTINGS_PANEL_CLASS = 'rounded-2xl border border-gray-200 bg-[#fafafa] px-4 py-4';
-const SETTINGS_PADDED_PANEL_CLASS = 'rounded-2xl border border-gray-200 bg-[#fafafa] p-4';
 const SETTINGS_CARD_PADDING_CLASS = 'p-6';
 
 function createPaymentMethodVisual(provider: PaymentMethodDraft['provider']) {
@@ -333,14 +295,14 @@ function FieldInput({
   placeholder?: string;
 }) {
   return (
-    <label className="grid gap-2">
-      <span className="text-sm font-medium text-gray-500">{label}</span>
+    <label className="grid gap-1.5">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400">{label}</span>
       <input
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="h-14 w-full rounded-xl border border-gray-200 bg-[#fafafa] px-4 text-[1.02rem] text-gray-900 shadow-sm outline-none transition focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10"
+        className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 text-sm text-gray-900 shadow-sm outline-none transition duration-[150ms] placeholder:text-gray-400 focus:border-[#7626c6] focus:bg-white focus:ring-4 focus:ring-[#7626c6]/10"
       />
     </label>
   );
@@ -420,32 +382,51 @@ function SettingsModal({
   const descriptionId = React.useId();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 sm:px-6 sm:py-8">
-      <div
+    <motion.div
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8"
+      initial={{ backgroundColor: 'rgba(0,0,0,0)' }}
+      animate={{ backgroundColor: 'rgba(0,0,0,0.65)' }}
+      exit={{ backgroundColor: 'rgba(0,0,0,0)' }}
+      transition={{ duration: 0.2 }}
+      onClick={onClose}
+    >
+      <motion.div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-5 shadow-2xl sm:p-6"
+        className="w-full max-w-md overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-[0_24px_64px_rgba(15,23,42,0.14)]"
+        initial={{ opacity: 0, scale: 0.97, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.97, y: 16 }}
+        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-5 flex items-start justify-between gap-4 sm:mb-6">
-          <div className="space-y-2">
-            <h2 id={titleId} className="text-2xl font-semibold tracking-[-0.03em] text-gray-950">{title}</h2>
-            <p id={descriptionId} className="text-sm leading-6 text-gray-500">{description}</p>
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 px-6 pb-5 pt-6">
+          <div>
+            <h2 id={titleId} className="text-xl font-semibold tracking-[-0.02em] text-gray-950">{title}</h2>
+            <p id={descriptionId} className="mt-1.5 text-sm leading-relaxed text-gray-500">{description}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-gray-200 p-2 text-gray-500 transition hover:bg-gray-50 hover:text-gray-800"
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 text-gray-400 transition duration-[150ms] hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#7626c6]/20"
             aria-label="Close dialog"
           >
-            <X className="h-4 w-4" />
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
 
-        <div className="space-y-4 sm:space-y-5">{children}</div>
+        <div className="border-t border-gray-100" />
 
-        <div className="mt-6 flex items-center justify-end gap-3 sm:mt-8">
+        {/* Body */}
+        <div className="space-y-4 px-6 py-5">{children}</div>
+
+        <div className="border-t border-gray-100" />
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 px-6 py-4">
           <button
             type="button"
             onClick={onClose}
@@ -463,8 +444,8 @@ function SettingsModal({
             {saveLabel}
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -476,11 +457,11 @@ function ProfileCardTitle({
   title: string;
 }) {
   return (
-    <span className="inline-flex items-center gap-3">
-      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f]">
+    <span className="inline-flex items-center gap-2.5">
+      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gray-100 text-gray-600">
         {icon}
       </span>
-      <span>{title}</span>
+      <span className="text-base font-semibold tracking-tight text-gray-900">{title}</span>
     </span>
   );
 }
@@ -490,46 +471,33 @@ function ProfileMetric({
   label,
   value,
   detail,
+  progress,
 }: {
   icon: ReactNode;
   label: string;
   value: string;
   detail: string;
+  progress?: number;
 }) {
   return (
-    <div className={`${SETTINGS_PADDED_PANEL_CLASS} shadow-sm`}>
-      <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f]">
-        {icon}
+    <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-gray-50/70 p-4">
+      <div className="flex items-center justify-between">
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-gray-500 shadow-sm ring-1 ring-gray-200/80">
+          {icon}
+        </div>
+        <span className="text-2xl font-semibold tracking-[-0.03em] text-gray-950">{value}</span>
       </div>
-      <div className="space-y-1">
-        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">{label}</div>
-        <div className="text-2xl font-semibold tracking-[-0.04em] text-gray-950">{value}</div>
-        <p className="text-sm leading-6 text-gray-500">{detail}</p>
-      </div>
-    </div>
-  );
-}
-
-function ProfileSnapshotItem({
-  icon,
-  label,
-  value,
-  meta,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-  meta: string;
-}) {
-  return (
-    <div className={`flex items-start gap-4 shadow-sm ${SETTINGS_PANEL_CLASS}`}>
-      <div className="mt-0.5 flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f]">
-        {icon}
-      </div>
-      <div className="min-w-0 space-y-1">
-        <div className="text-sm font-medium text-gray-500">{label}</div>
-        <div className="break-words text-base font-semibold text-gray-950">{value}</div>
-        <div className="text-sm text-gray-500">{meta}</div>
+      <div>
+        <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-400">{label}</div>
+        {progress !== undefined && (
+          <div className="mb-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+            <div
+              className="h-full rounded-full bg-[#7626c6] transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        )}
+        <p className="text-xs leading-5 text-gray-500">{detail}</p>
       </div>
     </div>
   );
@@ -582,7 +550,6 @@ function ProfileSettingsContent() {
     .join('')
     .toUpperCase();
   const primaryEmail = emails.find((email) => email.primary) ?? emails[0] ?? null;
-  const primaryPhone = phones.find((phone) => phone.primary) ?? phones[0] ?? null;
   const primaryAddress = addresses.find((address) => address.label?.toLowerCase() === 'primary') ?? addresses[0] ?? null;
   const completedProfileFields = [
     Boolean(profileInfo.name.trim()),
@@ -720,89 +687,82 @@ function ProfileSettingsContent() {
       <div className={SETTINGS_SECTION_GRID_CLASS}>
         <div className={SETTINGS_COLUMN_STACK_CLASS}>
           <SettingsCard
-            title={<ProfileCardTitle icon={<UserRound className="h-4 w-4" />} title="Your profile" />}
+            title={<ProfileCardTitle icon={<UserRound className="h-4 w-4" />} title="Your Profile" />}
             headerRight={
-              <span className="rounded-full border border-white/80 bg-white/75 px-4 py-2 text-sm font-medium text-[#5b2d91] shadow-sm">
-                Joined {profileInfo.joined}
-              </span>
+              <button
+                type="button"
+                onClick={openProfileEditor}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 shadow-sm transition duration-[150ms] hover:bg-gray-50 hover:text-gray-900"
+              >
+                <PencilLine className="h-3.5 w-3.5" />
+                Edit
+              </button>
             }
-            className="border-gray-200 bg-[linear-gradient(145deg,rgba(255,255,255,0.98)_0%,rgba(249,249,251,0.96)_56%,rgba(255,250,240,0.94)_100%)] shadow-sm"
           >
-            <div className={SETTINGS_CONTENT_STACK_CLASS}>
-              <div className="flex flex-col gap-5 sm:gap-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
-                  <div className="flex items-center gap-4">
-                    <div className="relative">
-                      <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-[radial-gradient(circle_at_top_left,#4b4b58,#1f1f29_65%)] text-3xl font-semibold text-white shadow-sm ring-4 ring-white/90">
-                        {avatarPreview ? (
-                          <img
-                            src={avatarPreview}
-                            alt={`${profileInfo.name} profile`}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          initials
-                        )}
-                      </div>
-                      <input
-                        id={avatarInputId}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleAvatarUpload}
-                        aria-label="Profile image uploader"
+            <div className="space-y-6">
+              {/* Avatar + identity */}
+              <div className="flex items-start gap-6">
+                <div className="relative flex-shrink-0 pb-2 pr-2">
+                  <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-gray-900 text-xl font-semibold text-white ring-4 ring-white shadow-md">
+                    {avatarPreview ? (
+                      <img
+                        src={avatarPreview}
+                        alt={`${profileInfo.name} profile`}
+                        className="h-full w-full object-cover"
                       />
-                      <label
-                        htmlFor={avatarInputId}
-                        className="absolute bottom-0 right-0 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-[#1d1d1f] text-white shadow-[0_10px_24px_rgba(15,23,42,0.2)] transition hover:scale-[1.03]"
-                        aria-label="Update profile image"
-                      >
-                        <Camera className="h-4 w-4" />
-                      </label>
-                    </div>
-
-                    <div className="space-y-2 sm:space-y-3">
-                      <span className="inline-flex rounded-full border border-[#d7c3f5] bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#6b32b0]">
-                        Lead Organizer
-                      </span>
-                      <div className="text-[1.65rem] font-semibold tracking-[-0.03em] text-gray-950">{profileInfo.name}</div>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600">
-                        {primaryEmailPreview ? <span>{primaryEmailPreview}</span> : null}
-                        {primaryEmailPreview ? <span className="text-gray-300">•</span> : null}
-                        <span>{profileInfo.phone}</span>
-                      </div>
-                      <p className="max-w-md text-sm leading-6 text-gray-600">
-                        This identity appears across invoices, attendee receipts, team invites, and organizer contact surfaces.
-                      </p>
-                    </div>
+                    ) : (
+                      initials
+                    )}
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={openProfileEditor}
-                    className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-full border border-gray-200 bg-white px-3.5 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+                  <input
+                    id={avatarInputId}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarUpload}
+                    aria-label="Profile image uploader"
+                  />
+                  <label
+                    htmlFor={avatarInputId}
+                    className="absolute -bottom-1.5 -right-1.5 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl border-2 border-white bg-gray-900 text-white shadow-md transition duration-[150ms] hover:bg-gray-700"
+                    aria-label="Update profile image"
                   >
-                    <PencilLine className="h-4 w-4" />
-                    Edit
-                  </button>
+                    <Camera className="h-3.5 w-3.5" />
+                  </label>
+                </div>
+
+                <div className="min-w-0 flex-1 pt-0.5">
+                  <div className="mb-1 inline-flex items-center rounded-full bg-[#f1e5fb] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#7626c6]">
+                    Lead Organizer
+                  </div>
+                  <h3 className="text-xl font-semibold tracking-tight text-gray-950">{profileInfo.name}</h3>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-gray-500">
+                    {primaryEmailPreview ? <span>{primaryEmailPreview}</span> : null}
+                    {primaryEmailPreview ? <span className="text-gray-300">·</span> : null}
+                    <span>{profileInfo.phone}</span>
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                    Joined {profileInfo.joined} · Identity used across invoices, receipts, and organizer surfaces.
+                  </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
+              {/* Stats row */}
+              <div className="grid grid-cols-2 gap-4">
                 <ProfileMetric
-                  icon={<CheckCircle2 className="h-5 w-5" />}
+                  icon={<CheckCircle2 className="h-4 w-4" />}
                   label="Profile Completeness"
                   value={`${profileCompleteness}%`}
-                  detail="Core identity, contact, and billing fields are active."
+                  detail="Identity, contact, and billing fields."
+                  progress={profileCompleteness}
                 />
                 <ProfileMetric
-                  icon={<Sparkles className="h-5 w-5" />}
+                  icon={<Sparkles className="h-4 w-4" />}
                   label="Connected Channels"
                   value={`${connectedChannels}`}
-                  detail="Primary contact routes available for support and alerts."
+                  detail="Active contact routes for support and alerts."
                 />
               </div>
-
             </div>
           </SettingsCard>
 
@@ -811,26 +771,19 @@ function ProfileSettingsContent() {
             headerRight={<span className="text-sm font-medium text-gray-500">{emails.length} total</span>}
             className="shadow-[0_18px_42px_rgba(15,23,42,0.06)]"
           >
-            <div className={SETTINGS_CONTENT_STACK_CLASS}>
+            <div className="divide-y divide-gray-100">
               {visibleEmails.map((email) => (
-                <div key={email.id} className={`flex items-start gap-4 ${SETTINGS_PADDED_PANEL_CLASS}`}>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f] shadow-sm">
-                    <Mail className="h-5 w-5" />
+                <div key={email.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-400">
+                    <Mail className="h-4 w-4" />
                   </div>
-                  <div className="min-w-0 flex-1 space-y-2 sm:space-y-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {email.primary ? (
-                        <span className="inline-flex rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">
-                          Primary
-                        </span>
-                      ) : (
-                        <span className="inline-flex rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm font-medium text-gray-500">
-                          Secondary
-                        </span>
-                      )}
-                    </div>
-                    <div className="break-words text-[1.05rem] text-gray-900">{email.value}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium text-gray-900">{email.value}</div>
+                    <div className="text-xs text-gray-400">{email.primary ? 'Primary email' : 'Secondary email'}</div>
                   </div>
+                  {email.primary ? (
+                    <span className="flex-shrink-0 rounded-full bg-[#f1e5fb] px-2.5 py-0.5 text-xs font-medium text-[#7626c6]">Primary</span>
+                  ) : null}
                   <ActionMenu
                     label={`Email actions for ${email.value}`}
                     isOpen={activeMenu === email.id}
@@ -841,13 +794,7 @@ function ProfileSettingsContent() {
                       icon={<PencilLine className="h-4 w-4" />}
                       onClick={() => {
                         setActiveMenu(null);
-                        setEditor({
-                          kind: 'email',
-                          mode: 'edit',
-                          id: email.id,
-                          value: email.value,
-                          primary: Boolean(email.primary),
-                        });
+                        setEditor({ kind: 'email', mode: 'edit', id: email.id, value: email.value, primary: Boolean(email.primary) });
                       }}
                     />
                     {!email.primary ? (
@@ -865,28 +812,23 @@ function ProfileSettingsContent() {
                 </div>
               ))}
 
-              <div className="flex flex-wrap items-center gap-3 pt-1 sm:pt-2">
+              <div className="flex flex-wrap items-center gap-2 pt-4">
+                {emails.length > 2 ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllEmails((current) => !current)}
+                    className="text-sm font-medium text-[#7626c6] transition duration-[150ms] hover:text-[#5f1fa3]"
+                    aria-pressed={showAllEmails}
+                  >
+                    {showAllEmails ? 'Show fewer' : `Show all ${emails.length}`}
+                  </button>
+                ) : null}
                 <button
                   type="button"
-                  onClick={() => setShowAllEmails((current) => !current)}
-                  className={SOFT_BUTTON_CLASS}
-                  aria-pressed={showAllEmails}
+                  onClick={() => setEditor({ kind: 'email', mode: 'add', value: '', primary: emails.every((e) => !e.primary) })}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 shadow-sm transition duration-[150ms] hover:bg-gray-50"
                 >
-                  {showAllEmails ? 'Show fewer emails' : `See all email (${emails.length})`}
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setEditor({
-                      kind: 'email',
-                      mode: 'add',
-                      value: '',
-                      primary: emails.every((email) => !email.primary),
-                    })
-                  }
-                  className={SECONDARY_BUTTON_CLASS}
-                >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-3.5 w-3.5" />
                   Add Email
                 </button>
               </div>
@@ -897,22 +839,19 @@ function ProfileSettingsContent() {
             title={<ProfileCardTitle icon={<Phone className="h-4 w-4" />} title="Phone Number" />}
             className="shadow-[0_18px_42px_rgba(15,23,42,0.06)]"
           >
-            <div className={SETTINGS_CONTENT_STACK_CLASS}>
+            <div className="divide-y divide-gray-100">
               {phones.map((phone) => (
-                <div key={phone.id} className={`flex items-start gap-4 ${SETTINGS_PADDED_PANEL_CLASS}`}>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f] shadow-sm">
-                    <Smartphone className="h-5 w-5" />
+                <div key={phone.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-400">
+                    <Smartphone className="h-4 w-4" />
                   </div>
-                  <div className="min-w-0 flex-1 space-y-2 sm:space-y-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {phone.primary ? (
-                        <span className="inline-flex rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">
-                          Primary
-                        </span>
-                      ) : null}
-                    </div>
-                    <div className="text-[1.05rem] text-gray-900">{phone.value}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium text-gray-900">{phone.value}</div>
+                    <div className="text-xs text-gray-400">{phone.primary ? 'Primary number' : 'Secondary number'}</div>
                   </div>
+                  {phone.primary ? (
+                    <span className="flex-shrink-0 rounded-full bg-[#f1e5fb] px-2.5 py-0.5 text-xs font-medium text-[#7626c6]">Primary</span>
+                  ) : null}
                   <ActionMenu
                     label={`Phone actions for ${phone.value}`}
                     isOpen={activeMenu === phone.id}
@@ -923,12 +862,7 @@ function ProfileSettingsContent() {
                       icon={<PencilLine className="h-4 w-4" />}
                       onClick={() => {
                         setActiveMenu(null);
-                        setEditor({
-                          kind: 'phone',
-                          id: phone.id,
-                          value: phone.value,
-                          primary: Boolean(phone.primary),
-                        });
+                        setEditor({ kind: 'phone', id: phone.id, value: phone.value, primary: Boolean(phone.primary) });
                       }}
                     />
                   </ActionMenu>
@@ -944,21 +878,19 @@ function ProfileSettingsContent() {
             headerRight={<span className="text-sm font-medium text-gray-500">{addresses.length} saved</span>}
             className="shadow-[0_18px_42px_rgba(15,23,42,0.06)]"
           >
-            <div className={SETTINGS_CONTENT_STACK_CLASS}>
+            <div className="divide-y divide-gray-100">
               {addresses.map((address) => (
-                <div key={address.id} className={`flex items-start gap-4 ${SETTINGS_PADDED_PANEL_CLASS}`}>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f] shadow-sm">
-                    <Building2 className="h-5 w-5" />
+                <div key={address.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+                  <div className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-400">
+                    <Building2 className="h-4 w-4" />
                   </div>
-                  <div className="min-w-0 flex-1 space-y-2 sm:space-y-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {address.label ? (
-                        <span className="inline-flex rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">
-                          {address.label}
-                        </span>
-                      ) : null}
-                    </div>
-                    <div className="space-y-0.5 text-[1.05rem] leading-8 text-gray-900">
+                  <div className="min-w-0 flex-1">
+                    {address.label ? (
+                      <div className="mb-1 inline-flex rounded-full bg-[#f1e5fb] px-2.5 py-0.5 text-xs font-medium text-[#7626c6]">
+                        {address.label}
+                      </div>
+                    ) : null}
+                    <div className="space-y-0.5 text-sm font-medium text-gray-900">
                       {address.lines.map((line) => (
                         <div key={line}>{line}</div>
                       ))}
@@ -974,13 +906,7 @@ function ProfileSettingsContent() {
                       icon={<PencilLine className="h-4 w-4" />}
                       onClick={() => {
                         setActiveMenu(null);
-                        setEditor({
-                          kind: 'address',
-                          id: address.id,
-                          label: address.label || '',
-                          line1: address.lines[0] || '',
-                          line2: address.lines[1] || '',
-                        });
+                        setEditor({ kind: 'address', id: address.id, label: address.label || '', line1: address.lines[0] || '', line2: address.lines[1] || '' });
                       }}
                     />
                   </ActionMenu>
@@ -993,63 +919,42 @@ function ProfileSettingsContent() {
             title={<ProfileCardTitle icon={<SlidersHorizontal className="h-4 w-4" />} title="Account Options" />}
             className="shadow-[0_18px_42px_rgba(15,23,42,0.06)]"
           >
-            <div className={SETTINGS_CONTENT_STACK_CLASS}>
-              <div className={SETTINGS_PANEL_CLASS}>
-                <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f5f5f7] text-[#1d1d1f] shadow-sm">
-                    <Laptop className="h-5 w-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <div className="font-semibold text-gray-950">Workspace defaults</div>
-                    <div className="text-sm leading-6 text-gray-500">
-                      These preferences shape how dates, identity, and operational details appear across the dashboard.
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div className="space-y-5">
+              <p className="text-sm text-gray-400">
+                These preferences shape how dates, identity, and operational details appear across the dashboard.
+              </p>
 
-              <div className={SETTINGS_FORM_GRID_CLASS}>
+              <div className="grid grid-cols-1 gap-4">
                 <label className="block">
-                  <span className="mb-3 block text-sm font-medium text-gray-500">Language</span>
-                  <div className="relative">
-                    <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
-                      <option>Bangla</option>
-                      <option>English</option>
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                  </div>
+                  <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-400">Language</span>
+                  <select className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 shadow-sm outline-none transition duration-[150ms] focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
+                    <option>Bangla</option>
+                    <option>English</option>
+                  </select>
                 </label>
 
                 <label className="block">
-                  <span className="mb-3 block text-sm font-medium text-gray-500">Time zone</span>
-                  <div className="relative">
-                    <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
-                      <option>(GMT+6) Time in Bangladesh</option>
-                      <option>(GMT+1) Central European Time</option>
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                  </div>
+                  <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-400">Time Zone</span>
+                  <select className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 shadow-sm outline-none transition duration-[150ms] focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
+                    <option>(GMT+6) Time in Bangladesh</option>
+                    <option>(GMT+1) Central European Time</option>
+                  </select>
                 </label>
 
                 <label className="block">
-                  <span className="mb-3 block text-sm font-medium text-gray-500">Nationality</span>
-                  <div className="relative">
-                    <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
-                      <option>Bangladeshi</option>
-                      <option>American</option>
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                  </div>
+                  <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-400">Nationality</span>
+                  <select className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 shadow-sm outline-none transition duration-[150ms] focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
+                    <option>Bangladeshi</option>
+                    <option>American</option>
+                  </select>
                 </label>
 
                 <label className="block">
-                  <span className="mb-3 block text-sm font-medium text-gray-500">Merchant ID</span>
-                  <input
-                    type="text"
-                    value="GRM-29384-2026"
-                    readOnly
-                    className="h-14 w-full rounded-xl border border-gray-200 bg-[#fafafa] px-4 text-[1.05rem] text-gray-900 shadow-sm"
-                  />
+                  <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-400">Merchant ID</span>
+                  <div className="flex h-11 w-full items-center rounded-xl border border-gray-200 bg-gray-50 pl-3.5 pr-4">
+                    <span className="flex-1 text-sm text-gray-500 font-mono">GRM-29384-2026</span>
+                    <span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-400">Read-only</span>
+                  </div>
                 </label>
               </div>
             </div>
@@ -1057,81 +962,89 @@ function ProfileSettingsContent() {
         </div>
       </div>
 
-      {editor?.kind === 'profile' ? (
-        <SettingsModal
-          title="Edit Profile"
-          description="Update your organizer name and primary contact number."
-          onClose={() => setEditor(null)}
-          onSave={handleSaveEditor}
-          saveDisabled={!editor.name.trim() || !editor.phone.trim()}
-        >
-          <FieldInput label="Full Name" value={editor.name} onChange={(value) => setEditor({ ...editor, name: value })} />
-          <FieldInput label="Phone Number" value={editor.phone} onChange={(value) => setEditor({ ...editor, phone: value })} />
-        </SettingsModal>
-      ) : null}
+      <AnimatePresence>
+        {editor?.kind === 'profile' && (
+          <SettingsModal
+            title="Edit Profile"
+            description="Update your organizer name and primary contact number."
+            onClose={() => setEditor(null)}
+            onSave={handleSaveEditor}
+            saveDisabled={!editor.name.trim() || !editor.phone.trim()}
+          >
+            <FieldInput label="Full Name" value={editor.name} onChange={(value) => setEditor({ ...editor, name: value })} />
+            <FieldInput label="Phone Number" value={editor.phone} onChange={(value) => setEditor({ ...editor, phone: value })} />
+          </SettingsModal>
+        )}
+      </AnimatePresence>
 
-      {editor?.kind === 'email' ? (
-        <SettingsModal
-          title={editor.mode === 'add' ? 'Add Email' : 'Edit Email'}
-          description="Keep your notification and recovery email addresses up to date."
-          onClose={() => setEditor(null)}
-          onSave={handleSaveEditor}
-          saveLabel={editor.mode === 'add' ? 'Add Email' : 'Save Email'}
-          saveDisabled={!editor.value.trim()}
-        >
-          <FieldInput
-            label="Email Address"
-            type="email"
-            value={editor.value}
-            onChange={(value) => setEditor({ ...editor, value })}
-            placeholder="name@example.com"
-          />
-          <label className={`flex items-center gap-3 ${SETTINGS_PANEL_CLASS}`}>
-            <input
-              type="checkbox"
-              checked={editor.primary}
-              onChange={(event) => setEditor({ ...editor, primary: event.target.checked })}
-              className="h-4 w-4 rounded border-gray-300 text-[#7626c6] focus:ring-[#7626c6]"
+      <AnimatePresence>
+        {editor?.kind === 'email' && (
+          <SettingsModal
+            title={editor.mode === 'add' ? 'Add Email' : 'Edit Email'}
+            description="Keep your notification and recovery email addresses up to date."
+            onClose={() => setEditor(null)}
+            onSave={handleSaveEditor}
+            saveLabel={editor.mode === 'add' ? 'Add Email' : 'Save Email'}
+            saveDisabled={!editor.value.trim()}
+          >
+            <FieldInput
+              label="Email Address"
+              type="email"
+              value={editor.value}
+              onChange={(value) => setEditor({ ...editor, value })}
+              placeholder="name@example.com"
             />
-            <span className="text-sm font-medium text-gray-700">Use as primary email</span>
-          </label>
-        </SettingsModal>
-      ) : null}
+            <label className={`flex items-center gap-3 ${SETTINGS_PANEL_CLASS}`}>
+              <input
+                type="checkbox"
+                checked={editor.primary}
+                onChange={(event) => setEditor({ ...editor, primary: event.target.checked })}
+                className="h-4 w-4 rounded border-gray-300 text-[#7626c6] focus:ring-[#7626c6]"
+              />
+              <span className="text-sm font-medium text-gray-700">Use as primary email</span>
+            </label>
+          </SettingsModal>
+        )}
+      </AnimatePresence>
 
-      {editor?.kind === 'phone' ? (
-        <SettingsModal
-          title="Edit Phone Number"
-          description="Update the phone number used for organizer communication and urgent alerts."
-          onClose={() => setEditor(null)}
-          onSave={handleSaveEditor}
-          saveDisabled={!editor.value.trim()}
-        >
-          <FieldInput label="Phone Number" value={editor.value} onChange={(value) => setEditor({ ...editor, value })} />
-          <label className={`flex items-center gap-3 ${SETTINGS_PANEL_CLASS}`}>
-            <input
-              type="checkbox"
-              checked={editor.primary}
-              onChange={(event) => setEditor({ ...editor, primary: event.target.checked })}
-              className="h-4 w-4 rounded border-gray-300 text-[#7626c6] focus:ring-[#7626c6]"
-            />
-            <span className="text-sm font-medium text-gray-700">Use as primary phone number</span>
-          </label>
-        </SettingsModal>
-      ) : null}
+      <AnimatePresence>
+        {editor?.kind === 'phone' && (
+          <SettingsModal
+            title="Edit Phone Number"
+            description="Update the phone number used for organizer communication and urgent alerts."
+            onClose={() => setEditor(null)}
+            onSave={handleSaveEditor}
+            saveDisabled={!editor.value.trim()}
+          >
+            <FieldInput label="Phone Number" value={editor.value} onChange={(value) => setEditor({ ...editor, value })} />
+            <label className={`flex items-center gap-3 ${SETTINGS_PANEL_CLASS}`}>
+              <input
+                type="checkbox"
+                checked={editor.primary}
+                onChange={(event) => setEditor({ ...editor, primary: event.target.checked })}
+                className="h-4 w-4 rounded border-gray-300 text-[#7626c6] focus:ring-[#7626c6]"
+              />
+              <span className="text-sm font-medium text-gray-700">Use as primary phone number</span>
+            </label>
+          </SettingsModal>
+        )}
+      </AnimatePresence>
 
-      {editor?.kind === 'address' ? (
-        <SettingsModal
-          title="Edit Address"
-          description="Adjust the organizer address shown across invoices, receipts, and account details."
-          onClose={() => setEditor(null)}
-          onSave={handleSaveEditor}
-          saveDisabled={!editor.line1.trim() || !editor.line2.trim()}
-        >
-          <FieldInput label="Label" value={editor.label} onChange={(value) => setEditor({ ...editor, label: value })} placeholder="Primary" />
-          <FieldInput label="Address Line 1" value={editor.line1} onChange={(value) => setEditor({ ...editor, line1: value })} />
-          <FieldInput label="Address Line 2" value={editor.line2} onChange={(value) => setEditor({ ...editor, line2: value })} />
-        </SettingsModal>
-      ) : null}
+      <AnimatePresence>
+        {editor?.kind === 'address' && (
+          <SettingsModal
+            title="Edit Address"
+            description="Adjust the organizer address shown across invoices, receipts, and account details."
+            onClose={() => setEditor(null)}
+            onSave={handleSaveEditor}
+            saveDisabled={!editor.line1.trim() || !editor.line2.trim()}
+          >
+            <FieldInput label="Label" value={editor.label} onChange={(value) => setEditor({ ...editor, label: value })} placeholder="Primary" />
+            <FieldInput label="Address Line 1" value={editor.line1} onChange={(value) => setEditor({ ...editor, line1: value })} />
+            <FieldInput label="Address Line 2" value={editor.line2} onChange={(value) => setEditor({ ...editor, line2: value })} />
+          </SettingsModal>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -1205,81 +1118,81 @@ function PaymentsSettingsContent() {
             defaultSelectedId={selectedPaymentMethod}
             onActionClick={handleAddPaymentMethod}
             onSelectionChange={handleSelectionChange}
-            className="max-w-none rounded-xl border-gray-200 shadow-sm"
+            className="max-w-none rounded-[28px] border-gray-200 shadow-sm"
           />
 
-          <SettingsCard title="Payout Preferences">
-            <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-2">
+          <SettingsCard title={<ProfileCardTitle icon={<Wallet className="h-4 w-4" />} title="Payout Preferences" />}>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <label className="block">
-                <span className="mb-3 block text-sm font-medium text-gray-500">Default Payout Method</span>
-                <div className="relative">
-                  <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
-                    {methods.map((method) => (
-                      <option key={method.id}>{method.label}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                </div>
+                <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400">Default Payout Method</span>
+                <select className="h-16 w-full rounded-2xl border border-gray-200 bg-white text-base font-medium text-gray-900 shadow-sm outline-none transition duration-[150ms] hover:border-gray-300 focus:border-[#7626c6] focus:ring-[3px] focus:ring-[#7626c6]/15">
+                  {methods.map((method) => (
+                    <option key={method.id}>{method.label}</option>
+                  ))}
+                </select>
               </label>
 
               <label className="block">
-                <span className="mb-3 block text-sm font-medium text-gray-500">Payout Schedule</span>
-                <div className="relative">
-                  <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
-                    <option>Weekly on Friday</option>
-                    <option>Daily</option>
-                    <option>Monthly</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                </div>
+                <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400">Payout Schedule</span>
+                <select className="h-16 w-full rounded-2xl border border-gray-200 bg-white text-base font-medium text-gray-900 shadow-sm outline-none transition duration-[150ms] hover:border-gray-300 focus:border-[#7626c6] focus:ring-[3px] focus:ring-[#7626c6]/15">
+                  <option>Weekly on Friday</option>
+                  <option>Daily</option>
+                  <option>Monthly</option>
+                </select>
               </label>
 
               <label className="block">
-                <span className="mb-3 block text-sm font-medium text-gray-500">Settlement Currency</span>
-                <div className="relative">
-                  <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
-                    <option>USD</option>
-                    <option>BDT</option>
-                    <option>EUR</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                </div>
+                <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400">Settlement Currency</span>
+                <select className="h-16 w-full rounded-2xl border border-gray-200 bg-white text-base font-medium text-gray-900 shadow-sm outline-none transition duration-[150ms] hover:border-gray-300 focus:border-[#7626c6] focus:ring-[3px] focus:ring-[#7626c6]/15">
+                  <option>USD</option>
+                  <option>BDT</option>
+                  <option>EUR</option>
+                </select>
               </label>
 
               <label className="block">
-                <span className="mb-3 block text-sm font-medium text-gray-500">Finance Contact</span>
-                <input
-                  type="email"
-                  value="finance@georim.com"
-                  readOnly
-                  className="h-14 w-full rounded-xl border border-gray-200 bg-[#fafafa] px-4 text-[1.05rem] text-gray-900 shadow-sm"
-                />
+                <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400">Finance Contact</span>
+                <div className="flex h-11 w-full items-center rounded-xl border border-gray-200 bg-gray-50 pl-3.5 pr-4 shadow-sm">
+                  <span className="flex-1 truncate text-sm text-gray-500">finance@georim.com</span>
+                  <span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-400">Read-only</span>
+                </div>
               </label>
             </div>
           </SettingsCard>
         </div>
 
         <div className={SETTINGS_COLUMN_STACK_CLASS}>
-          <SettingsCard title="Recent Transactions">
+          <SettingsCard
+            title={<ProfileCardTitle icon={<Clock3 className="h-4 w-4" />} title="Recent Transactions" />}
+            headerRight={
+              <button type="button" className="text-xs font-medium text-[#7626c6] transition duration-150 hover:text-[#6620ab]">
+                View all
+              </button>
+            }
+          >
             <div className={SETTINGS_CONTENT_STACK_CLASS}>
               {[
-                { id: 'TX-2048', title: 'Summer Music Festival payout', amount: '+$6,240', status: 'Completed' },
-                { id: 'TX-2049', title: 'Premium workspace renewal', amount: '-$199', status: 'Processed' },
-                { id: 'TX-2050', title: 'Marketing credit top-up', amount: '-$350', status: 'Pending' },
+                { id: 'TX-2048', title: 'Summer Music Festival payout', amount: '+$6,240', status: 'Completed', positive: true },
+                { id: 'TX-2049', title: 'Premium workspace renewal', amount: '-$199', status: 'Processed', positive: false },
+                { id: 'TX-2050', title: 'Marketing credit top-up', amount: '-$350', status: 'Pending', positive: false },
               ].map((transaction) => (
-                <div key={transaction.id} className={`flex items-center justify-between ${SETTINGS_PANEL_CLASS}`}>
+                <div key={transaction.id} className={`flex items-center justify-between ${SETTINGS_PANEL_CLASS} transition duration-[150ms] hover:bg-gray-50`}>
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${transaction.positive ? 'bg-emerald-50 text-emerald-600' : 'bg-[#f1e5fb] text-[#7626c6]'}`}>
                       <DollarSign className="h-5 w-5" />
                     </div>
                     <div>
-                      <div className="font-medium text-gray-950">{transaction.title}</div>
-                      <div className="text-sm text-gray-500">{transaction.id}</div>
+                      <div className="text-sm font-medium text-gray-950">{transaction.title}</div>
+                      <div className="text-xs text-gray-400">{transaction.id}</div>
                     </div>
                   </div>
-                  <div className="pr-4 text-right sm:pr-5">
-                    <div className="font-semibold text-gray-950">{transaction.amount}</div>
-                    <div className="text-sm text-gray-500">{transaction.status}</div>
+                  <div className="flex shrink-0 flex-col items-end gap-1.5 pl-4">
+                    <span className={`text-sm font-semibold ${transaction.positive ? 'text-emerald-600' : 'text-gray-950'}`}>{transaction.amount}</span>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                      transaction.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
+                      transaction.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
+                      'bg-blue-100 text-blue-700'
+                    }`}>{transaction.status}</span>
                   </div>
                 </div>
               ))}
@@ -1310,23 +1223,20 @@ function PaymentsSettingsContent() {
             placeholder="Default card for organizer payouts"
           />
           <label className="block">
-            <span className="mb-2 block text-sm font-medium text-gray-500">Provider</span>
-            <div className="relative">
-              <select
-                value={paymentDraft.provider}
-                onChange={(event) =>
-                  setPaymentDraft((current) =>
-                    current ? { ...current, provider: event.target.value as PaymentMethodDraft['provider'] } : current
-                  )
-                }
-                className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.02rem] text-gray-900 shadow-sm outline-none transition focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10"
-              >
-                <option value="visa">Visa</option>
-                <option value="mastercard">Mastercard</option>
-                <option value="wallet">Wallet</option>
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-            </div>
+            <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400">Provider</span>
+            <select
+              value={paymentDraft.provider}
+              onChange={(event) =>
+                setPaymentDraft((current) =>
+                  current ? { ...current, provider: event.target.value as PaymentMethodDraft['provider'] } : current
+                )
+              }
+              className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 shadow-sm outline-none transition duration-[150ms] focus:border-[#7626c6] focus:bg-white focus:ring-4 focus:ring-[#7626c6]/10"
+            >
+              <option value="visa">Visa</option>
+              <option value="mastercard">Mastercard</option>
+              <option value="wallet">Wallet</option>
+            </select>
           </label>
         </SettingsModal>
       ) : null}
@@ -1336,224 +1246,367 @@ function PaymentsSettingsContent() {
 
 function SecuritySettingsContent() {
   const [passwords, setPasswords] = React.useState({
-    previous: '',
     current: '',
+    next: '',
     confirm: '',
   });
   const [feedback, setFeedback] = React.useState<string | null>(null);
+  const [feedbackType, setFeedbackType] = React.useState<'success' | 'error'>('success');
 
   React.useEffect(() => {
-    if (!feedback) {
-      return undefined;
-    }
-
-    const timer = window.setTimeout(() => setFeedback(null), 2800);
+    if (!feedback) return undefined;
+    const timer = window.setTimeout(() => setFeedback(null), 3000);
     return () => window.clearTimeout(timer);
   }, [feedback]);
 
-  const passwordMismatch = Boolean(passwords.current && passwords.confirm && passwords.current !== passwords.confirm);
-  const passwordTooShort = Boolean(passwords.current && passwords.current.length < 8);
+  const passwordMismatch = Boolean(passwords.next && passwords.confirm && passwords.next !== passwords.confirm);
+  const passwordTooShort = Boolean(passwords.next && passwords.next.length < 8);
   const canUpdatePassword =
-    Boolean(passwords.previous.trim()) &&
     Boolean(passwords.current.trim()) &&
+    Boolean(passwords.next.trim()) &&
     Boolean(passwords.confirm.trim()) &&
     !passwordMismatch &&
     !passwordTooShort;
 
+  const getPasswordStrength = (pwd: string): number => {
+    if (!pwd) return 0;
+    let score = 0;
+    if (pwd.length >= 8) score++;
+    if (pwd.length >= 12) score++;
+    if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) score++;
+    if (/[0-9]/.test(pwd) && /[^A-Za-z0-9]/.test(pwd)) score++;
+    return score;
+  };
+
+  const passwordStrength = getPasswordStrength(passwords.next);
+  const strengthConfig = [
+    null,
+    { label: 'Weak', color: 'bg-rose-400', text: 'text-rose-500' },
+    { label: 'Fair', color: 'bg-amber-400', text: 'text-amber-500' },
+    { label: 'Good', color: 'bg-blue-400', text: 'text-blue-500' },
+    { label: 'Strong', color: 'bg-emerald-500', text: 'text-emerald-600' },
+  ] as const;
+
   const handleUpdatePassword = () => {
-    if (!passwords.previous.trim() || !passwords.current.trim() || !passwords.confirm.trim()) {
+    if (!passwords.current.trim() || !passwords.next.trim() || !passwords.confirm.trim()) {
+      setFeedbackType('error');
       setFeedback('Complete all password fields before updating access.');
       return;
     }
-
-    if (passwords.current.length < 8) {
+    if (passwords.next.length < 8) {
+      setFeedbackType('error');
       setFeedback('Use at least 8 characters for the new password.');
       return;
     }
-
-    if (passwords.current !== passwords.confirm) {
+    if (passwords.next !== passwords.confirm) {
+      setFeedbackType('error');
       setFeedback('The new password and confirmation must match.');
       return;
     }
-
-    setPasswords({
-      previous: '',
-      current: '',
-      confirm: '',
-    });
-    setFeedback('Password updated and active sessions remain protected.');
+    setPasswords({ current: '', next: '', confirm: '' });
+    setFeedbackType('success');
+    setFeedback('Password updated. All active sessions remain protected.');
   };
 
   return (
     <div className={SETTINGS_PAGE_STACK_CLASS}>
-      {feedback ? <SettingsFeedback message={feedback} /> : null}
+      {/* Feedback banner */}
+      <AnimatePresence>
+        {feedback ? (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            role="status"
+            aria-live="polite"
+            className={`rounded-2xl border px-5 py-4 text-sm font-medium ${
+              feedbackType === 'success'
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                : 'border-rose-200 bg-rose-50 text-rose-700'
+            }`}
+          >
+            {feedback}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
 
       <div className={SETTINGS_SECTION_GRID_CLASS}>
+        {/* LEFT COLUMN */}
         <div className={SETTINGS_COLUMN_STACK_CLASS}>
+          {/* Password & Access */}
           <SettingsCard
             title="Password & Access"
-            headerRight={<span className="rounded-full bg-[#f1e5fb] px-4 py-1.5 text-sm font-medium text-[#7a29d5]">Recommended</span>}
+            headerRight={
+              <span className="rounded-full border border-[#e2d0f7] bg-[#f7f0ff] px-3.5 py-1 text-xs font-semibold uppercase tracking-wide text-[#7626c6]">
+                Recommended
+              </span>
+            }
           >
-            <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2">
-              <div className="md:col-span-2">
-                <PasswordField
-                  label="Previous Password"
-                  placeholder="Enter your previous password"
-                  hint="Use your last active password before applying a new one."
-                  value={passwords.previous}
-                  onChange={(value) => setPasswords((current) => ({ ...current, previous: value }))}
-                />
-              </div>
+            <div className="space-y-4">
               <PasswordField
                 label="Current Password"
-                placeholder="Create a new secure password"
-                hint="Use at least 8 characters with a mix of letters, numbers, and symbols."
+                placeholder="Enter your current password"
+                hint="The password you use to sign in right now."
                 value={passwords.current}
-                onChange={(value) => setPasswords((current) => ({ ...current, current: value }))}
+                onChange={(value) => setPasswords((s) => ({ ...s, current: value }))}
               />
-              <PasswordField
-                label="Confirm Password"
-                placeholder="Re-enter your new password"
-                hint="Make sure this matches the new password exactly."
-                value={passwords.confirm}
-                onChange={(value) => setPasswords((current) => ({ ...current, confirm: value }))}
-              />
-            </div>
 
-            {passwordMismatch ? <p className="mt-4 text-sm font-medium text-rose-600">The confirmation must match the new password.</p> : null}
-            {!passwordMismatch && passwordTooShort ? (
-              <p className="mt-4 text-sm font-medium text-amber-600">The new password needs at least 8 characters.</p>
-            ) : null}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <PasswordField
+                    label="New Password"
+                    placeholder="Create a strong new password"
+                    hint="8+ characters · mix of letters, numbers, and symbols."
+                    value={passwords.next}
+                    onChange={(value) => setPasswords((s) => ({ ...s, next: value }))}
+                  />
+                  {/* Strength meter */}
+                  {passwords.next ? (
+                    <div className="mt-3 space-y-1.5">
+                      <div className="flex gap-1.5">
+                        {[1, 2, 3, 4].map((level) => (
+                          <div
+                            key={level}
+                            className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                              level <= passwordStrength
+                                ? (strengthConfig[passwordStrength]?.color ?? 'bg-gray-200')
+                                : 'bg-gray-200'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className={`text-xs font-semibold ${strengthConfig[passwordStrength]?.text ?? 'text-gray-400'}`}>
+                          {strengthConfig[passwordStrength]?.label ?? ''}
+                        </span>
+                        <span className="text-xs text-gray-400">{passwords.next.length} characters</span>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
 
-            <div className={`mt-6 flex flex-wrap items-center justify-between gap-4 sm:mt-8 ${SETTINGS_PANEL_CLASS}`}>
-              <div>
-                <div className="text-sm font-medium text-gray-900">Password strength</div>
-                <div className="mt-1 text-sm text-gray-500">
-                  {passwordTooShort
-                    ? 'Use a longer password before saving.'
-                    : passwordMismatch
-                      ? 'Resolve the confirmation mismatch to continue.'
-                      : 'Strong enough for workspace admins and payout access.'}
+                <div className="sm:col-span-2">
+                  <PasswordField
+                    label="Confirm New Password"
+                    placeholder="Re-enter your new password"
+                    hint="Must exactly match the new password above."
+                    value={passwords.confirm}
+                    onChange={(value) => setPasswords((s) => ({ ...s, confirm: value }))}
+                  />
+                  {passwordMismatch ? (
+                    <p className="mt-2 text-xs font-medium text-rose-500">Passwords do not match.</p>
+                  ) : null}
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={handleUpdatePassword}
-                disabled={!canUpdatePassword}
-                className={PRIMARY_BUTTON_CLASS}
-              >
-                Update Password
-              </button>
+
+              <div className="flex items-center justify-end pt-2">
+                <button
+                  type="button"
+                  onClick={handleUpdatePassword}
+                  disabled={!canUpdatePassword}
+                  className={PRIMARY_BUTTON_CLASS}
+                >
+                  Update Password
+                </button>
+              </div>
             </div>
           </SettingsCard>
 
+          {/* Security Overview */}
           <SettingsCard title="Security Overview">
             <div className={SETTINGS_CONTENT_STACK_CLASS}>
-              {[
+              {([
                 {
                   id: 'overview-1',
                   title: 'Two-factor authentication',
-                  detail: 'Authenticator app connected and required for admin actions.',
+                  detail: 'Authenticator app active · required for admin actions',
+                  status: 'Enabled',
                 },
                 {
                   id: 'overview-2',
                   title: 'Recovery options',
-                  detail: 'Backup email and device prompts are configured.',
+                  detail: 'Backup email and device prompts configured',
+                  status: 'Configured',
                 },
                 {
                   id: 'overview-3',
                   title: 'Session monitoring',
-                  detail: '3 active devices trusted in the last 30 days.',
+                  detail: '3 devices trusted in the last 30 days',
+                  status: 'Active',
                 },
-              ].map((item) => (
-                <div key={item.id} className={`flex items-start gap-4 ${SETTINGS_PANEL_CLASS}`}>
-                  <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                    <CheckCircle2 className="h-4 w-4" />
+              ] as const).map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`flex w-full items-center justify-between gap-4 ${SETTINGS_PANEL_CLASS} text-left transition duration-150 hover:bg-gray-50 hover:shadow-sm`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                      <CheckCircle2 className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-gray-950">{item.title}</div>
+                      <div className="mt-0.5 text-xs text-gray-500">{item.detail}</div>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <div className="font-medium text-gray-950">{item.title}</div>
-                    <div className="text-sm text-gray-500">{item.detail}</div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                      {item.status}
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-gray-400" />
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </SettingsCard>
         </div>
 
+        {/* RIGHT COLUMN */}
         <div className={SETTINGS_COLUMN_STACK_CLASS}>
-          <SettingsCard title="Recent Security Activity">
+          {/* Security Score Banner */}
+          <div className="rounded-[28px] border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+                  <Shield className="h-6 w-6" />
+                </div>
+                <div>
+                  <div className="text-base font-semibold text-gray-950">Account security is strong</div>
+                  <div className="mt-0.5 text-sm text-gray-500">
+                    2FA active · Password updated today · 2 devices
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-end gap-1.5">
+                <span className="text-4xl font-semibold tracking-tight text-emerald-600">92</span>
+                <span className="mb-1 text-sm font-medium text-gray-400">/ 100</span>
+              </div>
+            </div>
+            <div className="mt-5">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-emerald-100">
+                <div className="h-full rounded-full bg-emerald-500 transition-all duration-700" style={{ width: '92%' }} />
+              </div>
+              <div className="mt-2 flex justify-between text-xs font-medium text-gray-400">
+                <span>Security Score</span>
+                <span className="text-emerald-600">Excellent</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Security Activity */}
+          <SettingsCard
+            title="Recent Activity"
+            headerRight={
+              <button type="button" className="text-xs font-medium text-[#7626c6] transition duration-150 hover:text-[#6620ab]">
+                View all
+              </button>
+            }
+          >
             <div className={SETTINGS_CONTENT_STACK_CLASS}>
-              {[
+              {([
                 {
                   id: 'activity-1',
                   title: 'Password changed',
-                  detail: 'Today, 9:42 AM from Chicago, United States',
+                  detail: 'Chicago, United States',
+                  time: 'Today 9:42 AM',
                   icon: KeyRound,
+                  color: 'bg-amber-50 text-amber-600',
                 },
                 {
                   id: 'activity-2',
-                  title: 'New desktop session approved',
-                  detail: 'MacBook Pro, Safari 18.1',
+                  title: 'Desktop session approved',
+                  detail: 'MacBook Pro · Safari 18.1',
+                  time: 'Today 8:15 AM',
                   icon: Laptop,
+                  color: 'bg-blue-50 text-blue-600',
                 },
                 {
                   id: 'activity-3',
                   title: 'Mobile login verified',
-                  detail: 'iPhone 16 Pro, Face ID challenge passed',
+                  detail: 'iPhone 16 Pro · Face ID',
+                  time: 'Yesterday 11:30 PM',
                   icon: Smartphone,
+                  color: 'bg-gray-100 text-gray-600',
                 },
-              ].map((activity) => {
+              ] as const).map((activity) => {
                 const Icon = activity.icon;
-
                 return (
-                  <div key={activity.id} className={`flex items-start gap-4 ${SETTINGS_PANEL_CLASS}`}>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
-                      <Icon className="h-5 w-5" />
+                  <div
+                    key={activity.id}
+                    className={`flex items-center gap-4 ${SETTINGS_PANEL_CLASS} transition duration-150 hover:bg-gray-50`}
+                  >
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${activity.color}`}>
+                      <Icon className="h-4 w-4" />
                     </div>
-                    <div className="space-y-1">
-                      <div className="font-medium text-gray-950">{activity.title}</div>
-                      <div className="text-sm text-gray-500">{activity.detail}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-semibold text-gray-950">{activity.title}</div>
+                      <div className="mt-0.5 text-xs text-gray-500">{activity.detail}</div>
                     </div>
+                    <span className="shrink-0 text-xs font-medium text-gray-400">{activity.time}</span>
                   </div>
                 );
               })}
             </div>
           </SettingsCard>
 
-          <SettingsCard title="Trusted Devices">
+          {/* Trusted Devices */}
+          <SettingsCard
+            title="Trusted Devices"
+            headerRight={
+              <span className="text-sm font-medium text-gray-400">2 devices</span>
+            }
+          >
             <div className={SETTINGS_CONTENT_STACK_CLASS}>
-              {[
+              {([
                 {
                   id: 'device-1',
                   name: 'MacBook Pro 16"',
                   detail: 'Chicago, United States',
-                  status: 'Current device',
+                  time: 'Active now',
+                  isCurrent: true,
                   icon: Laptop,
                 },
                 {
                   id: 'device-2',
                   name: 'iPhone 16 Pro',
-                  detail: 'Organizer mobile access',
-                  status: 'Last active 2 hours ago',
+                  detail: 'Organizer mobile · Face ID',
+                  time: '2 hours ago',
+                  isCurrent: false,
                   icon: Smartphone,
                 },
-              ].map((device) => {
+              ] as const).map((device) => {
                 const Icon = device.icon;
-
                 return (
-                  <div key={device.id} className={`flex items-center justify-between gap-4 ${SETTINGS_PANEL_CLASS}`}>
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-950">{device.name}</div>
-                        <div className="text-sm text-gray-500">{device.detail}</div>
-                      </div>
+                  <div
+                    key={device.id}
+                    className={`flex items-center gap-4 ${SETTINGS_PANEL_CLASS} transition duration-150 hover:bg-gray-50`}
+                  >
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${device.isCurrent ? 'bg-[#f1e5fb] text-[#7626c6]' : 'bg-gray-100 text-gray-500'}`}>
+                      <Icon className="h-4 w-4" />
                     </div>
-                    <span className="rounded-full bg-white px-3 py-1.5 text-sm font-medium text-gray-600 shadow-sm">
-                      {device.status}
-                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-gray-950">{device.name}</span>
+                        {device.isCurrent ? (
+                          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
+                            Current
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="mt-0.5 text-xs text-gray-500">{device.detail}</div>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end gap-1.5">
+                      <span className="text-xs text-gray-400">{device.time}</span>
+                      {!device.isCurrent ? (
+                        <button
+                          type="button"
+                          className="rounded-lg px-2.5 py-1 text-xs font-semibold text-rose-500 transition duration-150 hover:bg-rose-50 hover:text-rose-600 active:scale-95"
+                        >
+                          Revoke
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
                 );
               })}
@@ -1613,47 +1666,105 @@ function PremiumSubscriptionsContent() {
     return () => window.clearTimeout(timer);
   }, [feedback]);
 
-  const handlePlanSelect = (plan: Plan, billingCycle: 'monthly' | 'yearly') => {
-    setSelectedPlan({ title: plan.title, billingCycle });
-    setFeedback(`${plan.title} plan selected with ${billingCycle} billing.`);
+  const handlePlanSelect = (planName: string) => {
+    setSelectedPlan({ title: planName, billingCycle: 'monthly' });
+    setFeedback(`${planName} plan selected.`);
   };
 
   return (
     <div className={SETTINGS_PAGE_STACK_CLASS}>
       {feedback ? <SettingsFeedback message={feedback} /> : null}
 
-      <SettingsCard
-        title="Current Subscription"
-        headerRight={
-          selectedPlan ? (
-            <span className="rounded-full border border-[#d9c1f5] bg-[#f7efff] px-4 py-1.5 text-sm font-medium text-[#7626c6]">
-              Pending: {selectedPlan.title} ({selectedPlan.billingCycle})
-            </span>
-          ) : null
-        }
-      >
-        <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-3">
-          <div className={`${SETTINGS_PANEL_CLASS} pl-7 pr-6 sm:pl-8 sm:pr-7`}>
-            <div className="mb-2 text-sm font-medium text-gray-500">Active Plan</div>
-            <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">Professional</div>
-            <div className="mt-2 text-sm text-[#7626c6]">Renews annually on Aug 14</div>
+      {selectedPlan ? (
+        <div className="flex items-center justify-end">
+          <span className="rounded-full border border-[#d9c1f5] bg-[#f7efff] px-3.5 py-1 text-xs font-semibold text-[#7626c6]">
+            Pending: {selectedPlan.title} · {selectedPlan.billingCycle}
+          </span>
+        </div>
+      ) : null}
+
+      <div className="grid grid-cols-3 gap-8 mt-8">
+        <div className="flex flex-col gap-4 rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f1e5fb] text-[#7626c6]">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">Active</span>
           </div>
-          <div className={`${SETTINGS_PANEL_CLASS} pl-7 pr-6 sm:pl-8 sm:pr-7`}>
-            <div className="mb-2 text-sm font-medium text-gray-500">Team Seats</div>
-            <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">18 / 25</div>
-            <div className="mt-2 text-sm text-gray-500">7 seats available</div>
-          </div>
-          <div className={`${SETTINGS_PANEL_CLASS} pl-7 pr-6 sm:pl-8 sm:pr-7`}>
-            <div className="mb-2 text-sm font-medium text-gray-500">Savings This Year</div>
-            <div className="text-3xl font-semibold tracking-[-0.03em] text-gray-950">$36</div>
-            <div className="mt-2 text-sm text-emerald-600">Yearly discount applied</div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.08em] text-gray-400">Active Plan</div>
+            <div className="mt-1.5 text-2xl font-semibold tracking-tight text-gray-950">Professional</div>
+            <div className="mt-1 text-sm font-medium text-[#7626c6]">Renews annually · Aug 14</div>
           </div>
         </div>
-      </SettingsCard>
 
-      <section className="rounded-xl border border-gray-200 bg-white p-2 sm:p-3 shadow-sm">
-        <PricingTable plans={premiumPlans} onPlanSelect={handlePlanSelect} />
-      </section>
+        <div className="flex flex-col gap-4 rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-500">
+            <UserRound className="h-4 w-4" />
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.08em] text-gray-400">Team Seats</div>
+            <div className="mt-1.5 text-2xl font-semibold tracking-tight text-gray-950">18 / 25</div>
+            <div className="mt-1 text-sm font-medium text-gray-400">7 seats remaining</div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4 rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <DollarSign className="h-4 w-4" />
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.08em] text-gray-400">Savings This Year</div>
+            <div className="mt-1.5 text-2xl font-semibold tracking-tight text-gray-950">$36</div>
+            <div className="mt-1 text-sm font-medium text-emerald-600">Yearly discount applied</div>
+          </div>
+        </div>
+      </div>
+
+      <hr className="mt-8 border-gray-200" />
+
+      <div className="overflow-hidden rounded-[28px] border border-gray-100 bg-white shadow-[0_2px_16px_rgba(15,23,42,0.06)]">
+        <PricingTable className="min-w-full">
+          <PricingTableHeader>
+            <PricingTableRow>
+              <th className="w-[32%] px-6 pb-0 pt-8 text-left">
+                <div className="text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Compare plans</div>
+              </th>
+              <th className="w-[23%] p-0">
+                <PricingTablePlan name="Starter" badge="For individuals" price="$9" compareAt="$12" icon={Sparkles}>
+                  <button type="button" onClick={() => handlePlanSelect('Starter')} className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition duration-[120ms] hover:bg-gray-50 hover:border-gray-300">
+                    Get Started
+                  </button>
+                </PricingTablePlan>
+              </th>
+              <th className="w-[23%] p-0">
+                <PricingTablePlan name="Professional" badge="Most popular" price="$29" compareAt="$39" icon={UserRound} featured>
+                  <button type="button" onClick={() => handlePlanSelect('Professional')} className="w-full rounded-xl bg-[#7626c6] px-4 py-2.5 text-sm font-medium text-white transition duration-[120ms] hover:bg-[#6620ab]">
+                    Start Free Trial
+                  </button>
+                </PricingTablePlan>
+              </th>
+              <th className="w-[22%] p-0">
+                <PricingTablePlan name="Enterprise" badge="For large teams" price="$99" compareAt="$129" icon={Shield}>
+                  <button type="button" onClick={() => handlePlanSelect('Enterprise')} className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition duration-[120ms] hover:bg-gray-50 hover:border-gray-300">
+                    Contact Sales
+                  </button>
+                </PricingTablePlan>
+              </th>
+            </PricingTableRow>
+          </PricingTableHeader>
+          <PricingTableBody>
+            {PLAN_FEATURES.map((feature, i) => (
+              <PricingTableRow key={i}>
+                <PricingTableHead>{feature.label}</PricingTableHead>
+                <PricingTableCell>{feature.values[0]}</PricingTableCell>
+                <PricingTableCell featured>{feature.values[1]}</PricingTableCell>
+                <PricingTableCell>{feature.values[2]}</PricingTableCell>
+              </PricingTableRow>
+            ))}
+          </PricingTableBody>
+        </PricingTable>
+      </div>
     </div>
   );
 }
@@ -1688,21 +1799,26 @@ function SettingsAssistantModal({
 }
 
 function NotificationToggle({
+  icon,
   label,
   description,
   enabled,
   onToggle,
 }: {
+  icon: ReactNode;
   label: string;
   description: string;
   enabled: boolean;
   onToggle: () => void;
 }) {
   return (
-    <div className={`flex items-center justify-between gap-5 ${SETTINGS_PANEL_CLASS} pr-6 sm:pr-7`}>
-      <div className="space-y-1.5 pr-4">
-        <div className="font-medium text-gray-950">{label}</div>
-        <div className="text-sm text-gray-500">{description}</div>
+    <div className={`flex items-center gap-4 ${SETTINGS_PANEL_CLASS} transition duration-[150ms] hover:bg-gray-50`}>
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
+        {icon}
+      </div>
+      <div className="min-w-0 flex-1 space-y-0.5">
+        <div className="text-sm font-semibold text-gray-950">{label}</div>
+        <div className="text-xs leading-relaxed text-gray-500">{description}</div>
       </div>
       <OrangeToggle
         role="switch"
@@ -1710,7 +1826,7 @@ function NotificationToggle({
         aria-label={label}
         checked={enabled}
         onChange={onToggle}
-        className="h-7 w-12 bg-gray-300 before:left-[calc(1.5em_-_1.55em)] before:top-[calc(1.5em_-_1.55em)] before:h-[1.55em] before:w-[1.55em] before:border-gray-300 checked:bg-[#7626c6] checked:before:border-[#6b23b6] checked:hover:before:shadow-[0_0_0px_8px_rgba(118,38,198,0.16)]"
+        className="h-7 w-12 shrink-0 bg-gray-300 before:left-[calc(1.5em_-_1.55em)] before:top-[calc(1.5em_-_1.55em)] before:h-[1.55em] before:w-[1.55em] before:border-gray-300 checked:bg-[#7626c6] checked:before:border-[#6b23b6] checked:hover:before:shadow-[0_0_0px_8px_rgba(118,38,198,0.16)]"
       />
     </div>
   );
@@ -1740,21 +1856,24 @@ function NotificationsSettingsContent() {
   return (
     <div className={SETTINGS_SECTION_GRID_CLASS}>
       <div className={SETTINGS_COLUMN_STACK_CLASS}>
-        <SettingsCard title="Delivery Channels">
+        <SettingsCard title={<ProfileCardTitle icon={<Bell className="h-4 w-4" />} title="Delivery Channels" />}>
           <div className={SETTINGS_CONTENT_STACK_CLASS}>
             <NotificationToggle
+              icon={<Mail className="h-4 w-4" />}
               label="Email Notifications"
               description="Receive organizer summaries, attendee updates, and subscription notices by email."
               enabled={channelSettings.email}
               onToggle={() => toggleChannel('email')}
             />
             <NotificationToggle
+              icon={<Smartphone className="h-4 w-4" />}
               label="Push Notifications"
               description="Get live updates in-app for event activity, approvals, and urgent operational changes."
               enabled={channelSettings.push}
               onToggle={() => toggleChannel('push')}
             />
             <NotificationToggle
+              icon={<Phone className="h-4 w-4" />}
               label="SMS Alerts"
               description="Send critical reminders and payout alerts to your verified mobile number."
               enabled={channelSettings.sms}
@@ -1763,39 +1882,44 @@ function NotificationsSettingsContent() {
           </div>
         </SettingsCard>
 
-        <SettingsCard title="Notification Digest">
+        <SettingsCard title={<ProfileCardTitle icon={<Sparkles className="h-4 w-4" />} title="Notification Digest" />}>
           <div className={SETTINGS_CONTENT_STACK_CLASS}>
             {[
               {
                 id: 'digest-email',
                 title: 'Morning Organizer Brief',
-                detail: 'Daily at 8:00 AM with sales, attendance, and campaign highlights.',
+                detail: 'Sales, attendance, and campaign highlights.',
+                badge: 'Daily 8 AM',
                 icon: Mail,
               },
               {
                 id: 'digest-inbox',
                 title: 'Unread Conversations',
-                detail: 'Bundle attendee replies and internal team mentions every 2 hours.',
+                detail: 'Attendee replies and internal team mentions bundled.',
+                badge: 'Every 2 hrs',
                 icon: MessageSquare,
               },
               {
                 id: 'digest-system',
                 title: 'Critical System Alerts',
-                detail: 'Sent immediately for payment failures, permissions changes, and security notices.',
+                detail: 'Payment failures, permission changes, and security notices.',
+                badge: 'Instant',
                 icon: Bell,
               },
             ].map((item) => {
               const Icon = item.icon;
-
               return (
-                <div key={item.id} className={`flex items-start gap-4 ${SETTINGS_PANEL_CLASS}`}>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
-                    <Icon className="h-5 w-5" />
+                <div key={item.id} className={`flex items-center gap-4 ${SETTINGS_PANEL_CLASS} transition duration-[150ms] hover:bg-gray-50`}>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
+                    <Icon className="h-4 w-4" />
                   </div>
-                  <div className="space-y-1">
-                    <div className="font-medium text-gray-950">{item.title}</div>
-                    <div className="text-sm text-gray-500">{item.detail}</div>
+                  <div className="min-w-0 flex-1 space-y-0.5">
+                    <div className="text-sm font-semibold text-gray-950">{item.title}</div>
+                    <div className="text-xs leading-relaxed text-gray-500">{item.detail}</div>
                   </div>
+                  <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${item.badge === 'Instant' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+                    {item.badge}
+                  </span>
                 </div>
               );
             })}
@@ -1804,27 +1928,31 @@ function NotificationsSettingsContent() {
       </div>
 
       <div className={SETTINGS_COLUMN_STACK_CLASS}>
-        <SettingsCard title="Event Alerts">
+        <SettingsCard title={<ProfileCardTitle icon={<SlidersHorizontal className="h-4 w-4" />} title="Event Alerts" />}>
           <div className={SETTINGS_CONTENT_STACK_CLASS}>
             <NotificationToggle
+              icon={<Ticket className="h-4 w-4" />}
               label="Ticket Sales"
               description="Instant notifications when ticket velocity spikes or a pricing tier sells out."
               enabled={alertSettings.ticketSales}
               onToggle={() => toggleAlert('ticketSales')}
             />
             <NotificationToggle
+              icon={<MessageSquare className="h-4 w-4" />}
               label="Attendee Messages"
               description="Notify me when attendees send support questions or request refunds."
               enabled={alertSettings.attendeeMessages}
               onToggle={() => toggleAlert('attendeeMessages')}
             />
             <NotificationToggle
+              icon={<DollarSign className="h-4 w-4" />}
               label="Payout Updates"
               description="Keep me informed when payouts are processed, delayed, or require review."
               enabled={alertSettings.payoutUpdates}
               onToggle={() => toggleAlert('payoutUpdates')}
             />
             <NotificationToggle
+              icon={<Bell className="h-4 w-4" />}
               label="Event Reminders"
               description="Daily countdown reminders for upcoming events and publishing deadlines."
               enabled={alertSettings.eventReminders}
@@ -1833,41 +1961,35 @@ function NotificationsSettingsContent() {
           </div>
         </SettingsCard>
 
-        <SettingsCard title="Quiet Hours">
+        <SettingsCard title={<ProfileCardTitle icon={<Clock3 className="h-4 w-4" />} title="Quiet Hours" />}>
           <div className={SETTINGS_CONTENT_STACK_CLASS}>
-            <div className={`flex items-start gap-4 ${SETTINGS_PANEL_CLASS}`}>
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f1e5fb] text-[#7626c6]">
-                <Clock3 className="h-5 w-5" />
+            <div className={`flex items-center gap-4 ${SETTINGS_PANEL_CLASS}`}>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-500">
+                <Clock3 className="h-4 w-4" />
               </div>
-              <div className="space-y-1">
-                <div className="font-medium text-gray-950">Pause non-urgent notifications overnight</div>
-                <div className="text-sm text-gray-500">Critical security and payment alerts still bypass quiet hours.</div>
+              <div className="min-w-0 flex-1 space-y-0.5">
+                <div className="text-sm font-semibold text-gray-950">Pause non-urgent notifications overnight</div>
+                <div className="text-xs leading-relaxed text-gray-500">Critical security and payment alerts still bypass quiet hours.</div>
               </div>
+              <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-amber-600">Active</span>
             </div>
 
-            <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-2 gap-4">
               <label className="block">
-                <span className="mb-3 block text-sm font-medium text-gray-500">Quiet Hours Start</span>
-                <div className="relative">
-                  <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
-                    <option>10:00 PM</option>
-                    <option>11:00 PM</option>
-                    <option>12:00 AM</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                </div>
+                <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400">Starts</span>
+                <select className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
+                  <option>10:00 PM</option>
+                  <option>11:00 PM</option>
+                  <option>12:00 AM</option>
+                </select>
               </label>
-
               <label className="block">
-                <span className="mb-3 block text-sm font-medium text-gray-500">Quiet Hours End</span>
-                <div className="relative">
-                  <select className="h-14 w-full appearance-none rounded-xl border border-gray-200 bg-[#fafafa] px-4 pr-12 text-[1.05rem] text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
-                    <option>7:00 AM</option>
-                    <option>8:00 AM</option>
-                    <option>9:00 AM</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                </div>
+                <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400">Ends</span>
+                <select className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium text-gray-900 shadow-sm focus:border-[#7626c6] focus:ring-4 focus:ring-[#7626c6]/10">
+                  <option>7:00 AM</option>
+                  <option>8:00 AM</option>
+                  <option>9:00 AM</option>
+                </select>
               </label>
             </div>
           </div>

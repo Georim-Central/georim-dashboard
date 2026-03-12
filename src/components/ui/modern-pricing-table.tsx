@@ -74,7 +74,7 @@ const PricingTable: React.FC<PricingTableProps> = ({ plans, onPlanSelect }) => {
   const [showConfetti, setShowConfetti] = useState(false);
 
   const getFeatureIcon = () => {
-    return <Check className="size-3 text-gray-900" />;
+    return <Check className="size-3 text-[#7626c6]" />;
   };
 
   useEffect(() => {
@@ -126,16 +126,16 @@ const PricingTable: React.FC<PricingTableProps> = ({ plans, onPlanSelect }) => {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-16 p-6">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 p-8">
       <motion.div
-        className="space-y-8 text-center"
+        className="space-y-6 text-center"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <div className="space-y-4">
+        <div className="space-y-3">
           <motion.h1
-            className="text-4xl font-bold text-gray-950 md:text-5xl"
+            className="text-[32px] font-semibold tracking-tight text-gray-950"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.6 }}
@@ -143,12 +143,12 @@ const PricingTable: React.FC<PricingTableProps> = ({ plans, onPlanSelect }) => {
             Choose Your Plan
           </motion.h1>
           <motion.p
-            className="mx-auto max-w-2xl text-lg text-gray-500"
+            className="mx-auto max-w-xl text-base text-gray-500"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
           >
-            Select the perfect plan for your needs. All plans include our core features with different limits and capabilities.
+            All plans include core features. Upgrade anytime as your events grow.
           </motion.p>
         </div>
 
@@ -233,7 +233,7 @@ const PricingTable: React.FC<PricingTableProps> = ({ plans, onPlanSelect }) => {
       </motion.div>
 
       <motion.div
-        className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
+        className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -245,9 +245,9 @@ const PricingTable: React.FC<PricingTableProps> = ({ plans, onPlanSelect }) => {
                 initial={{ opacity: 0, scale: 0.8, y: -10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ delay: 0.5 + index * 0.1, duration: 0.4 }}
-                className="absolute -top-4 left-1/2 z-10 -translate-x-1/2 transform"
+                className="absolute -top-3.5 left-1/2 z-10 -translate-x-1/2 transform"
               >
-                <div className="flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2 text-sm font-medium text-white shadow-lg">
+                <div className="flex items-center gap-1.5 rounded-full bg-[#7626c6] px-3.5 py-1.5 text-xs font-semibold text-white shadow-md">
                   <Star className="size-3 fill-current" />
                   Most Popular
                 </div>
@@ -255,32 +255,34 @@ const PricingTable: React.FC<PricingTableProps> = ({ plans, onPlanSelect }) => {
             )}
 
             <div
-              className={`relative h-full rounded-xl border-2 p-8 transition-all duration-300 ${
+              className={`relative flex h-full flex-col rounded-[28px] border p-7 transition-all duration-300 ${
                 plan.isFeatured
-                  ? "border-blue-500 bg-gradient-to-br from-blue-50 to-purple-50 shadow-lg"
-                  : "border-gray-200 bg-white"
+                  ? "border-[#7626c6] bg-[#faf5ff] shadow-[0_0_0_4px_rgba(118,38,198,0.08)] shadow-lg"
+                  : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
               }`}
             >
-              <div className="mb-8 space-y-4 text-center">
-                <h3 className="text-2xl font-bold text-gray-950">{plan.title}</h3>
-                <p className="text-gray-500">{plan.description}</p>
+              <div className="mb-7 space-y-3">
+                <h3 className="text-xl font-semibold tracking-tight text-gray-950">{plan.title}</h3>
+                <p className="text-sm text-gray-500">{plan.description}</p>
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-center text-4xl font-bold text-gray-950">
-                    $<ScrollingNumber value={isYearly ? Math.round(plan.price.yearly / 12) : plan.price.monthly} />
-                    <span className="ml-1 text-lg font-normal text-gray-500">/month</span>
+                <div className="pt-2">
+                  <div className="flex items-end gap-1">
+                    <span className="text-[40px] font-semibold leading-none tracking-tight text-gray-950">
+                      $<ScrollingNumber value={isYearly ? Math.round(plan.price.yearly / 12) : plan.price.monthly} />
+                    </span>
+                    <span className="mb-1 text-sm text-gray-400">/month</span>
                   </div>
                   <motion.div
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center justify-center gap-2 text-sm text-gray-500"
+                    className="mt-1.5 flex items-center gap-2"
                   >
-                    <span>{isYearly ? "billed yearly" : "billed monthly"}</span>
+                    <span className="text-xs text-gray-400">{isYearly ? "billed yearly" : "billed monthly"}</span>
                     {isYearly && (
                       <motion.span
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700"
+                        className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700"
                       >
                         Save ${(plan.price.monthly * 12) - plan.price.yearly}
                       </motion.span>
@@ -289,7 +291,7 @@ const PricingTable: React.FC<PricingTableProps> = ({ plans, onPlanSelect }) => {
                 </div>
               </div>
 
-              <div className="mb-8 space-y-4">
+              <div className="mb-7 flex-1 space-y-3">
                 {plan.features.map((feature, featureIndex) => (
                   <motion.div
                     key={feature}
@@ -298,10 +300,10 @@ const PricingTable: React.FC<PricingTableProps> = ({ plans, onPlanSelect }) => {
                     transition={{ delay: 0.6 + index * 0.1 + featureIndex * 0.05 }}
                     className="flex items-center gap-3"
                   >
-                    <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center">
+                    <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#f1e5fb]">
                       {getFeatureIcon()}
                     </div>
-                    <span className="text-sm text-gray-900">{feature}</span>
+                    <span className="text-sm text-gray-700">{feature}</span>
                   </motion.div>
                 ))}
               </div>
@@ -314,7 +316,7 @@ const PricingTable: React.FC<PricingTableProps> = ({ plans, onPlanSelect }) => {
                 <Button
                   variant={plan.isFeatured ? "default" : "outline"}
                   size="lg"
-                  className="w-full px-6"
+                  className={`w-full ${plan.isFeatured ? "bg-[#7626c6] text-white hover:bg-[#6620ab]" : ""}`}
                   onClick={() => onPlanSelect?.(plan, isYearly ? "yearly" : "monthly")}
                 >
                   {plan.ctaText}

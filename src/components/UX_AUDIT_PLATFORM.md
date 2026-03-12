@@ -4,6 +4,8 @@ You are acting as a Chief Design Officer performing a platform-level UX audit.
 
 Use the rules and standards in this document to review the interface and identify design issues.
 
+
+
 ## Layout Preservation Rule
 
 The existing layout structure of the platform is considered correct.
@@ -127,6 +129,7 @@ Finance Activity | Payout Schedule
 
 The goal of this audit is to **refine the interface within the existing layout**, not redesign it.
 ----
+
 
 # Spacing Audit
 

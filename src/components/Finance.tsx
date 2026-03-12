@@ -6,14 +6,10 @@ import {
   ArrowUpRight,
   CalendarDays,
   CircleAlert,
-  Clock3,
   CreditCard,
-  DollarSign,
   Landmark,
-  Receipt,
   Save,
   ShieldCheck,
-  Wallet,
   X,
 } from 'lucide-react';
 
@@ -244,12 +240,6 @@ const formatCurrency = (amount: number) =>
     currency: 'USD',
     minimumFractionDigits: 2,
   }).format(amount);
-
-function formatCompact(n: number): string {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1).replace(/\.0$/, '')}k`;
-  return `$${n.toFixed(0)}`;
-}
 
 const getStatusBadgeClass = (status: string) =>
   cn(

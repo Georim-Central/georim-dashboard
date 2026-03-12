@@ -4,11 +4,8 @@ import {
   CheckCircle,
   Clock,
   Download,
-  Eye,
   Filter,
-  Mail,
   MoreVertical,
-  Receipt,
   Search,
   UserRound,
   XCircle,
@@ -1196,28 +1193,6 @@ function StatCard({ label, value, tone }: { label: string; value: string; tone: 
     <div className={`rounded-lg p-4 ${toneClass}`}>
       <div className={`mb-1 text-sm ${labelClass}`}>{label}</div>
       <div className="text-2xl font-bold">{value}</div>
-    </div>
-  );
-}
-
-function DetailRow({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: typeof UserRound;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 rounded-xl border border-gray-200 p-3">
-      <div className="rounded-lg bg-gray-100 p-2">
-        <Icon className="h-4 w-4 text-gray-600" />
-      </div>
-      <div>
-        <div className="text-xs font-medium uppercase tracking-[0.18em] text-gray-500">{label}</div>
-        <div className="mt-1 text-sm font-medium text-gray-900">{value}</div>
-      </div>
     </div>
   );
 }
