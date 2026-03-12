@@ -1,5 +1,5 @@
 import { Plus, Calendar, MapPin, Users, DollarSign, TrendingUp, MoreVertical, ArrowRight, Ticket, Copy, Archive, Eye } from 'lucide-react';
-import { KeyboardEvent, useMemo, useState } from 'react';
+import { KeyboardEvent, useEffect, useMemo, useState } from 'react';
 import { ContentState } from './ui/ContentState';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
@@ -125,17 +125,17 @@ const teamCollaborationMembers = [
 ];
 
 function getTeamRoleBadgeClass(role: string) {
-  if (role === 'Admin') return 'bg-[#7626c6]/10 text-[#7626c6]';
-  if (role === 'Marketing') return 'bg-blue-100 text-blue-700';
-  if (role === 'Operations') return 'bg-emerald-100 text-emerald-700';
-  return 'bg-amber-100 text-amber-700';
+  if (role === 'Admin') return 'bg-violet-50 text-violet-700';
+  if (role === 'Marketing') return 'bg-blue-50 text-blue-700';
+  if (role === 'Operations') return 'bg-emerald-50 text-emerald-700';
+  return 'bg-amber-50 text-amber-700';
 }
 
 function getEventStatusBadgeClass(status: EventLifecycleStatus) {
-  if (status === 'published') return 'bg-green-100 text-green-700';
-  if (status === 'private') return 'bg-[#f1e5fb] text-[#7626c6]';
-  if (status === 'archived') return 'bg-amber-100 text-amber-700';
-  return 'bg-gray-100 text-gray-700';
+  if (status === 'published') return 'bg-emerald-50 text-emerald-700';
+  if (status === 'private') return 'bg-violet-50 text-violet-700';
+  if (status === 'archived') return 'bg-amber-50 text-amber-700';
+  return 'bg-slate-100 text-slate-700';
 }
 
 function TeamCollaborationCard({
@@ -146,9 +146,9 @@ function TeamCollaborationCard({
   onInviteTeamMember: () => void;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="overflow-hidden rounded-[28px] border border-gray-200 bg-white">
       <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-gray-900">Team Collaboration</h2>
+        <h2 className="ui-card-title">Team Collaboration</h2>
         <Button type="button" variant="outline" size="sm" className="gap-1.5 text-sm" onClick={onInviteTeamMember}>
           <Plus className="w-4 h-4" />
           Add Member
@@ -161,7 +161,7 @@ function TeamCollaborationCard({
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3 min-w-0">
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-[#7626c6]/12 text-[#7626c6]">{member.initials}</AvatarFallback>
+                  <AvatarFallback className="bg-violet-50 text-violet-700">{member.initials}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">{member.name}</p>
@@ -180,7 +180,7 @@ function TeamCollaborationCard({
         <button
           type="button"
           onClick={onViewTeam}
-          className="text-sm text-[#7626c6] hover:text-[#5f1fa3] font-medium flex items-center gap-1"
+          className="flex items-center gap-1 text-sm font-medium text-[#5f1fa3] hover:text-[#4d1c84]"
         >
           View more
           <ArrowRight className="w-4 h-4" />
@@ -207,6 +207,23 @@ export function Dashboard({
   const [selectedStatus, setSelectedStatus] = useState<'all' | EventLifecycleStatus>('all');
   const [sortMode, setSortMode] = useState<'recent' | 'revenue' | 'tickets'>('recent');
   const [activeMenuEventId, setActiveMenuEventId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!activeMenuEventId) return undefined;
+
+    const handleDocumentClick = () => setActiveMenuEventId(null);
+    const handleEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') setActiveMenuEventId(null);
+    };
+
+    document.addEventListener('click', handleDocumentClick);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('click', handleDocumentClick);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [activeMenuEventId]);
 
   const handleEventRowKeyDown = (event: KeyboardEvent<HTMLDivElement>, eventId: string, eventTitle: string) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -238,21 +255,17 @@ export function Dashboard({
   ];
 
   return (
-    <div className="p-8 motion-page" aria-busy={isLoading}>
+    <div className="ui-page motion-page" aria-busy={isLoading}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 motion-row">
+      <div className="ui-page-header motion-row">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Welcome {firstName}</h1>
-          <p className="text-gray-600 mt-1">Manage and monitor all your events</p>
+          <h1 className="ui-page-title">Welcome {firstName}</h1>
+          <p className="ui-page-subtitle">Manage and monitor all your events.</p>
         </div>
-        <button
-          type="button"
-          onClick={onCreateEvent}
-          className="flex items-center gap-2 bg-[#7626c6] text-white btn-glass px-6 py-3 rounded-lg hover:bg-[#5f1fa3] transition-colors font-medium"
-        >
+        <Button type="button" onClick={onCreateEvent} className="btn-glass gap-2 px-6" size="lg">
           <Plus className="w-5 h-5" />
           Create Event
-        </button>
+        </Button>
       </div>
 
       {/* Stats Grid */}
@@ -267,13 +280,13 @@ export function Dashboard({
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <div key={index} className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+              <div key={index} className="rounded-[28px] border border-gray-200 bg-white p-6">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                    <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                    <p className="ui-meta-text mb-2">{stat.label}</p>
+                    <p className="text-3xl font-semibold text-gray-900">{stat.value}</p>
                   </div>
-                  <div className={`${stat.bg} ${stat.color} p-3 rounded-lg`}>
+                  <div className={`ui-icon-tile ${stat.bg} ${stat.color}`}>
                     <Icon className="w-6 h-6" />
                   </div>
                 </div>
@@ -285,8 +298,8 @@ export function Dashboard({
 
       {/* Platform Activity Summary */}
       <div className="mb-8 motion-row">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">Platform Activity</h2>
+        <div className="ui-section-header">
+          <h2 className="ui-section-title">Platform Activity</h2>
           <span className="text-sm text-gray-600">Live updates across all events</span>
         </div>
         
@@ -303,28 +316,28 @@ export function Dashboard({
               return (
                 <div
                   key={index}
-                  className="bg-white rounded-xl p-5 border border-gray-200 hover:shadow-md transition-all cursor-pointer group"
+                  className="group cursor-pointer rounded-[22px] border border-gray-200 bg-white p-5"
                 >
                   <div className="flex items-start gap-3 mb-3">
-                    <div className={`${activity.bg} ${activity.color} p-2.5 rounded-lg`}>
+                    <div className={`ui-icon-tile h-10 w-10 rounded-2xl ${activity.bg} ${activity.color}`}>
                       <Icon className="w-5 h-5" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <h3 className="text-sm font-medium text-gray-700">{activity.title}</h3>
+                        <h3 className="ui-card-title text-gray-700">{activity.title}</h3>
                         <ArrowRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
-                      <p className="text-lg font-bold text-gray-900">{activity.value}</p>
+                      <p className="text-lg font-semibold text-gray-900">{activity.value}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-xs text-gray-600">{activity.description}</p>
+                    <p className="ui-meta-text text-gray-600">{activity.description}</p>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       activity.badge === 'Action Needed'
-                        ? 'bg-red-100 text-red-700'
+                        ? 'bg-rose-50 text-rose-700'
                         : activity.badge === 'Live'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-blue-100 text-blue-700'
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : 'bg-blue-50 text-blue-700'
                     }`}>
                       {activity.badge}
                     </span>
@@ -340,11 +353,11 @@ export function Dashboard({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 motion-row">
         {/* Events List - Takes 2 columns */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="overflow-hidden rounded-[28px] border border-gray-200 bg-white">
             <div className="border-b border-gray-200 px-6 py-4">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Your Events</h2>
+                  <h2 className="ui-card-title">Your Events</h2>
                   <p className="mt-1 text-sm text-gray-600">Manage lifecycle, track sales, and jump into event operations.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -359,11 +372,7 @@ export function Dashboard({
                       key={filter.id}
                       type="button"
                       onClick={() => setSelectedStatus(filter.id as 'all' | EventLifecycleStatus)}
-                      className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
-                        selectedStatus === filter.id
-                          ? 'bg-[#7626c6] text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
+                      className={`ui-chip ${selectedStatus === filter.id ? 'is-active' : ''}`}
                     >
                       {filter.label}
                     </button>
@@ -371,7 +380,7 @@ export function Dashboard({
                   <select
                     value={sortMode}
                     onChange={(event) => setSortMode(event.target.value as 'recent' | 'revenue' | 'tickets')}
-                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700"
+                    className="ui-toolbar-select rounded-2xl border border-gray-200 px-4 py-2 text-sm text-gray-700"
                     aria-label="Sort events"
                   >
                     <option value="recent">Sort: Recent</option>
@@ -393,7 +402,7 @@ export function Dashboard({
                 {filteredEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
+                  className="cursor-pointer p-6 transition-colors hover:bg-gray-50"
                   onClick={() => onEventSelect(event.id, event.title)}
                   onKeyDown={(keyEvent) => handleEventRowKeyDown(keyEvent, event.id, event.title)}
                   role="button"
@@ -435,13 +444,13 @@ export function Dashboard({
                                 clickEvent.stopPropagation();
                                 setActiveMenuEventId((current) => current === event.id ? null : event.id);
                               }}
-                              className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                              className="rounded-xl p-2 hover:bg-gray-100"
                             >
                               <MoreVertical className="w-4 h-4 text-gray-600" />
                             </button>
                             {activeMenuEventId === event.id && (
                               <div
-                                className="absolute right-0 top-11 z-10 min-w-[210px] rounded-2xl border border-gray-200 bg-white p-2 shadow-xl"
+                                className="ui-menu-panel absolute right-0 top-11 z-10 min-w-[210px] p-2"
                                 onClick={(clickEvent) => clickEvent.stopPropagation()}
                               >
                                 <button
@@ -451,7 +460,7 @@ export function Dashboard({
                                     setActiveMenuEventId(null);
                                     onEventSelect(event.id, event.title);
                                   }}
-                                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                                  className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                                 >
                                   <Eye className="h-4 w-4" />
                                   Open Event
@@ -463,7 +472,7 @@ export function Dashboard({
                                     setActiveMenuEventId(null);
                                     onUpdateEventStatus(event.id, event.status === 'published' ? 'draft' : 'published');
                                   }}
-                                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                                  className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                                 >
                                   <Calendar className="h-4 w-4" />
                                   {event.status === 'published' ? 'Move to Draft' : 'Publish Event'}
@@ -475,7 +484,7 @@ export function Dashboard({
                                     setActiveMenuEventId(null);
                                     onDuplicateEvent(event.id);
                                   }}
-                                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                                  className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                                 >
                                   <Copy className="h-4 w-4" />
                                   Duplicate Event
@@ -487,7 +496,7 @@ export function Dashboard({
                                     setActiveMenuEventId(null);
                                     onArchiveEvent(event.id);
                                   }}
-                                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-amber-700 transition hover:bg-amber-50"
+                                  className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-amber-700 transition hover:bg-amber-50"
                                 >
                                   <Archive className="h-4 w-4" />
                                   Archive Event
@@ -506,9 +515,9 @@ export function Dashboard({
                             <p className="text-lg font-semibold text-gray-900">
                               {event.ticketsSold}/{event.totalTickets}
                             </p>
-                            <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="ui-progress-track w-24">
                               <div
-                                className="h-full bg-[#7626c6]"
+                                className="ui-progress-indicator"
                                 style={{ width: `${(event.ticketsSold / event.totalTickets) * 100}%` }}
                               ></div>
                             </div>
@@ -537,9 +546,9 @@ export function Dashboard({
         {/* Recent Activity Feed - Takes 1 column */}
         <div className="lg:col-span-1">
           <div className="space-y-6">
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div className="overflow-hidden rounded-[28px] border border-gray-200 bg-white">
               <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
+                <h2 className="ui-card-title">Recent Activity</h2>
               </div>
 
               <div className="divide-y divide-gray-200 motion-stagger">
@@ -553,7 +562,7 @@ export function Dashboard({
                   {recentActivity.map((activity, index) => (
                   <div key={index} className="p-4 hover:bg-gray-50 transition-colors">
                     <div className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-[#7626c6] rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-violet-500"></div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <p className="text-sm font-medium text-gray-900">{activity.action}</p>
@@ -579,7 +588,7 @@ export function Dashboard({
                 <button
                   type="button"
                   onClick={onViewActivity}
-                  className="text-sm text-[#7626c6] hover:text-[#5f1fa3] font-medium flex items-center gap-1"
+                  className="flex items-center gap-1 text-sm font-medium text-[#5f1fa3] hover:text-[#4d1c84]"
                 >
                   View all activity
                   <ArrowRight className="w-4 h-4" />

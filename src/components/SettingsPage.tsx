@@ -248,14 +248,14 @@ const SECONDARY_BUTTON_CLASS =
   'inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50';
 const SOFT_BUTTON_CLASS =
   'inline-flex items-center justify-center gap-2 rounded-xl bg-[#f3e8fc] px-5 py-3 text-sm font-medium text-gray-800 transition hover:bg-[#ebdefb] disabled:cursor-not-allowed disabled:opacity-50';
-const SETTINGS_PAGE_STACK_CLASS = 'space-y-5 sm:space-y-6 lg:space-y-7';
-const SETTINGS_SECTION_GRID_CLASS = 'grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-6 lg:gap-7';
-const SETTINGS_COLUMN_STACK_CLASS = 'space-y-6 sm:space-y-7';
-const SETTINGS_CONTENT_STACK_CLASS = 'space-y-5 sm:space-y-6';
-const SETTINGS_FORM_GRID_CLASS = 'grid grid-cols-1 gap-5 sm:gap-6';
-const SETTINGS_PANEL_CLASS = 'rounded-xl border border-gray-200 bg-[#fafafa] px-5 py-4 sm:px-6 sm:py-5';
-const SETTINGS_PADDED_PANEL_CLASS = 'rounded-xl border border-gray-200 bg-[#fafafa] p-4 sm:p-5';
-const SETTINGS_CARD_PADDING_CLASS = 'p-5 sm:p-6 lg:p-8';
+const SETTINGS_PAGE_STACK_CLASS = 'space-y-8';
+const SETTINGS_SECTION_GRID_CLASS = 'grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-8';
+const SETTINGS_COLUMN_STACK_CLASS = 'space-y-6';
+const SETTINGS_CONTENT_STACK_CLASS = 'space-y-4';
+const SETTINGS_FORM_GRID_CLASS = 'grid grid-cols-1 gap-6';
+const SETTINGS_PANEL_CLASS = 'rounded-2xl border border-gray-200 bg-[#fafafa] px-4 py-4';
+const SETTINGS_PADDED_PANEL_CLASS = 'rounded-2xl border border-gray-200 bg-[#fafafa] p-4';
+const SETTINGS_CARD_PADDING_CLASS = 'p-6';
 
 function createPaymentMethodVisual(provider: PaymentMethodDraft['provider']) {
   if (provider === 'visa') {
@@ -293,7 +293,7 @@ function SettingsCard({
   headerRight?: ReactNode;
 }) {
   return (
-    <section className={`rounded-xl border border-gray-200 bg-white shadow-sm ${SETTINGS_CARD_PADDING_CLASS} ${className}`}>
+    <section className={`rounded-[28px] border border-gray-200 bg-white shadow-sm ${SETTINGS_CARD_PADDING_CLASS} ${className}`}>
       <div className="mb-5 flex items-start justify-between gap-4 sm:mb-6 lg:mb-7">
         <h2 className="text-[1.05rem] font-semibold tracking-[-0.02em] text-gray-950">{title}</h2>
         {headerRight}

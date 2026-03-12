@@ -71,8 +71,8 @@ function MetricCard({
   tone: string;
 }) {
   return (
-    <div className="h-full rounded-xl border border-gray-200 bg-white p-5 shadow-sm shadow-slate-200/60 sm:p-6">
-      <div className={`mb-4 inline-flex rounded-2xl px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] ${tone}`}>
+    <div className="h-full rounded-[28px] border border-gray-200 bg-white p-5 sm:p-6">
+      <div className={`mb-4 inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] ${tone}`}>
         {label}
       </div>
       <div className="text-3xl font-semibold tracking-tight text-gray-950">{value}</div>
@@ -122,12 +122,12 @@ export function NotificationCenter({
   ).length;
 
   return (
-    <div className="min-h-full bg-[#f7f5fb] p-6 md:p-8">
+    <div className="ui-page">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="ui-page-header">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-gray-950">Notification Center</h1>
-            <p className="mt-2 max-w-2xl text-sm text-gray-600 md:text-base">
+            <h1 className="ui-page-title">Notification Center</h1>
+            <p className="ui-page-subtitle md:text-base">
               Review live organizer alerts, operational activity, and workflow updates across orders,
               payouts, campaigns, and team actions.
             </p>
@@ -143,7 +143,7 @@ export function NotificationCenter({
             <button
               type="button"
               onClick={onMarkAllRead}
-              className="rounded-2xl bg-[#7626c6] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#6420a7]"
+              className="btn-glass rounded-2xl px-5 py-2.5 text-sm font-medium text-white"
             >
               Mark all read
             </button>
@@ -155,7 +155,7 @@ export function NotificationCenter({
             label="Unread"
             value={String(unreadCount)}
             helper="Needs organizer review or acknowledgement."
-            tone="bg-violet-100 text-[#7626c6]"
+            tone="bg-violet-50 text-violet-700"
           />
           <MetricCard
             label="Urgent"
@@ -178,15 +178,15 @@ export function NotificationCenter({
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm shadow-slate-200/60 sm:p-6 lg:p-7">
+          <section className="rounded-[28px] border border-gray-200 bg-white p-5 sm:p-6 lg:p-7">
             <div className="mb-5 flex flex-col gap-4 border-b border-gray-100 pb-4 sm:mb-6 sm:pb-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h2 className="text-xl font-semibold text-gray-950">Activity Feed</h2>
+                <h2 className="ui-section-title">Activity Feed</h2>
                 <p className="mt-1 text-sm text-gray-500">
                   Filter by alert type, review what changed, and jump directly into the affected workflow.
                 </p>
               </div>
-              <div className="rounded-full bg-[#f4ecfb] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#7626c6]">
+              <div className="rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-violet-700">
                 Organizer Inbox
               </div>
             </div>
@@ -197,11 +197,7 @@ export function NotificationCenter({
                   key={feedFilter.id}
                   type="button"
                   onClick={() => setFilter(feedFilter.id)}
-                  className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
-                    filter === feedFilter.id
-                      ? 'bg-[#7626c6] text-white'
-                      : 'border border-gray-200 bg-white text-gray-600 hover:border-[#7626c6] hover:text-[#7626c6]'
-                  }`}
+                  className={`ui-chip ${filter === feedFilter.id ? 'is-active' : ''}`}
                 >
                   {feedFilter.label}
                 </button>
@@ -232,10 +228,10 @@ export function NotificationCenter({
                           onToggleRead(notification.id);
                         }
                       }}
-                      className={`w-full rounded-xl border p-4 text-left transition sm:p-5 ${
+                      className={`w-full rounded-[22px] border p-4 text-left transition sm:p-5 ${
                         isSelected
-                          ? 'border-[#7626c6]/30 bg-[#faf5ff] shadow-sm'
-                          : 'border-gray-200 bg-white hover:border-[#7626c6]/20 hover:bg-gray-50'
+                          ? 'border-violet-200 bg-violet-50/70 shadow-sm'
+                          : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex items-start gap-4">
@@ -248,7 +244,7 @@ export function NotificationCenter({
                               {notification.title}
                             </div>
                             {!notification.read ? (
-                              <span className="inline-flex rounded-full bg-[#f1e5fb] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7626c6]">
+                              <span className="inline-flex rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-700">
                                 New
                               </span>
                             ) : null}
@@ -273,10 +269,10 @@ export function NotificationCenter({
             )}
           </section>
 
-          <aside className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm shadow-slate-200/60 sm:p-6 lg:p-7">
+          <aside className="rounded-[28px] border border-gray-200 bg-white p-5 sm:p-6 lg:p-7">
             <div className="mb-5 flex items-start justify-between gap-3 border-b border-gray-100 pb-4 sm:mb-6 sm:pb-5">
               <div>
-                <h2 className="text-xl font-semibold text-gray-950">Detail Review</h2>
+                <h2 className="ui-section-title">Detail Review</h2>
                 <p className="mt-1 text-sm text-gray-500">
                   Inspect the selected notification and jump into the right organizer action.
                 </p>
@@ -288,10 +284,10 @@ export function NotificationCenter({
 
             {selectedNotification ? (
               <div className="space-y-5">
-                <div className="rounded-xl border border-gray-200 bg-[#faf5ff] p-4 sm:p-5">
+                <div className="rounded-[22px] border border-gray-200 bg-violet-50/70 p-4 sm:p-5">
                   <div className="flex items-center gap-2">
-                    <Layers3 className="h-4 w-4 text-[#7626c6]" />
-                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7626c6]">
+                    <Layers3 className="h-4 w-4 text-violet-700" />
+                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-700">
                       {selectedNotification.category} alert
                     </span>
                   </div>
@@ -311,7 +307,7 @@ export function NotificationCenter({
                     <button
                       type="button"
                       onClick={() => onOpenNotification(selectedNotification)}
-                      className="rounded-xl bg-[#7626c6] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#6420a7]"
+                      className="btn-glass rounded-xl px-4 py-2 text-sm font-medium text-white"
                     >
                       {selectedNotification.ctaLabel || 'Open linked workflow'}
                     </button>
@@ -332,9 +328,9 @@ export function NotificationCenter({
                   </button>
                 </div>
 
-                <div className="rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-4 sm:p-5">
+                <div className="rounded-[22px] border border-dashed border-violet-200 bg-violet-50/60 p-4 sm:p-5">
                   <div className="flex items-start gap-3">
-                    <CircleAlert className="mt-0.5 h-4 w-4 text-[#7626c6]" />
+                    <CircleAlert className="mt-0.5 h-4 w-4 text-violet-700" />
                     <p className="text-sm text-gray-600">
                       Keep urgent notifications reviewed here before jumping into refunds, payouts, or attendee support.
                     </p>
@@ -372,7 +368,7 @@ export function NotificationCenter({
 
 function DetailItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-4 sm:p-5">
+    <div className="rounded-[22px] border border-gray-200 bg-[#fafafa] p-4 sm:p-5">
       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">{label}</div>
       <div className="mt-2 text-sm font-medium capitalize text-gray-900">{value}</div>
     </div>
@@ -389,7 +385,7 @@ function MiniActionCard({
   description: string;
 }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-[#fafafa] p-4 sm:p-5">
+    <div className="rounded-[22px] border border-gray-200 bg-[#fafafa] p-4 sm:p-5">
       <div className="inline-flex rounded-xl bg-gray-100 p-2 text-gray-700">
         <Icon className="h-4 w-4" />
       </div>

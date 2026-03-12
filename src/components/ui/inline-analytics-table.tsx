@@ -55,9 +55,9 @@ export default function InlineAnalyticsTable({
   const maxGrowth = Math.max(...items.map((item) => Math.abs(item.growth)));
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white p-4 sm:p-5">
+    <div className="overflow-x-auto rounded-[28px] border border-gray-200 bg-white p-4 sm:p-5">
       <div className="mb-4 space-y-1">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        <h3 className="ui-card-title">{title}</h3>
         <p className="text-sm text-gray-500">{subtitle}</p>
       </div>
 

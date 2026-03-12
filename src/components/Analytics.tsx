@@ -3,6 +3,7 @@ import { Users, DollarSign, Ticket, Download, Calendar, Eye, MousePointer } from
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { downloadReportPdf } from '../utils/reportExport';
 import { ContentState } from './ui/ContentState';
+import { Button } from './ui/button';
 import InlineAnalyticsTable from './ui/inline-analytics-table';
 
 interface AnalyticsProps {
@@ -82,15 +83,15 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
   };
 
   return (
-    <div className="min-h-full bg-gray-50 p-8" aria-busy={isLoading}>
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="ui-page" aria-busy={isLoading}>
+      <div className="mx-auto max-w-7xl space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="ui-page-header">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="ui-page-title">
             {isEventView ? 'Event Analytics' : 'Organization Analytics'}
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="ui-page-subtitle">
             {isEventView 
               ? `Performance metrics for ${eventDisplayName}` 
               : 'Real-time insights across all your events'}
@@ -100,21 +101,17 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
           <select
             value={selectedRange}
             onChange={(event) => setSelectedRange(event.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg"
+            className="ui-toolbar-select rounded-2xl border border-gray-200 px-4 py-2"
           >
             <option>Last 7 days</option>
             <option>Last 30 days</option>
             <option>Last 90 days</option>
             <option>All time</option>
           </select>
-          <button
-            type="button"
-            onClick={handleExportReport}
-            className="flex items-center gap-2 px-4 py-2 bg-[#7626c6] text-white btn-glass rounded-lg hover:bg-[#5f1fa3] transition-colors"
-          >
+          <Button type="button" onClick={handleExportReport} className="btn-glass gap-2 px-4">
             <Download className="w-4 h-4" />
             Export Report
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -130,17 +127,17 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
           {(isEventView ? eventMetrics : orgMetrics).map((metric, index) => {
             const Icon = metric.icon;
             return (
-              <div key={index} className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+              <div key={index} className="rounded-[28px] border border-gray-200 bg-white p-6">
                 <div className="flex items-start justify-between mb-3">
-                  <div className={`${metric.bg} ${metric.color} p-3 rounded-lg`}>
+                  <div className={`ui-icon-tile ${metric.bg} ${metric.color}`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <span className={`text-sm font-medium ${metric.trend === 'up' ? 'text-green-600' : metric.trend === 'down' ? 'text-red-600' : 'text-gray-600'}`}>
                     {metric.change}
                   </span>
                 </div>
-                <div className="text-sm text-gray-600 mb-1">{metric.label}</div>
-                <div className="text-2xl font-bold text-gray-900">{metric.value}</div>
+                <div className="ui-meta-text mb-2">{metric.label}</div>
+                <div className="text-2xl font-semibold text-gray-900">{metric.value}</div>
               </div>
             );
           })}
@@ -151,17 +148,17 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
         // EVENT-SPECIFIC ANALYTICS
         <>
           {/* Ticket Sales Over Time */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="rounded-[28px] border border-gray-200 bg-white p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Ticket Sales Performance</h2>
+                <h2 className="ui-card-title">Ticket Sales Performance</h2>
                 <p className="text-sm text-gray-600 mt-1">Daily ticket sales and revenue trends</p>
               </div>
               <div className="flex gap-2">
-                <button type="button" className="px-3 py-1.5 bg-[#7626c6] text-white btn-glass rounded-lg text-sm font-medium">
+                <button type="button" className="ui-chip is-active">
                   Sales
                 </button>
-                <button type="button" className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                <button type="button" className="ui-chip">
                   Revenue
                 </button>
               </div>
@@ -195,8 +192,8 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
           {/* Event-Specific Charts Row */}
           <div className="grid grid-cols-2 gap-6">
             {/* Ticket Type Breakdown */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Sales by Ticket Type</h2>
+            <div className="rounded-[28px] border border-gray-200 bg-white p-6">
+              <h2 className="ui-card-title mb-6">Sales by Ticket Type</h2>
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={eventTicketTypes}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -212,8 +209,8 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
             </div>
 
             {/* Page Views & Engagement */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Event Page Traffic</h2>
+            <div className="rounded-[28px] border border-gray-200 bg-white p-6">
+              <h2 className="ui-card-title mb-6">Event Page Traffic</h2>
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={eventTrafficData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -231,8 +228,8 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
           </div>
 
           {/* Attendee Geography - Event Specific */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">Attendee Geography</h2>
+          <div className="rounded-[28px] border border-gray-200 bg-white p-6">
+            <h2 className="ui-card-title mb-6">Attendee Geography</h2>
             <div className="grid grid-cols-2 gap-8">
               <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-4">Top Cities</h3>
@@ -248,9 +245,9 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                     <div key={index} className="flex items-center justify-between">
                       <span className="text-gray-700">{city.name}</span>
                       <div className="flex items-center gap-3">
-                        <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="ui-progress-track w-32">
                           <div
-                            className="h-full bg-[#7626c6]"
+                            className="ui-progress-indicator"
                             style={{ width: `${city.percentage}%` }}
                           ></div>
                         </div>
@@ -277,9 +274,9 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                     <div key={index} className="flex items-center justify-between">
                       <span className="text-gray-700">{state.name}</span>
                       <div className="flex items-center gap-3">
-                        <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="ui-progress-track w-32">
                           <div
-                            className="h-full bg-blue-500"
+                            className="h-full rounded-full bg-blue-500"
                             style={{ width: `${state.percentage}%` }}
                           ></div>
                         </div>
@@ -299,10 +296,10 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
         // ORGANIZATION-LEVEL ANALYTICS
         <>
           {/* Revenue & Ticket Sales Trend */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="rounded-[28px] border border-gray-200 bg-white p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Revenue & Sales Overview</h2>
+                <h2 className="ui-card-title">Revenue & Sales Overview</h2>
                 <p className="text-sm text-gray-600 mt-1">Performance across all events</p>
               </div>
               <div className="flex gap-2">
@@ -310,11 +307,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                   type="button"
                   onClick={() => setOrgOverviewMode('both')}
                   aria-pressed={orgOverviewMode === 'both'}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    orgOverviewMode === 'both'
-                      ? 'bg-[#7626c6] text-white btn-glass'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  className={`ui-chip ${orgOverviewMode === 'both' ? 'is-active' : ''}`}
                 >
                   Both
                 </button>
@@ -322,11 +315,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                   type="button"
                   onClick={() => setOrgOverviewMode('revenue')}
                   aria-pressed={orgOverviewMode === 'revenue'}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    orgOverviewMode === 'revenue'
-                      ? 'bg-[#7626c6] text-white btn-glass'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  className={`ui-chip ${orgOverviewMode === 'revenue' ? 'is-active' : ''}`}
                 >
                   Revenue Only
                 </button>
@@ -334,11 +323,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                   type="button"
                   onClick={() => setOrgOverviewMode('tickets')}
                   aria-pressed={orgOverviewMode === 'tickets'}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    orgOverviewMode === 'tickets'
-                      ? 'bg-[#7626c6] text-white btn-glass'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  className={`ui-chip ${orgOverviewMode === 'tickets' ? 'is-active' : ''}`}
                 >
                   Tickets Only
                 </button>
@@ -399,8 +384,8 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
           {/* Organization Charts Row */}
           <div className="grid grid-cols-2 gap-6">
             {/* Events Performance */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Events Performance</h2>
+            <div className="rounded-[28px] border border-gray-200 bg-white p-6">
+              <h2 className="ui-card-title mb-6">Events Performance</h2>
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={orgEventsPerformance}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -415,8 +400,8 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
             </div>
 
             {/* Active vs Past Events */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Event Status Distribution</h2>
+            <div className="rounded-[28px] border border-gray-200 bg-white p-6">
+              <h2 className="ui-card-title mb-6">Event Status Distribution</h2>
               <ResponsiveContainer width="100%" height={280}>
                 <AreaChart data={orgEventStatusData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -434,8 +419,8 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
           </div>
 
           {/* Organization-wide Attendee Geography */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">Attendee Geography (All Events)</h2>
+          <div className="rounded-[28px] border border-gray-200 bg-white p-6">
+            <h2 className="ui-card-title mb-6">Attendee Geography (All Events)</h2>
             <div className="grid grid-cols-2 gap-8">
               <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-4">Top Cities</h3>
@@ -451,9 +436,9 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                     <div key={index} className="flex items-center justify-between">
                       <span className="text-gray-700">{city.name}</span>
                       <div className="flex items-center gap-3">
-                        <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="ui-progress-track w-32">
                           <div
-                            className="h-full bg-[#7626c6]"
+                            className="ui-progress-indicator"
                             style={{ width: `${city.percentage}%` }}
                           ></div>
                         </div>
@@ -480,9 +465,9 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                     <div key={index} className="flex items-center justify-between">
                       <span className="text-gray-700">{state.name}</span>
                       <div className="flex items-center gap-3">
-                        <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="ui-progress-track w-32">
                           <div
-                            className="h-full bg-blue-500"
+                            className="h-full rounded-full bg-blue-500"
                             style={{ width: `${state.percentage}%` }}
                           ></div>
                         </div>

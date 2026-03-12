@@ -64,14 +64,16 @@ export function TopBar({
               placeholder="Search events, orders, attendees..."
               value={searchQuery}
               onChange={(event) => onSearchQueryChange(event.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-96 focus:ring-2 focus:ring-[#7626c6] focus:border-transparent"
+              className="ui-toolbar-select h-12 w-96 rounded-2xl border border-gray-200 bg-white/90 pl-10 pr-4 text-sm text-gray-700 shadow-sm"
             />
 
             {showSearchResults && (
-              <div className="absolute left-0 top-[calc(100%+10px)] z-20 w-[28rem] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
-                <div className="border-b border-gray-200 px-4 py-3">
-                  <div className="text-sm font-semibold text-gray-900">Search Results</div>
-                  <div className="text-xs text-gray-500">Organizer view: {currentView === 'event-management' ? 'event operations' : currentView}</div>
+              <div className="ui-menu-panel absolute left-0 top-[calc(100%+12px)] z-20 w-[28rem] overflow-hidden">
+                <div className="border-b border-gray-200 px-5 py-4">
+                  <div className="ui-card-title">Search Results</div>
+                  <div className="ui-meta-text mt-1">
+                    Organizer view: {currentView === 'event-management' ? 'event operations' : currentView}
+                  </div>
                 </div>
                 {searchResults.length > 0 ? (
                   <div className="max-h-96 overflow-y-auto">
@@ -80,7 +82,7 @@ export function TopBar({
                         key={result.id}
                         type="button"
                         onClick={() => onSearchResultSelect(result)}
-                        className="flex w-full items-start justify-between gap-3 border-b border-gray-100 px-4 py-3 text-left transition hover:bg-gray-50"
+                        className="flex min-h-12 w-full items-start justify-between gap-3 border-b border-gray-100 px-5 py-4 text-left transition hover:bg-gray-50"
                       >
                         <div className="min-w-0">
                           <div className="truncate text-sm font-medium text-gray-900">{result.label}</div>
@@ -93,7 +95,7 @@ export function TopBar({
                     ))}
                   </div>
                 ) : (
-                  <div className="px-4 py-6 text-sm text-gray-500">No organizer results matched “{searchQuery.trim()}”.</div>
+                  <div className="px-5 py-8 text-sm text-gray-500">No organizer results matched “{searchQuery.trim()}”.</div>
                 )}
               </div>
             )}
@@ -101,7 +103,7 @@ export function TopBar({
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="px-3 py-1 bg-gray-100 rounded-lg text-sm text-gray-700">
+          <div className="inline-flex h-10 items-center rounded-full border border-gray-200 bg-white/80 px-4 text-sm font-medium text-gray-600 shadow-sm">
             {contextMode === 'organization' ? 'Organization View' : 'Event View'}
           </div>
 
@@ -109,7 +111,7 @@ export function TopBar({
             <button
               type="button"
               onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-transparent bg-white/70 text-gray-600 shadow-sm hover:border-gray-200 hover:bg-white"
               aria-expanded={showNotifications}
               aria-controls="notifications-panel"
               aria-label="Open notifications"
@@ -136,11 +138,11 @@ export function TopBar({
                   aria-labelledby={notificationsTitleId}
                   aria-describedby={notificationsDescriptionId}
                   tabIndex={-1}
-                  className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-20 max-h-[500px] flex flex-col motion-pop"
+                  className="ui-menu-panel absolute right-0 z-20 mt-3 flex max-h-[500px] w-96 flex-col motion-pop"
                 >
-                  <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                  <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
                     <div>
-                      <h3 id={notificationsTitleId} className="font-semibold text-gray-900">Notifications</h3>
+                      <h3 id={notificationsTitleId} className="ui-card-title">Notifications</h3>
                       <p id={notificationsDescriptionId} className="sr-only">
                         Notification updates and activity list
                       </p>
@@ -149,7 +151,7 @@ export function TopBar({
                       <button
                         type="button"
                         onClick={onMarkAllNotificationsRead}
-                        className="text-sm text-[#7626c6] hover:text-[#5f1fa3] font-medium"
+                        className="text-sm font-medium text-[#5f1fa3] hover:text-[#4d1c84]"
                       >
                         Mark all read
                       </button>
@@ -172,8 +174,8 @@ export function TopBar({
                               onNotificationOpen(notification);
                               setShowNotifications(false);
                             }}
-                            className={`w-full text-left p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-                              !notification.read ? 'bg-blue-50/50' : ''
+                            className={`w-full cursor-pointer p-4 text-left transition-colors hover:bg-gray-50 ${
+                              !notification.read ? 'bg-violet-50/50' : ''
                             }`}
                           >
                             <div className="flex items-start gap-3">
@@ -218,14 +220,14 @@ export function TopBar({
                     )}
                   </div>
 
-                  <div className="p-3 border-t border-gray-200 bg-gray-50">
+                  <div className="border-t border-gray-200 bg-gray-50/80 p-3">
                     <button
                       type="button"
                       onClick={() => {
                         onOpenNotificationCenter();
                         setShowNotifications(false);
                       }}
-                      className="text-sm text-[#7626c6] hover:text-[#5f1fa3] font-medium w-full text-center"
+                      className="w-full text-center text-sm font-medium text-[#5f1fa3] hover:text-[#4d1c84]"
                     >
                       View all notifications
                     </button>
@@ -238,10 +240,10 @@ export function TopBar({
           <button
             type="button"
             onClick={onOpenProfileSettings}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 transition hover:bg-gray-100"
+            className="flex items-center gap-3 rounded-full border border-transparent bg-white/70 px-3 py-2 text-left shadow-sm transition hover:border-gray-200 hover:bg-white"
             aria-label="Open profile settings"
           >
-            <div className="w-8 h-8 bg-[#7626c6] rounded-full flex items-center justify-center overflow-hidden">
+            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-[#7626c6]">
               <User className="w-5 h-5 text-white" />
             </div>
             <span className="text-sm font-medium text-gray-700">John Doe</span>

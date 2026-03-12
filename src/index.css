@@ -140,8 +140,8 @@
     --text-xl--line-height: calc(1.75 / 1.25);
     --text-2xl: 1.5rem;
     --text-2xl--line-height: calc(2 / 1.5);
-    --text-3xl: 1.875rem;
-    --text-3xl--line-height: calc(2.25 / 1.875);
+    --text-3xl: 2rem;
+    --text-3xl--line-height: calc(2.4 / 2);
     --font-weight-normal: 400;
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
@@ -2358,15 +2358,21 @@ html {
   --brand-500: #7626c6;
   --brand-600: #5f1fa3;
   --brand-900: #24123f;
-  --surface-soft: #f7f8ff;
-  --surface-glass: rgba(255, 255, 255, 0.76);
-  --surface-glass-strong: rgba(255, 255, 255, 0.86);
-  --surface-border: rgba(148, 163, 184, 0.28);
-  --ui-radius: 18px;
-  --ui-radius-sm: 12px;
-  --ui-shadow-soft: 0 10px 28px rgba(15, 23, 42, 0.052);
-  --ui-shadow-float: 0 14px 34px rgba(15, 23, 42, 0.064);
+  --surface-soft: #f5f7fb;
+  --surface-subtle: #fafbfd;
+  --surface-glass: rgba(255, 255, 255, 0.92);
+  --surface-glass-strong: rgba(255, 255, 255, 0.97);
+  --surface-border: rgba(148, 163, 184, 0.2);
+  --surface-border-strong: rgba(148, 163, 184, 0.3);
+  --ui-radius: 28px;
+  --ui-radius-subcard: 22px;
+  --ui-radius-sm: 14px;
+  --ui-shadow-soft: 0 12px 32px rgba(15, 23, 42, 0.045);
+  --ui-shadow-float: 0 16px 36px rgba(15, 23, 42, 0.06);
   --ui-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ui-duration-micro: 120ms;
+  --ui-duration-hover: 150ms;
+  --ui-duration-modal: 200ms;
   --sidebar-width: 16rem;
 }
 
@@ -2394,8 +2400,8 @@ textarea {
 body {
   color: var(--brand-900);
   background:
-    radial-gradient(1300px 760px at 6% -10%, #f0e8ff 0%, rgba(240, 232, 255, 0) 52%),
-    linear-gradient(165deg, #f9faff 0%, #f6f8ff 42%, #f1f4ff 100%);
+    radial-gradient(1200px 720px at 8% -12%, rgba(118, 38, 198, 0.06) 0%, rgba(118, 38, 198, 0) 54%),
+    linear-gradient(180deg, #fbfcfe 0%, #f5f7fb 46%, #eef2f7 100%);
 }
 
 .app-shell {
@@ -2403,47 +2409,51 @@ body {
 }
 
 .glass-header {
-  background: rgba(255, 255, 255, 0.7);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.045);
-  backdrop-filter: blur(12px) saturate(120%);
-  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  background: rgba(255, 255, 255, 0.84);
+  border-bottom: 1px solid var(--surface-border);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.035);
+  backdrop-filter: blur(14px) saturate(118%);
+  -webkit-backdrop-filter: blur(14px) saturate(118%);
 }
 
 button.btn-glass {
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: linear-gradient(145deg, rgba(145, 86, 220, 0.9) 0%, rgba(118, 38, 198, 0.93) 58%, rgba(95, 31, 163, 0.95) 100%);
-  box-shadow: 0 8px 20px rgba(81, 34, 143, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(106, 65, 167, 0.2);
+  background: linear-gradient(180deg, #7b31cc 0%, #6d28d9 100%);
+  box-shadow: 0 10px 24px rgba(95, 31, 163, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  transition:
+    transform var(--ui-duration-hover) var(--ui-ease-out),
+    box-shadow var(--ui-duration-hover) ease,
+    background-color var(--ui-duration-hover) ease,
+    filter var(--ui-duration-hover) ease;
 }
 
 button.btn-glass:hover {
   transform: translateY(-1px);
-  filter: saturate(1.06);
-  box-shadow: 0 14px 28px rgba(81, 34, 143, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.36);
+  filter: saturate(1.02);
+  box-shadow: 0 14px 28px rgba(95, 31, 163, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 button.btn-glass:active {
   transform: translateY(0);
-  box-shadow: 0 8px 18px rgba(81, 34, 143, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 16px rgba(95, 31, 163, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
 button.btn-glass:focus-visible {
-  outline: 2px solid rgba(118, 38, 198, 0.42);
+  outline: 2px solid rgba(118, 38, 198, 0.32);
   outline-offset: 2px;
 }
 
 .app-shell h1 {
   letter-spacing: -0.025em;
-  font-weight: 650;
-  line-height: 1.15;
+  font-weight: 600;
+  line-height: 1.1;
 }
 
 .app-shell h2 {
   letter-spacing: -0.018em;
-  font-weight: 620;
+  font-weight: 600;
   line-height: 1.2;
 }
 
@@ -2459,10 +2469,13 @@ button.btn-glass:focus-visible {
 .app-shell :is(div, section, article)[class*="bg-white"][class*="border"][class*="rounded"] {
   background: linear-gradient(180deg, var(--surface-glass-strong) 0%, var(--surface-glass) 100%);
   border-color: var(--surface-border);
-  box-shadow: var(--ui-shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  box-shadow: var(--ui-shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(9px) saturate(120%);
   -webkit-backdrop-filter: blur(9px) saturate(120%);
-  transition: box-shadow 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
+  transition:
+    box-shadow var(--ui-duration-hover) ease,
+    border-color var(--ui-duration-hover) ease,
+    background-color var(--ui-duration-hover) ease;
 }
 
 .app-shell :is(div, section, article)[class*="bg-white"][class*="border"][class*="rounded-xl"],
@@ -2472,22 +2485,25 @@ button.btn-glass:focus-visible {
 }
 
 .app-shell :is(div, section, article)[class*="bg-white"][class*="border"][class*="rounded"]:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--ui-shadow-float), inset 0 1px 0 rgba(255, 255, 255, 0.66);
+  border-color: var(--surface-border-strong);
+  box-shadow: var(--ui-shadow-float), inset 0 1px 0 rgba(255, 255, 255, 0.76);
 }
 
 .app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .app-shell select,
 .app-shell textarea {
-  background-color: rgba(255, 255, 255, 0.92);
-  border-color: rgba(148, 163, 184, 0.36);
+  background-color: rgba(255, 255, 255, 0.98);
+  border-color: rgba(148, 163, 184, 0.28);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 2px rgba(15, 23, 42, 0.04);
   border-radius: var(--ui-radius-sm);
-  min-height: 44px;
+  min-height: 48px;
   background-clip: padding-box;
   outline: none;
   outline-offset: 0;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+  transition:
+    border-color var(--ui-duration-hover) ease,
+    box-shadow var(--ui-duration-hover) ease,
+    background-color var(--ui-duration-hover) ease;
 }
 
 .app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
@@ -2506,7 +2522,7 @@ button.btn-glass:focus-visible {
 }
 
 .app-shell button.btn-glass[class*="px-"] {
-  min-height: 46px;
+  min-height: 48px;
   border-radius: var(--ui-radius-sm);
   padding-left: 1.15rem;
   padding-right: 1.15rem;
@@ -2514,6 +2530,12 @@ button.btn-glass:focus-visible {
 
 .app-shell button:not(.btn-glass) {
   border-radius: var(--ui-radius-sm);
+  transition:
+    background-color var(--ui-duration-hover) ease,
+    border-color var(--ui-duration-hover) ease,
+    color var(--ui-duration-hover) ease,
+    box-shadow var(--ui-duration-hover) ease,
+    transform var(--ui-duration-micro) ease;
 }
 
 .app-shell button svg {
@@ -2522,15 +2544,19 @@ button.btn-glass:focus-visible {
 }
 
 .app-shell table thead {
-  background: rgba(248, 250, 252, 0.78);
+  background: rgba(248, 250, 252, 0.92);
 }
 
 .app-shell table th {
   letter-spacing: 0.02em;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #64748b;
 }
 
 .app-shell table tr {
   border-color: rgba(148, 163, 184, 0.2);
+  min-height: 48px;
 }
 
 .ticketing-modal-overlay {
@@ -2627,33 +2653,33 @@ button.btn-glass:focus-visible {
 }
 
 .motion-page {
-  animation: ui-fade-up 420ms var(--ui-ease-out) both;
+  animation: ui-fade-up var(--ui-duration-modal) var(--ui-ease-out) both;
 }
 
 .motion-row {
-  animation: ui-fade-up 500ms var(--ui-ease-out) both;
+  animation: ui-fade-up var(--ui-duration-modal) var(--ui-ease-out) both;
 }
 
 .motion-pop {
   transform-origin: top right;
-  animation: ui-pop 220ms var(--ui-ease-out) both;
+  animation: ui-pop var(--ui-duration-modal) var(--ui-ease-out) both;
 }
 
 .motion-stagger > * {
   opacity: 0;
-  animation: ui-fade-up 520ms var(--ui-ease-out) both;
+  animation: ui-fade-up var(--ui-duration-modal) var(--ui-ease-out) both;
 }
 
-.motion-stagger > *:nth-child(1) { animation-delay: 40ms; }
-.motion-stagger > *:nth-child(2) { animation-delay: 80ms; }
-.motion-stagger > *:nth-child(3) { animation-delay: 120ms; }
-.motion-stagger > *:nth-child(4) { animation-delay: 160ms; }
-.motion-stagger > *:nth-child(5) { animation-delay: 200ms; }
-.motion-stagger > *:nth-child(6) { animation-delay: 240ms; }
-.motion-stagger > *:nth-child(7) { animation-delay: 280ms; }
-.motion-stagger > *:nth-child(8) { animation-delay: 320ms; }
-.motion-stagger > *:nth-child(9) { animation-delay: 360ms; }
-.motion-stagger > *:nth-child(10) { animation-delay: 400ms; }
+.motion-stagger > *:nth-child(1) { animation-delay: 24ms; }
+.motion-stagger > *:nth-child(2) { animation-delay: 48ms; }
+.motion-stagger > *:nth-child(3) { animation-delay: 72ms; }
+.motion-stagger > *:nth-child(4) { animation-delay: 96ms; }
+.motion-stagger > *:nth-child(5) { animation-delay: 120ms; }
+.motion-stagger > *:nth-child(6) { animation-delay: 144ms; }
+.motion-stagger > *:nth-child(7) { animation-delay: 168ms; }
+.motion-stagger > *:nth-child(8) { animation-delay: 192ms; }
+.motion-stagger > *:nth-child(9) { animation-delay: 216ms; }
+.motion-stagger > *:nth-child(10) { animation-delay: 240ms; }
 
 @media (prefers-reduced-motion: reduce) {
   .motion-page,
@@ -2696,7 +2722,7 @@ button.btn-glass:focus-visible {
 .ui-state-block {
   border: 1px dashed var(--ui-state-border);
   background: var(--ui-state-surface);
-  border-radius: 12px;
+  border-radius: var(--ui-radius-subcard);
   color: var(--ui-state-text);
   display: flex;
   flex-direction: column;
@@ -2716,17 +2742,155 @@ button.btn-glass:focus-visible {
   font-size: 0.9rem;
 }
 
+.ui-page {
+  min-height: 100%;
+  padding: 32px;
+}
+
+.ui-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.ui-page-title {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: #111827;
+}
+
+.ui-page-subtitle {
+  margin-top: 8px;
+  max-width: 46rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.ui-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.ui-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #111827;
+}
+
+.ui-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #111827;
+}
+
+.ui-card-subtitle,
+.ui-meta-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #6b7280;
+}
+
+.ui-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+  transition:
+    background-color var(--ui-duration-hover) ease,
+    border-color var(--ui-duration-hover) ease,
+    color var(--ui-duration-hover) ease,
+    box-shadow var(--ui-duration-hover) ease;
+}
+
+.ui-chip:hover {
+  border-color: rgba(148, 163, 184, 0.34);
+  background: #fff;
+  color: #111827;
+}
+
+.ui-chip.is-active {
+  border-color: rgba(118, 38, 198, 0.18);
+  background: rgba(118, 38, 198, 0.08);
+  color: var(--brand-600);
+  box-shadow: inset 0 0 0 1px rgba(118, 38, 198, 0.08);
+}
+
+.ui-icon-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.96);
+  color: #475569;
+}
+
+.ui-icon-tile--brand {
+  background: rgba(118, 38, 198, 0.08);
+  color: var(--brand-600);
+}
+
+.ui-menu-panel {
+  border: 1px solid var(--surface-border);
+  border-radius: var(--ui-radius-subcard);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.ui-progress-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: rgba(226, 232, 240, 0.92);
+}
+
+.ui-progress-indicator {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #7b31cc 0%, #6d28d9 100%);
+}
+
+.ui-toolbar-select {
+  min-width: 12rem;
+  background-color: rgba(255, 255, 255, 0.98);
+}
+
 .ui-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
   border: 1px solid transparent;
-  border-radius: 12px;
-  font-size: 0.92rem;
+  border-radius: var(--ui-radius-sm);
+  font-size: 0.875rem;
   font-weight: 600;
   line-height: 1;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  transition:
+    transform var(--ui-duration-micro) ease,
+    box-shadow var(--ui-duration-hover) ease,
+    background-color var(--ui-duration-hover) ease,
+    color var(--ui-duration-hover) ease,
+    border-color var(--ui-duration-hover) ease;
   cursor: pointer;
 }
 
@@ -2741,8 +2905,8 @@ button.btn-glass:focus-visible {
 
 .ui-button--default {
   color: #fff;
-  background: linear-gradient(145deg, rgba(145, 86, 220, 0.96) 0%, rgba(118, 38, 198, 0.98) 58%, rgba(95, 31, 163, 1) 100%);
-  box-shadow: 0 14px 32px rgba(95, 31, 163, 0.28);
+  background: linear-gradient(180deg, #7b31cc 0%, #6d28d9 100%);
+  box-shadow: 0 10px 24px rgba(95, 31, 163, 0.16);
 }
 
 .ui-button--destructive {
@@ -2751,14 +2915,14 @@ button.btn-glass:focus-visible {
 }
 
 .ui-button--outline {
-  color: #312e81;
-  background: rgba(255, 255, 255, 0.84);
-  border-color: rgba(148, 163, 184, 0.4);
+  color: #334155;
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(148, 163, 184, 0.24);
 }
 
 .ui-button--secondary {
-  color: #1f2937;
-  background: rgba(226, 232, 240, 0.95);
+  color: #334155;
+  background: rgba(241, 245, 249, 0.96);
 }
 
 .ui-button--ghost {
@@ -2779,13 +2943,13 @@ button.btn-glass:focus-visible {
 }
 
 .ui-button--size-default {
-  min-height: 42px;
-  padding: 0.85rem 1rem;
+  min-height: 48px;
+  padding: 0.875rem 1rem;
 }
 
 .ui-button--size-sm {
-  min-height: 38px;
-  padding: 0.72rem 0.9rem;
+  min-height: 40px;
+  padding: 0.75rem 0.9rem;
 }
 
 .ui-button--size-lg {
@@ -2794,8 +2958,8 @@ button.btn-glass:focus-visible {
 }
 
 .ui-button--size-icon {
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   padding: 0;
 }
 
@@ -2857,11 +3021,12 @@ button.btn-glass:focus-visible {
 }
 
 .ui-tabs-list {
-  background: #f4ecfb;
+  background: rgba(241, 245, 249, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.16);
 }
 
 .ui-tabs-trigger {
-  color: #4b5563;
+  color: #64748b;
 }
 
 .ui-tabs-trigger:hover {
@@ -2876,17 +3041,17 @@ button.btn-glass:focus-visible {
   width: 2.25rem;
   height: 3px;
   border-radius: 9999px;
-  background: #5a189a;
+  background: #6d28d9;
   transform: translateX(-50%);
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--ui-duration-hover) ease;
 }
 
 .ui-tabs-trigger[data-state="active"] {
   background: #fff;
-  color: #5a189a;
+  color: #4c1d95;
   font-weight: 600;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 
 .ui-tabs-trigger[data-state="active"]::after {
@@ -3635,7 +3800,7 @@ button.btn-glass:focus-visible {
   display: flex;
   flex-shrink: 0;
   height: 100vh;
-  transition: width 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: width var(--ui-duration-modal) var(--ui-ease-out);
 }
 
 .georim-sidebar-primary {
@@ -3645,9 +3810,9 @@ button.btn-glass:focus-visible {
   width: 16rem;
   flex-direction: column;
   background:
-    linear-gradient(180deg, rgba(8, 6, 32, 0.98) 0%, rgba(5, 3, 27, 1) 34%, rgba(11, 6, 38, 0.98) 100%);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 24px 40px rgba(5, 3, 27, 0.28);
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(15, 23, 42, 1) 34%, rgba(17, 24, 39, 0.98) 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.18);
   overflow: hidden;
 }
 
@@ -3675,18 +3840,18 @@ button.btn-glass:focus-visible {
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  background: linear-gradient(145deg, rgba(145, 86, 220, 0.96) 0%, rgba(118, 38, 198, 0.98) 58%, rgba(95, 31, 163, 1) 100%);
+  background: linear-gradient(180deg, #7b31cc 0%, #6d28d9 100%);
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow: 0 12px 26px rgba(81, 34, 143, 0.4), 0 0 0 4px rgba(5, 3, 27, 0.5);
+  box-shadow: 0 10px 22px rgba(95, 31, 163, 0.28), 0 0 0 4px rgba(15, 23, 42, 0.42);
 }
 
 .georim-sidebar-primary__toggle-arrow {
   font-size: 0.98rem;
   line-height: 1;
   flex-shrink: 0;
-  transition: transform 220ms ease, opacity 220ms ease;
-  filter: drop-shadow(0 1px 1px rgba(5, 3, 27, 0.45));
+  transition: transform var(--ui-duration-hover) ease, opacity var(--ui-duration-hover) ease;
+  filter: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.35));
 }
 
 .georim-sidebar-primary__toggle-arrow.is-collapsed {
@@ -3734,12 +3899,16 @@ button.btn-glass:focus-visible {
   gap: 0.75rem;
   padding: 0.82rem 0.85rem;
   border-radius: 1rem;
-  color: rgba(226, 232, 240, 0.84);
-  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+  color: rgba(226, 232, 240, 0.78);
+  transition:
+    background-color var(--ui-duration-hover) ease,
+    color var(--ui-duration-hover) ease,
+    transform var(--ui-duration-micro) ease,
+    box-shadow var(--ui-duration-hover) ease;
 }
 
 .georim-sidebar-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
   color: #fff;
   transform: translateX(1px);
 }
@@ -3747,9 +3916,9 @@ button.btn-glass:focus-visible {
 .georim-sidebar-item.is-active,
 .georim-sidebar-item.is-open {
   background:
-    linear-gradient(145deg, rgba(145, 86, 220, 0.22) 0%, rgba(118, 38, 198, 0.34) 100%);
+    linear-gradient(180deg, rgba(118, 38, 198, 0.18) 0%, rgba(118, 38, 198, 0.24) 100%);
   color: #fff;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 8px 18px rgba(53, 24, 90, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 8px 18px rgba(15, 23, 42, 0.16);
 }
 
 .georim-sidebar-item.is-danger:hover {
@@ -3809,9 +3978,9 @@ button.btn-glass:focus-visible {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 1.15rem;
   background:
-    radial-gradient(260px 160px at top right, rgba(118, 38, 198, 0.18) 0%, rgba(118, 38, 198, 0) 68%),
-    linear-gradient(145deg, rgba(36, 18, 63, 0.96) 0%, rgba(21, 12, 41, 0.98) 56%, rgba(31, 13, 58, 0.96) 100%);
-  box-shadow: 0 18px 28px rgba(5, 3, 27, 0.3);
+    radial-gradient(260px 160px at top right, rgba(118, 38, 198, 0.16) 0%, rgba(118, 38, 198, 0) 68%),
+    linear-gradient(180deg, rgba(30, 41, 59, 0.96) 0%, rgba(15, 23, 42, 0.98) 100%);
+  box-shadow: 0 14px 24px rgba(15, 23, 42, 0.22);
 }
 
 .georim-sidebar-download__title {
@@ -3837,7 +4006,7 @@ button.btn-glass:focus-visible {
   margin-top: 0.9rem;
   padding: 0.72rem 0.95rem;
   border-radius: 0.9rem;
-  background: linear-gradient(145deg, rgba(145, 86, 220, 0.96) 0%, rgba(118, 38, 198, 0.98) 58%, rgba(95, 31, 163, 1) 100%);
+  background: linear-gradient(180deg, #7b31cc 0%, #6d28d9 100%);
   color: #fff;
   font-size: 0.86rem;
   font-weight: 600;
@@ -3864,15 +4033,15 @@ button.btn-glass:focus-visible {
   flex-direction: column;
   padding: 1rem 0.95rem 1rem 1rem;
   background:
-    linear-gradient(180deg, rgba(18, 10, 45, 0.96) 0%, rgba(13, 8, 34, 0.98) 100%);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+    linear-gradient(180deg, rgba(17, 24, 39, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
   border-left: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 12px 0 32px rgba(5, 3, 27, 0.18);
+  box-shadow: 12px 0 28px rgba(15, 23, 42, 0.14);
   opacity: 0;
   transform: translateX(-0.85rem);
   pointer-events: none;
   overflow: hidden;
-  transition: opacity 220ms ease, transform 220ms ease;
+  transition: opacity var(--ui-duration-modal) ease, transform var(--ui-duration-modal) ease;
 }
 
 .georim-sidebar-secondary.is-open {
