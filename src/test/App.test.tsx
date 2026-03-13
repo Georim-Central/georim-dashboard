@@ -2,8 +2,18 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import userEvent from '@testing-library/user-event';
 import App from '../App';
 import { EventManagement } from '../components/EventManagement';
+import { SUBSCRIPTION_STORAGE_KEY } from '../lib/subscription-access';
+
+function renderAppWithTier(tier: 'free' | 'premium' | 'business' = 'free') {
+  window.localStorage.setItem(SUBSCRIPTION_STORAGE_KEY, tier);
+  return render(<App />);
+}
 
 describe('App core flows', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
   it('navigates from dashboard to event creation', async () => {
     const user = userEvent.setup();
     render(<App />);
@@ -75,7 +85,7 @@ describe('App core flows', () => {
 
   it('opens the notification center from the bell and routes into linked organizer workflows', async () => {
     const user = userEvent.setup();
-    render(<App />);
+    renderAppWithTier('premium');
 
     await user.click(screen.getByRole('button', { name: /open notifications/i }));
     await user.click(await screen.findByRole('button', { name: /view all notifications/i }));
@@ -89,9 +99,61 @@ describe('App core flows', () => {
     expect(screen.getByRole('heading', { name: /orders & registration/i })).toBeInTheDocument();
   });
 
-  it('navigates from global search results into organizer event operations', async () => {
+  it('keeps top-bar and notification-center activity limited to free-tier notifications', async () => {
     const user = userEvent.setup();
     render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /open notifications/i }));
+    const notificationPanel = await screen.findByRole('dialog', { name: /notifications/i });
+
+    expect(within(notificationPanel).getByText(/^milestone$/i)).toBeInTheDocument();
+    expect(within(notificationPanel).queryByText(/^order$/i)).not.toBeInTheDocument();
+    expect(within(notificationPanel).queryByText(/^finance$/i)).not.toBeInTheDocument();
+    expect(within(notificationPanel).queryByText(/^team$/i)).not.toBeInTheDocument();
+
+    await user.click(within(notificationPanel).getByRole('button', { name: /view all notifications/i }));
+
+    expect(await screen.findByRole('heading', { name: /notification center/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /all activity/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^unread$/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^orders$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^finance$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^team$/i })).not.toBeInTheDocument();
+  });
+
+  it('reveals premium and business notification filters only at the matching tiers', async () => {
+    const premiumUser = userEvent.setup();
+    const premiumView = renderAppWithTier('premium');
+
+    await premiumUser.click(screen.getByRole('button', { name: /open notifications/i }));
+    await premiumUser.click(await screen.findByRole('button', { name: /view all notifications/i }));
+
+    const premiumFeed = screen.getByRole('heading', { name: /activity feed/i }).closest('section');
+    expect(premiumFeed).not.toBeNull();
+
+    expect(await within(premiumFeed!).findByRole('button', { name: /^orders$/i })).toBeInTheDocument();
+    expect(within(premiumFeed!).getByRole('button', { name: /^tickets$/i })).toBeInTheDocument();
+    expect(within(premiumFeed!).getByRole('button', { name: /^marketing$/i })).toBeInTheDocument();
+    expect(within(premiumFeed!).getByRole('button', { name: /^finance$/i })).toBeInTheDocument();
+    expect(within(premiumFeed!).queryByRole('button', { name: /^team$/i })).not.toBeInTheDocument();
+
+    premiumView.unmount();
+
+    const businessUser = userEvent.setup();
+    window.localStorage.clear();
+    renderAppWithTier('business');
+
+    await businessUser.click(screen.getByRole('button', { name: /open notifications/i }));
+    await businessUser.click(await screen.findByRole('button', { name: /view all notifications/i }));
+
+    const businessFeed = screen.getByRole('heading', { name: /activity feed/i }).closest('section');
+    expect(businessFeed).not.toBeNull();
+    expect(await within(businessFeed!).findByRole('button', { name: /^team$/i })).toBeInTheDocument();
+  }, 15000);
+
+  it('navigates from global search results into organizer event operations', async () => {
+    const user = userEvent.setup();
+    renderAppWithTier('premium');
 
     await user.type(screen.getByLabelText(/search events, orders, attendees, and team/i), '5847239');
     await user.click(await screen.findByRole('button', { name: /order #5847239/i }));
@@ -102,7 +164,7 @@ describe('App core flows', () => {
 
   it('duplicates events from the dashboard and updates lifecycle in event management', async () => {
     const user = userEvent.setup();
-    render(<App />);
+    renderAppWithTier('premium');
 
     await user.click(screen.getByRole('button', { name: /quick actions for tech conference 2026/i }));
     await user.click(screen.getByRole('button', { name: /duplicate tech conference 2026/i }));
@@ -131,7 +193,7 @@ describe('App core flows', () => {
 
   it('opens the team management workspace with permissions and invite tracking', async () => {
     const user = userEvent.setup();
-    render(<App />);
+    renderAppWithTier('business');
 
     await user.click(screen.getByRole('button', { name: /^team$/i }));
 
@@ -142,7 +204,7 @@ describe('App core flows', () => {
 
   it('renders the finance page with payment summary above finance activity', async () => {
     const user = userEvent.setup();
-    render(<App />);
+    renderAppWithTier('premium');
 
     await user.click(screen.getByRole('button', { name: /^finance$/i }));
 
@@ -166,7 +228,7 @@ describe('App core flows', () => {
 
   it('routes dashboard support buttons into live organizer workflows', async () => {
     const user = userEvent.setup();
-    render(<App />);
+    renderAppWithTier('business');
 
     await user.click(screen.getByRole('button', { name: /add member/i }));
     const inviteDialog = await screen.findByRole('dialog', { name: /invite team member/i });
@@ -253,13 +315,25 @@ describe('App core flows', () => {
     expect(screen.getByText(/recent transactions/i)).toBeInTheDocument();
   });
 
-  it('does not show a premium subscriptions settings section', async () => {
+  it('shows the subscriptions settings section and updates the active tier', async () => {
     const user = userEvent.setup();
     render(<App />);
 
     await user.click(screen.getByRole('button', { name: /^settings$/i }));
+    await user.click(await screen.findByRole('button', { name: /^subscriptions$/i }));
 
-    expect(screen.queryByRole('button', { name: /premium subscriptions/i })).not.toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /^subscriptions$/i })).toBeInTheDocument();
+    const premiumTierButton = screen
+      .getAllByRole('button')
+      .find((button) => within(button).queryByText(/^Premium$/i));
+
+    expect(premiumTierButton).toBeDefined();
+    expect(premiumTierButton).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(premiumTierButton!);
+
+    expect(premiumTierButton).toHaveAttribute('aria-pressed', 'true');
+    expect(window.localStorage.getItem(SUBSCRIPTION_STORAGE_KEY)).toBe('premium');
   });
 
   it('adds and selects a new payment method from settings payments', async () => {
@@ -290,5 +364,30 @@ describe('App core flows', () => {
     expect(screen.getByRole('heading', { name: /delivery channels/i })).toBeInTheDocument();
     expect(screen.getByRole('switch', { name: /email notifications/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /quiet hours/i })).toBeInTheDocument();
+  });
+
+  it('defaults to free and hides premium and business navigation surfaces', () => {
+    render(<App />);
+
+    expect(screen.queryByRole('button', { name: /^analytics$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^finance$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^team$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /platform activity/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /team collaboration/i })).not.toBeInTheDocument();
+  });
+
+  it('redirects back to dashboard when the active tier is lowered below the current view', async () => {
+    const user = userEvent.setup();
+    renderAppWithTier('premium');
+
+    await user.click(screen.getByRole('button', { name: /^analytics$/i }));
+    expect(await screen.findByText(/revenue attribution/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /^settings$/i }));
+    await user.click(await screen.findByRole('button', { name: /^subscriptions$/i }));
+    await user.click(screen.getByRole('button', { name: /^free$/i }));
+
+    expect(await screen.findByRole('heading', { name: /welcome john/i })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /^analytics$/i })).not.toBeInTheDocument();
   });
 });

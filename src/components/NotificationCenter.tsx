@@ -10,9 +10,17 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 
+import {
+  canOpenNotificationWorkflow,
+  getAllowedNotificationFeedFilters,
+  getAllowedNotificationSummaryCards,
+  notificationSummaryCardDetails,
+} from '@/lib/subscription-access';
+import { SubscriptionTier } from '@/types/navigation';
 import { OrganizerNotification } from '@/types/notifications';
 
 type NotificationCenterProps = {
+  activeTier: SubscriptionTier;
   notifications: OrganizerNotification[];
   onMarkAllRead: () => void;
   onToggleRead: (notificationId: string) => void;
@@ -20,18 +28,6 @@ type NotificationCenterProps = {
   onOpenNotification: (notification: OrganizerNotification) => void;
   onOpenPreferences: () => void;
 };
-
-type FeedFilter = 'all' | 'unread' | 'order' | 'ticket' | 'marketing' | 'finance' | 'team';
-
-const feedFilters: Array<{ id: FeedFilter; label: string }> = [
-  { id: 'all', label: 'All activity' },
-  { id: 'unread', label: 'Unread' },
-  { id: 'order', label: 'Orders' },
-  { id: 'ticket', label: 'Tickets' },
-  { id: 'marketing', label: 'Marketing' },
-  { id: 'finance', label: 'Finance' },
-  { id: 'team', label: 'Team' },
-];
 
 const getCategoryIcon = (category: OrganizerNotification['category']) => {
   if (category === 'order') return Receipt;
@@ -60,6 +56,7 @@ const getPriorityLabel = (priority: OrganizerNotification['priority']) => {
 };
 
 export function NotificationCenter({
+  activeTier,
   notifications,
   onMarkAllRead,
   onToggleRead,
@@ -67,10 +64,26 @@ export function NotificationCenter({
   onOpenNotification,
   onOpenPreferences,
 }: NotificationCenterProps) {
-  const [filter, setFilter] = useState<FeedFilter>('all');
+  const allowedFeedFilters = useMemo(
+    () => getAllowedNotificationFeedFilters(activeTier),
+    [activeTier]
+  );
+  const allowedSummaryCards = useMemo(
+    () => getAllowedNotificationSummaryCards(activeTier),
+    [activeTier]
+  );
+  const [filter, setFilter] = useState(allowedFeedFilters[0]?.id ?? 'all');
   const [selectedNotificationId, setSelectedNotificationId] = useState<string | null>(
     notifications[0]?.id ?? null
   );
+
+  useEffect(() => {
+    if (allowedFeedFilters.some((feedFilter) => feedFilter.id === filter)) {
+      return;
+    }
+
+    setFilter(allowedFeedFilters[0]?.id ?? 'all');
+  }, [allowedFeedFilters, filter]);
 
   const filteredNotifications = useMemo(() => {
     if (filter === 'all') return notifications;
@@ -100,6 +113,12 @@ export function NotificationCenter({
   const todayCount = notifications.filter((n) =>
     ['5m ago', '12m ago', '18m ago', '42m ago', '1h ago', '2h ago'].includes(n.timeLabel)
   ).length;
+  const summaryCardValues = {
+    unread: unreadCount,
+    urgent: urgentCount,
+    finance: financeCount,
+    today: todayCount,
+  };
 
   return (
     <div className="ui-page motion-page">
@@ -134,17 +153,12 @@ export function NotificationCenter({
 
         {/* Metric strip — gap-6 (24px) per card gap rule */}
         <div className="grid grid-cols-4 gap-6 motion-stagger">
-          {[
-            { label: 'Unread',  value: unreadCount,  sub: 'Awaiting review' },
-            { label: 'Urgent',  value: urgentCount,  sub: 'High-priority alerts' },
-            { label: 'Finance', value: financeCount, sub: 'Payout & billing notices' },
-            { label: 'Today',   value: todayCount,   sub: 'Activity last few hours' },
-          ].map((stat) => (
+          {allowedSummaryCards.map((card) => (
             /* Card: 28px radius, 24px padding, gray-200 border — per card system rules */
-            <div key={stat.label} className="rounded-[28px] border border-gray-200 bg-white p-6">
-              <p className="ui-meta-text mb-3">{stat.label}</p>
-              <p className="text-3xl font-semibold tracking-tight text-gray-900">{stat.value}</p>
-              <p className="mt-2 text-xs text-gray-500">{stat.sub}</p>
+            <div key={card} className="rounded-[28px] border border-gray-200 bg-white p-6">
+              <p className="ui-meta-text mb-3">{notificationSummaryCardDetails[card].label}</p>
+              <p className="text-3xl font-semibold tracking-tight text-gray-900">{summaryCardValues[card]}</p>
+              <p className="mt-2 text-xs text-gray-500">{notificationSummaryCardDetails[card].sub}</p>
             </div>
           ))}
         </div>
@@ -167,7 +181,7 @@ export function NotificationCenter({
               </div>
               {/* Filters — 8px gap (text spacing) */}
               <div className="flex flex-wrap gap-2">
-                {feedFilters.map((feedFilter) => (
+                {allowedFeedFilters.map((feedFilter) => (
                   <button
                     key={feedFilter.id}
                     type="button"
@@ -306,7 +320,7 @@ export function NotificationCenter({
 
                 {/* Action buttons — 8px gap (text spacing) */}
                 <div className="flex flex-wrap gap-2">
-                  {selectedNotification.target && (
+                  {canOpenNotificationWorkflow(activeTier, selectedNotification) && (
                     <button
                       type="button"
                       onClick={() => onOpenNotification(selectedNotification)}

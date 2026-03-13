@@ -1,11 +1,14 @@
 import { Plus, Calendar, MapPin, Users, DollarSign, TrendingUp, MoreVertical, ArrowRight, Ticket, Copy, Archive, Eye } from 'lucide-react';
 import { KeyboardEvent, useEffect, useMemo, useState } from 'react';
+import { isDashboardFeatureAllowed } from '@/lib/subscription-access';
 import { ContentState } from './ui/ContentState';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
 import { EventLifecycleStatus, EventSummary } from '../types/event';
+import { SubscriptionTier } from '../types/navigation';
 
 interface DashboardProps {
+  activeTier: SubscriptionTier;
   events: EventSummary[];
   onCreateEvent: () => void;
   onEventSelect: (eventId: string, eventName?: string) => void;
@@ -144,9 +147,11 @@ function getEventStatusBadgeClass(status: EventLifecycleStatus) {
 }
 
 function TeamCollaborationCard({
+  showActions,
   onViewTeam,
   onInviteTeamMember,
 }: {
+  showActions: boolean;
   onViewTeam: () => void;
   onInviteTeamMember: () => void;
 }) {
@@ -154,10 +159,12 @@ function TeamCollaborationCard({
     <div className="overflow-hidden rounded-[28px] border border-gray-200 bg-white">
       <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-3">
         <h2 className="ui-card-title">Team Collaboration</h2>
-        <Button type="button" variant="outline" size="sm" className="gap-1.5 text-sm" onClick={onInviteTeamMember}>
-          <Plus className="w-4 h-4" />
-          Add Member
-        </Button>
+        {showActions ? (
+          <Button type="button" variant="outline" size="sm" className="gap-1.5 text-sm" onClick={onInviteTeamMember}>
+            <Plus className="w-4 h-4" />
+            Add Member
+          </Button>
+        ) : null}
       </div>
 
       <div className="divide-y divide-gray-200">
@@ -181,21 +188,24 @@ function TeamCollaborationCard({
         ))}
       </div>
 
-      <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
-        <button
-          type="button"
-          onClick={onViewTeam}
-          className="flex items-center gap-1 text-sm font-medium text-[#5f1fa3] hover:text-[#4d1c84]"
-        >
-          View more
-          <ArrowRight className="w-4 h-4" />
-        </button>
-      </div>
+      {showActions ? (
+        <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={onViewTeam}
+            className="flex items-center gap-1 text-sm font-medium text-[#5f1fa3] hover:text-[#4d1c84]"
+          >
+            View more
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
 
 export function Dashboard({
+  activeTier,
   events,
   onCreateEvent,
   onEventSelect,
@@ -252,6 +262,10 @@ export function Dashboard({
   const totalRevenue = events.reduce((sum, eventSummary) => sum + eventSummary.revenue, 0);
   const totalAttendees = events.reduce((sum, eventSummary) => sum + eventSummary.ticketsSold, 0);
   const publishedCount = events.filter((eventSummary) => eventSummary.status === 'published').length;
+  const showPlatformActivity = isDashboardFeatureAllowed(activeTier, 'platform-activity');
+  const showTeamCollaboration = isDashboardFeatureAllowed(activeTier, 'team-collaboration');
+  const showTeamCollaborationActions = isDashboardFeatureAllowed(activeTier, 'team-collaboration-actions');
+  const canOpenEvents = isDashboardFeatureAllowed(activeTier, 'event-open-entry');
   const stats = [
     { label: 'Total Events', value: String(events.length), icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50' },
     { label: 'Total Attendees', value: totalAttendees.toLocaleString(), icon: Users, color: 'text-green-600', bg: 'bg-green-50' },
@@ -301,58 +315,59 @@ export function Dashboard({
         </ContentState>
       </div>
 
-      {/* Platform Activity Summary */}
-      <div className="mb-8 motion-row">
-        <div className="ui-section-header">
-          <h2 className="ui-section-title">Platform Activity</h2>
-          <span className="text-sm text-gray-600">Live updates across all events</span>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 motion-stagger">
-          <ContentState
-            isLoading={isLoading}
-            error={dataError}
-            isEmpty={platformActivity.length === 0}
-            emptyMessage="No platform activity available."
-            className="col-span-full py-14"
-          >
-            {platformActivity.map((activity, index) => {
-              const Icon = activity.icon;
-              return (
-                <div
-                  key={index}
-                  className="group cursor-pointer rounded-[22px] border border-gray-200 bg-white p-5"
-                >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className={`ui-icon-tile h-10 w-10 rounded-2xl ${activity.bg} ${activity.color}`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="ui-card-title text-gray-700">{activity.title}</h3>
-                        <ArrowRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+      {showPlatformActivity ? (
+        <div className="mb-8 motion-row">
+          <div className="ui-section-header">
+            <h2 className="ui-section-title">Platform Activity</h2>
+            <span className="text-sm text-gray-600">Live updates across all events</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 motion-stagger">
+            <ContentState
+              isLoading={isLoading}
+              error={dataError}
+              isEmpty={platformActivity.length === 0}
+              emptyMessage="No platform activity available."
+              className="col-span-full py-14"
+            >
+              {platformActivity.map((activity, index) => {
+                const Icon = activity.icon;
+                return (
+                  <div
+                    key={index}
+                    className="group cursor-pointer rounded-[22px] border border-gray-200 bg-white p-5"
+                  >
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className={`ui-icon-tile h-10 w-10 rounded-2xl ${activity.bg} ${activity.color}`}>
+                        <Icon className="w-5 h-5" />
                       </div>
-                      <p className="text-lg font-semibold text-gray-900">{activity.value}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="ui-card-title text-gray-700">{activity.title}</h3>
+                          <ArrowRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                        <p className="text-lg font-semibold text-gray-900">{activity.value}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className="ui-meta-text text-gray-600">{activity.description}</p>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        activity.badge === 'Action Needed'
+                          ? 'bg-rose-50 text-rose-700'
+                          : activity.badge === 'Live'
+                          ? 'bg-emerald-50 text-emerald-700'
+                          : 'bg-blue-50 text-blue-700'
+                      }`}>
+                        {activity.badge}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <p className="ui-meta-text text-gray-600">{activity.description}</p>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      activity.badge === 'Action Needed'
-                        ? 'bg-rose-50 text-rose-700'
-                        : activity.badge === 'Live'
-                        ? 'bg-emerald-50 text-emerald-700'
-                        : 'bg-blue-50 text-blue-700'
-                    }`}>
-                      {activity.badge}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </ContentState>
+                );
+              })}
+            </ContentState>
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {/* Two Column Layout: Events + Activity Feed */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 motion-row">
@@ -363,7 +378,11 @@ export function Dashboard({
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <h2 className="ui-card-title">Your Events</h2>
-                  <p className="mt-1 text-sm text-gray-600">Manage lifecycle, track sales, and jump into event operations.</p>
+                  <p className="mt-1 text-sm text-gray-600">
+                    {canOpenEvents
+                      ? 'Manage lifecycle, track sales, and jump into event operations.'
+                      : 'Track lifecycle, sales, and status across your events.'}
+                  </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   {[
@@ -407,11 +426,11 @@ export function Dashboard({
                 {filteredEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="cursor-pointer p-6 transition-colors hover:bg-gray-50"
-                  onClick={() => onEventSelect(event.id, event.title)}
-                  onKeyDown={(keyEvent) => handleEventRowKeyDown(keyEvent, event.id, event.title)}
-                  role="button"
-                  tabIndex={0}
+                  className={`p-6 transition-colors ${canOpenEvents ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                  onClick={canOpenEvents ? () => onEventSelect(event.id, event.title) : undefined}
+                  onKeyDown={canOpenEvents ? (keyEvent) => handleEventRowKeyDown(keyEvent, event.id, event.title) : undefined}
+                  role={canOpenEvents ? 'button' : undefined}
+                  tabIndex={canOpenEvents ? 0 : undefined}
                 >
                   <div className="flex gap-6">
                     {/* Event Image */}
@@ -458,18 +477,20 @@ export function Dashboard({
                                 className="ui-menu-panel absolute right-0 top-11 z-10 min-w-[210px] p-2"
                                 onClick={(clickEvent) => clickEvent.stopPropagation()}
                               >
-                                <button
-                                  type="button"
-                                  aria-label={`Open ${event.title}`}
-                                  onClick={() => {
-                                    setActiveMenuEventId(null);
-                                    onEventSelect(event.id, event.title);
-                                  }}
-                                  className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                                >
-                                  <Eye className="h-4 w-4" />
-                                  Open Event
-                                </button>
+                                {canOpenEvents ? (
+                                  <button
+                                    type="button"
+                                    aria-label={`Open ${event.title}`}
+                                    onClick={() => {
+                                      setActiveMenuEventId(null);
+                                      onEventSelect(event.id, event.title);
+                                    }}
+                                    className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                    Open Event
+                                  </button>
+                                ) : null}
                                 <button
                                   type="button"
                                   aria-label={event.status === 'published' ? `Move ${event.title} to draft` : `Publish ${event.title}`}
@@ -606,7 +627,13 @@ export function Dashboard({
               </div>
             </div>
 
-            <TeamCollaborationCard onViewTeam={onViewTeam} onInviteTeamMember={onInviteTeamMember} />
+            {showTeamCollaboration ? (
+              <TeamCollaborationCard
+                showActions={showTeamCollaborationActions}
+                onViewTeam={onViewTeam}
+                onInviteTeamMember={onInviteTeamMember}
+              />
+            ) : null}
           </div>
         </div>
       </div>

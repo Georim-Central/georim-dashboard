@@ -4,7 +4,17 @@ import { Sidebar } from './components/Sidebar';
 import { SettingsPage } from './components/SettingsPage';
 import { TopBar } from './components/TopBar';
 import { ContentState } from './components/ui/ContentState';
-import { AppView, EventManagementTab, GlobalSearchResult, SettingsSection } from './types/navigation';
+import {
+  filterNotificationsByTier,
+  filterSearchResultsByTier,
+  getStoredSubscriptionTier,
+  isEventTabAllowed,
+  isNotificationAllowed,
+  isViewAllowed,
+  resolveSafeRouteForTier,
+  SUBSCRIPTION_STORAGE_KEY,
+} from './lib/subscription-access';
+import { AppView, EventManagementTab, GlobalSearchResult, SettingsSection, SubscriptionTier } from './types/navigation';
 import { OrganizerNotification } from './types/notifications';
 import { EventDraft, EventDraftUpdate, EventLifecycleStatus, EventSummary } from './types/event';
 
@@ -270,10 +280,10 @@ const seededNotifications: OrganizerNotification[] = [
     id: 'notif-preferences-digest',
     title: 'Notification digest updated',
     message: 'Your quiet hours and delivery channel preferences were changed recently. Review alert routing if team members are missing updates.',
-    timeLabel: 'Yesterday',
-    category: 'team',
+    timeLabel: '42m ago',
+    category: 'milestone',
     priority: 'low',
-    read: true,
+    read: false,
     eventLabel: 'Notification settings',
     ctaLabel: 'Open settings',
     detail: 'Preference changes can affect who receives organizer reminders and payout notices.',
@@ -308,6 +318,7 @@ export default function App() {
   }, []);
 
   const [currentView, setCurrentView] = useState<AppView>('dashboard');
+  const [activeTier, setActiveTier] = useState<SubscriptionTier>(() => getStoredSubscriptionTier());
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
   const [contextMode, setContextMode] = useState<'organization' | 'event'>('organization');
@@ -319,6 +330,44 @@ export default function App() {
   const [eventSummariesById, setEventSummariesById] = useState<Record<string, EventSummary>>(seededEventSummaries);
   const [searchQuery, setSearchQuery] = useState('');
   const [notifications, setNotifications] = useState<OrganizerNotification[]>(seededNotifications);
+
+  useEffect(() => {
+    window.localStorage.setItem(SUBSCRIPTION_STORAGE_KEY, activeTier);
+  }, [activeTier]);
+
+  const safeRoute = useMemo(
+    () =>
+      resolveSafeRouteForTier(activeTier, {
+        contextMode,
+        currentView,
+        eventManagementTab,
+        settingsSection,
+      }),
+    [activeTier, contextMode, currentView, eventManagementTab, settingsSection]
+  );
+
+  const effectiveView = safeRoute.currentView;
+  const effectiveContextMode = safeRoute.contextMode;
+  const effectiveEventManagementTab = safeRoute.eventManagementTab;
+  const effectiveSettingsSection = safeRoute.settingsSection;
+
+  useEffect(() => {
+    if (safeRoute.currentView !== currentView) {
+      setCurrentView(safeRoute.currentView);
+    }
+
+    if (safeRoute.contextMode !== contextMode) {
+      setContextMode(safeRoute.contextMode);
+    }
+
+    if (safeRoute.eventManagementTab !== eventManagementTab) {
+      setEventManagementTab(safeRoute.eventManagementTab);
+    }
+
+    if (safeRoute.settingsSection !== settingsSection) {
+      setSettingsSection(safeRoute.settingsSection);
+    }
+  }, [contextMode, currentView, eventManagementTab, safeRoute, settingsSection]);
 
   const eventSummaries = useMemo(
     () => Object.values(eventSummariesById).sort((left, right) => left.title.localeCompare(right.title)),
@@ -357,6 +406,20 @@ export default function App() {
 
     return [...eventMatches, ...orderMatches, ...attendeeMatches, ...teamMatches].slice(0, 8);
   }, [eventSummaries, searchQuery]);
+
+  const visibleSearchResults = useMemo(
+    () => filterSearchResultsByTier(activeTier, searchResults),
+    [activeTier, searchResults]
+  );
+
+  const visibleNotifications = useMemo(
+    () => filterNotificationsByTier(activeTier, notifications),
+    [activeTier, notifications]
+  );
+  const visibleNotificationIds = useMemo(
+    () => new Set(visibleNotifications.map((notification) => notification.id)),
+    [visibleNotifications]
+  );
 
   const addTeamEventOption = (eventName?: string) => {
     const normalizedEventName = eventName?.trim();
@@ -401,6 +464,10 @@ export default function App() {
   };
 
   const handleEventSelect = (eventId: string, eventName?: string) => {
+    if (!isViewAllowed(activeTier, 'event-management')) {
+      return;
+    }
+
     const selectedEventDetails = eventDetailsById[eventId];
     const resolvedEventName = selectedEventDetails?.title || eventName || 'Selected Event';
 
@@ -511,14 +578,21 @@ export default function App() {
   const handleSearchResultSelect = (result: GlobalSearchResult) => {
     setSearchQuery('');
 
-    if (result.type === 'event' && result.eventId) {
-      handleEventSelect(result.eventId, result.label);
+    const allowedResult = filterSearchResultsByTier(activeTier, [result])[0];
+    if (!allowedResult) {
+      setCurrentView('dashboard');
+      setContextMode('organization');
       return;
     }
 
-    if (result.type === 'order' && result.eventId) {
-      const resolvedEventName = eventSummariesById[result.eventId]?.title || result.label;
-      setSelectedEventId(result.eventId);
+    if (allowedResult.type === 'event' && allowedResult.eventId) {
+      handleEventSelect(allowedResult.eventId, allowedResult.label);
+      return;
+    }
+
+    if (allowedResult.type === 'order' && allowedResult.eventId) {
+      const resolvedEventName = eventSummariesById[allowedResult.eventId]?.title || allowedResult.label;
+      setSelectedEventId(allowedResult.eventId);
       setSelectedEventName(resolvedEventName);
       setContextMode('event');
       setEventManagementTab('orders');
@@ -526,9 +600,9 @@ export default function App() {
       return;
     }
 
-    if (result.type === 'attendee' && result.eventId) {
-      const resolvedEventName = eventSummariesById[result.eventId]?.title || result.label;
-      setSelectedEventId(result.eventId);
+    if (allowedResult.type === 'attendee' && allowedResult.eventId) {
+      const resolvedEventName = eventSummariesById[allowedResult.eventId]?.title || allowedResult.label;
+      setSelectedEventId(allowedResult.eventId);
       setSelectedEventName(resolvedEventName);
       setContextMode('event');
       setEventManagementTab('checked-in');
@@ -536,14 +610,14 @@ export default function App() {
       return;
     }
 
-    if (result.type === 'team') {
+    if (allowedResult.type === 'team') {
       setCurrentView('team');
       setContextMode('organization');
     }
   };
 
   const handleEventTabSelect = (tab: EventManagementTab) => {
-    if (!selectedEventId) return;
+    if (!selectedEventId || !isEventTabAllowed(activeTier, tab) || !isViewAllowed(activeTier, 'event-management')) return;
     setEventManagementTab(tab);
     setContextMode('event');
     setCurrentView('event-management');
@@ -558,6 +632,12 @@ export default function App() {
   };
 
   const openNotificationTarget = (notification: OrganizerNotification) => {
+    if (!isNotificationAllowed(activeTier, notification)) {
+      setCurrentView('dashboard');
+      setContextMode('organization');
+      return;
+    }
+
     setNotifications((currentNotifications) =>
       currentNotifications.map((currentNotification) =>
         currentNotification.id === notification.id ? { ...currentNotification, read: true } : currentNotification
@@ -605,7 +685,11 @@ export default function App() {
 
   const handleMarkAllNotificationsRead = () => {
     setNotifications((currentNotifications) =>
-      currentNotifications.map((currentNotification) => ({ ...currentNotification, read: true }))
+      currentNotifications.map((currentNotification) => (
+        visibleNotificationIds.has(currentNotification.id)
+          ? { ...currentNotification, read: true }
+          : currentNotification
+      ))
     );
   };
 
@@ -641,26 +725,27 @@ export default function App() {
   return (
     <div className="app-shell flex h-screen">
       <Sidebar
-        currentView={currentView}
+        activeTier={activeTier}
+        currentView={effectiveView}
         onViewChange={setCurrentView}
-        contextMode={contextMode}
+        contextMode={effectiveContextMode}
         onBackToOrganization={handleBackToOrganization}
         selectedEventName={selectedEventName}
-        activeEventTab={eventManagementTab}
+        activeEventTab={effectiveEventManagementTab}
         onEventTabSelect={handleEventTabSelect}
-        activeSettingsSection={settingsSection}
+        activeSettingsSection={effectiveSettingsSection}
         onSettingsSectionSelect={setSettingsSection}
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar
-          contextMode={contextMode}
-          currentView={currentView}
+          contextMode={effectiveContextMode}
+          currentView={effectiveView}
           searchQuery={searchQuery}
           onSearchQueryChange={setSearchQuery}
-          searchResults={searchResults}
+          searchResults={visibleSearchResults}
           onSearchResultSelect={handleSearchResultSelect}
-          notifications={notifications}
+          notifications={visibleNotifications}
           onMarkAllNotificationsRead={handleMarkAllNotificationsRead}
           onNotificationOpen={openNotificationTarget}
           onOpenNotificationCenter={handleOpenNotificationCenter}
@@ -677,14 +762,19 @@ export default function App() {
               </div>
             )}
           >
-            {currentView === 'dashboard' && (
+            {effectiveView === 'dashboard' && (
               <Dashboard
+                activeTier={activeTier}
                 firstName={currentUserFirstName}
                 events={eventSummaries}
                 onCreateEvent={() => setCurrentView('create-event')}
                 onEventSelect={handleEventSelect}
-                onViewTeam={() => setCurrentView('team')}
+                onViewTeam={() => {
+                  if (!isViewAllowed(activeTier, 'team')) return;
+                  setCurrentView('team');
+                }}
                 onInviteTeamMember={() => {
+                  if (!isViewAllowed(activeTier, 'team')) return;
                   setTeamInviteRequestId((current) => current + 1);
                   setContextMode('organization');
                   setCurrentView('team');
@@ -695,11 +785,12 @@ export default function App() {
                 onUpdateEventStatus={handleEventStatusChange}
               />
             )}
-            {currentView === 'create-event' && (
+            {effectiveView === 'create-event' && (
               <EventCreation onEventCreated={handleEventCreated} />
             )}
-            {currentView === 'event-management' && selectedEventId && (
+            {effectiveView === 'event-management' && selectedEventId && (
               <EventManagement
+                activeTier={activeTier}
                 eventId={selectedEventId}
                 eventName={selectedEventName}
                 eventDetails={eventDetailsById[selectedEventId]}
@@ -707,11 +798,11 @@ export default function App() {
                 onUpdateEventDetails={(updates) => handleEventDetailsUpdate(selectedEventId, updates)}
                 onUpdateEventStatus={(status) => handleEventStatusChange(selectedEventId, status)}
                 onDuplicateEvent={() => handleDuplicateEvent(selectedEventId)}
-                activeTab={eventManagementTab}
+                activeTab={effectiveEventManagementTab}
                 onTabChange={setEventManagementTab}
               />
             )}
-            {currentView === 'event-management' && !selectedEventId && (
+            {effectiveView === 'event-management' && !selectedEventId && (
               <div className="p-8">
                 <ContentState
                   isEmpty
@@ -722,18 +813,19 @@ export default function App() {
                 </ContentState>
               </div>
             )}
-            {currentView === 'analytics' && (
+            {effectiveView === 'analytics' && (
               <Analytics selectedEventId={selectedEventId} selectedEventName={selectedEventName} />
             )}
-            {currentView === 'team' && (
+            {effectiveView === 'team' && (
               <TeamManagement eventOptions={teamEventOptions} inviteRequestId={teamInviteRequestId} />
             )}
-            {currentView === 'finance' && (
+            {effectiveView === 'finance' && (
               <Finance onOpenPaymentSettings={handleOpenPaymentSettings} />
             )}
-            {currentView === 'notification-center' && (
+            {effectiveView === 'notification-center' && (
               <NotificationCenter
-                notifications={notifications}
+                activeTier={activeTier}
+                notifications={visibleNotifications}
                 onMarkAllRead={handleMarkAllNotificationsRead}
                 onToggleRead={handleToggleNotificationRead}
                 onArchive={handleArchiveNotification}
@@ -741,18 +833,22 @@ export default function App() {
                 onOpenPreferences={handleOpenNotificationPreferences}
               />
             )}
-            {currentView === 'settings' && (
-              <SettingsPage section={settingsSection} />
+            {effectiveView === 'settings' && (
+              <SettingsPage
+                activeTier={activeTier}
+                onTierChange={setActiveTier}
+                section={effectiveSettingsSection}
+              />
             )}
-            {currentView === 'help' && (
+            {effectiveView === 'help' && (
               <HelpCenter />
             )}
           </Suspense>
         </main>
       </div>
       <GlobalAIChat
-        currentView={currentView}
-        contextMode={contextMode}
+        currentView={effectiveView}
+        contextMode={effectiveContextMode}
         selectedEventName={selectedEventName}
       />
     </div>

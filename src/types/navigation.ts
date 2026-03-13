@@ -1,3 +1,5 @@
+export type SubscriptionTier = 'free' | 'premium' | 'business';
+
 export type AppView =
   | 'dashboard'
   | 'create-event'
@@ -13,7 +15,8 @@ export type SettingsSection =
   | 'profile'
   | 'security'
   | 'payments'
-  | 'notifications';
+  | 'notifications'
+  | 'subscriptions';
 
 export type EventManagementTab =
   | 'details'

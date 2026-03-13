@@ -1,6 +1,7 @@
 import { KeyboardEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Calendar, Ticket, Mail, BarChart3, CreditCard, Download, Settings as SettingsIcon, QrCode, Search, Phone, CheckCircle, UserRound, ChevronDown, ChevronLeft, ChevronRight, Bookmark, Share2, MapPin, Clock, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getAllowedEventManagementTabs } from '@/lib/subscription-access';
 import { Iphone15Pro } from './ui/iphone-15-pro';
 import { TicketingSection } from './event-management/TicketingSection';
 import { OrdersSection } from './event-management/OrdersSection';
@@ -8,8 +9,10 @@ import { MarketingSection } from './event-management/MarketingSection';
 import { downloadReportPdf } from '../utils/reportExport';
 import { useModalA11y } from '../hooks/useModalA11y';
 import { EventDraft, EventDraftUpdate, EventLifecycleStatus } from '../types/event';
+import { SubscriptionTier } from '../types/navigation';
 
 interface EventManagementProps {
+  activeTier?: SubscriptionTier;
   eventId: string;
   eventName?: string | null;
   eventDetails?: EventDraft;
@@ -369,6 +372,7 @@ function PhoneEventScreen({
 }
 
 export function EventManagement({
+  activeTier = 'premium',
   eventId: _eventId,
   eventName,
   eventDetails,
@@ -391,12 +395,6 @@ export function EventManagement({
     const locationLabel = eventDetails?.location?.trim() || 'Location not set';
     return `${dateLabel} • ${locationLabel}`;
   }, [eventDetails?.location, eventDetails?.startDate]);
-
-  useEffect(() => {
-    if (requestedTab) {
-      setActiveTab(requestedTab);
-    }
-  }, [requestedTab]);
 
   const {
     dialogRef: previewDialogRef,
@@ -476,8 +474,19 @@ export function EventManagement({
     { id: 'marketing', label: 'Marketing', icon: Mail },
     { id: 'reports', label: 'Reports', icon: BarChart3 },
     { id: 'settings', label: 'Settings', icon: SettingsIcon }
-  ];
+  ].filter((tab) => getAllowedEventManagementTabs(activeTier).includes(tab.id as Tab));
   const tabIds = tabs.map((tab) => tab.id as Tab);
+
+  useEffect(() => {
+    if (requestedTab) {
+      setActiveTab(tabIds.includes(requestedTab) ? requestedTab : tabIds[0] ?? 'details');
+      return;
+    }
+
+    if (!tabIds.includes(activeTab)) {
+      setActiveTab(tabIds[0] ?? 'details');
+    }
+  }, [activeTab, requestedTab, tabIds]);
 
   const activateTab = (nextTab: Tab) => {
     setActiveTab(nextTab);

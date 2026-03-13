@@ -2,6 +2,8 @@ import { AppView, EventManagementTab, SettingsSection } from '@/types/navigation
 
 export type NotificationCategory = 'order' | 'ticket' | 'milestone' | 'marketing' | 'finance' | 'team';
 export type NotificationPriority = 'high' | 'medium' | 'low';
+export type NotificationFeedFilter = 'all' | 'unread' | 'order' | 'ticket' | 'marketing' | 'finance' | 'team';
+export type NotificationSummaryCard = 'unread' | 'urgent' | 'finance' | 'today';
 
 export type NotificationTarget =
   | {

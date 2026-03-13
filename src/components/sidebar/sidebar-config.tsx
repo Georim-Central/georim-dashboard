@@ -18,7 +18,12 @@ import {
   Wallet,
 } from 'lucide-react';
 
-import { AppView, EventManagementTab, SettingsSection } from '@/types/navigation';
+import {
+  isEventTabAllowed,
+  isSettingsSectionAllowed,
+  isViewAllowed,
+} from '@/lib/subscription-access';
+import { AppView, EventManagementTab, SettingsSection, SubscriptionTier } from '@/types/navigation';
 
 type SidebarIcon = ComponentType<{ className?: string }>;
 
@@ -66,6 +71,7 @@ export type SidebarNavGroup = {
 };
 
 interface SharedNavigationHandlers {
+  activeTier: SubscriptionTier;
   onViewChange: (view: AppView) => void;
   onBackToOrganization: () => void;
 }
@@ -81,45 +87,104 @@ interface EventNavigationConfig extends SharedNavigationHandlers {
 export const isSidebarParentItem = (item: SidebarNavItem): item is SidebarNavParentItem => 'children' in item;
 
 export function createOrganizationSidebarGroups({
+  activeTier,
   onBackToOrganization,
   onSettingsSectionSelect,
 }: OrganizationNavigationConfig): SidebarNavGroup[] {
+  const organizationItems: SidebarNavItem[] = [
+    {
+      id: 'dashboard',
+      label: 'Dashboard',
+      icon: Home,
+      action: { kind: 'view', view: 'dashboard' },
+    },
+    {
+      id: 'create-event',
+      label: 'Create Event',
+      icon: Calendar,
+      action: { kind: 'view', view: 'create-event' },
+    },
+  ];
+
+  if (isViewAllowed(activeTier, 'analytics')) {
+    organizationItems.push({
+      id: 'analytics',
+      label: 'Analytics',
+      icon: BarChart3,
+      action: { kind: 'view', view: 'analytics' },
+    });
+  }
+
+  if (isViewAllowed(activeTier, 'team')) {
+    organizationItems.push({
+      id: 'team',
+      label: 'Team',
+      icon: Users,
+      action: { kind: 'view', view: 'team' },
+    });
+  }
+
+  if (isViewAllowed(activeTier, 'finance')) {
+    organizationItems.push({
+      id: 'finance',
+      label: 'Finance',
+      icon: DollarSign,
+      action: { kind: 'view', view: 'finance' },
+    });
+  }
+
+  const settingsItems: SidebarNavLeafItem[] = [];
+
+  if (isSettingsSectionAllowed(activeTier, 'profile')) {
+    settingsItems.push({
+      id: 'settings-profile',
+      label: 'Profile',
+      icon: Users,
+      action: { kind: 'settings-section', section: 'profile' },
+    });
+  }
+
+  if (isSettingsSectionAllowed(activeTier, 'security')) {
+    settingsItems.push({
+      id: 'settings-security',
+      label: 'Security',
+      icon: Shield,
+      action: { kind: 'settings-section', section: 'security' },
+    });
+  }
+
+  if (isSettingsSectionAllowed(activeTier, 'payments')) {
+    settingsItems.push({
+      id: 'settings-payments',
+      label: 'Payments',
+      icon: Wallet,
+      action: { kind: 'settings-section', section: 'payments' },
+    });
+  }
+
+  if (isSettingsSectionAllowed(activeTier, 'notifications')) {
+    settingsItems.push({
+      id: 'settings-notifications',
+      label: 'Notifications',
+      icon: Bell,
+      action: { kind: 'settings-section', section: 'notifications' },
+    });
+  }
+
+  if (isSettingsSectionAllowed(activeTier, 'subscriptions')) {
+    settingsItems.push({
+      id: 'settings-subscriptions',
+      label: 'Subscriptions',
+      icon: CreditCard,
+      action: { kind: 'settings-section', section: 'subscriptions' },
+    });
+  }
+
   return [
     {
       id: 'organization',
       label: 'Organization',
-      items: [
-        {
-          id: 'dashboard',
-          label: 'Dashboard',
-          icon: Home,
-          action: { kind: 'view', view: 'dashboard' },
-        },
-        {
-          id: 'create-event',
-          label: 'Create Event',
-          icon: Calendar,
-          action: { kind: 'view', view: 'create-event' },
-        },
-        {
-          id: 'analytics',
-          label: 'Analytics',
-          icon: BarChart3,
-          action: { kind: 'view', view: 'analytics' },
-        },
-        {
-          id: 'team',
-          label: 'Team',
-          icon: Users,
-          action: { kind: 'view', view: 'team' },
-        },
-        {
-          id: 'finance',
-          label: 'Finance',
-          icon: DollarSign,
-          action: { kind: 'view', view: 'finance' },
-        },
-      ],
+      items: organizationItems,
     },
     {
       id: 'workspace',
@@ -136,38 +201,15 @@ export function createOrganizationSidebarGroups({
           label: 'Settings',
           icon: Settings,
           description: 'Contextual menu',
-          children: [
-            {
-              id: 'settings-account',
-              label: 'Account Settings',
-              items: [
+          children: settingsItems.length > 0
+            ? [
                 {
-                  id: 'settings-profile',
-                  label: 'Profile',
-                  icon: Users,
-                  action: { kind: 'settings-section', section: 'profile' },
+                  id: 'settings-account',
+                  label: 'Account Settings',
+                  items: settingsItems,
                 },
-                {
-                  id: 'settings-security',
-                  label: 'Security',
-                  icon: Shield,
-                  action: { kind: 'settings-section', section: 'security' },
-                },
-                {
-                  id: 'settings-payments',
-                  label: 'Payments',
-                  icon: Wallet,
-                  action: { kind: 'settings-section', section: 'payments' },
-                },
-                {
-                  id: 'settings-notifications',
-                  label: 'Notifications',
-                  icon: Bell,
-                  action: { kind: 'settings-section', section: 'notifications' },
-                },
-              ],
-            },
-          ],
+              ]
+            : [],
         },
         {
           id: 'help',
@@ -194,9 +236,111 @@ export function createOrganizationSidebarGroups({
 }
 
 export function createEventSidebarGroups({
+  activeTier,
   onBackToOrganization,
   selectedEventName,
 }: EventNavigationConfig): SidebarNavGroup[] {
+  const eventManagementItems: SidebarNavLeafItem[] = [];
+
+  if (isEventTabAllowed(activeTier, 'details')) {
+    eventManagementItems.push({
+      id: 'details',
+      label: 'Event Details',
+      icon: Calendar,
+      action: { kind: 'event-tab', tab: 'details' },
+    });
+  }
+
+  if (isEventTabAllowed(activeTier, 'ticketing')) {
+    eventManagementItems.push({
+      id: 'ticketing',
+      label: 'Ticketing',
+      icon: Ticket,
+      action: { kind: 'event-tab', tab: 'ticketing' },
+    });
+  }
+
+  if (isEventTabAllowed(activeTier, 'orders')) {
+    eventManagementItems.push({
+      id: 'orders',
+      label: 'Orders',
+      icon: CreditCard,
+      action: { kind: 'event-tab', tab: 'orders' },
+    });
+  }
+
+  if (isEventTabAllowed(activeTier, 'checked-in')) {
+    eventManagementItems.push({
+      id: 'checked-in',
+      label: 'Checked-In',
+      icon: QrCode,
+      action: { kind: 'event-tab', tab: 'checked-in' },
+    });
+  }
+
+  if (isEventTabAllowed(activeTier, 'marketing')) {
+    eventManagementItems.push({
+      id: 'marketing',
+      label: 'Marketing',
+      icon: Mail,
+      action: { kind: 'event-tab', tab: 'marketing' },
+    });
+  }
+
+  if (isEventTabAllowed(activeTier, 'reports')) {
+    eventManagementItems.push({
+      id: 'reports',
+      label: 'Reports',
+      icon: BarChart3,
+      action: { kind: 'event-tab', tab: 'reports' },
+    });
+  }
+
+  if (isEventTabAllowed(activeTier, 'settings')) {
+    eventManagementItems.push({
+      id: 'event-settings',
+      label: 'Settings',
+      icon: Settings,
+      action: { kind: 'event-tab', tab: 'settings' },
+    });
+  }
+
+  const selectedEventItems: SidebarNavItem[] = [];
+
+  if (eventManagementItems.length > 0) {
+    selectedEventItems.push({
+      id: 'event-menu',
+      label: 'Event Menu',
+      icon: Calendar,
+      description: selectedEventName || 'Selected Event',
+      children: [
+        {
+          id: 'event-management-items',
+          label: selectedEventName || 'Selected Event',
+          items: eventManagementItems,
+        },
+      ],
+    });
+  }
+
+  if (isViewAllowed(activeTier, 'team')) {
+    selectedEventItems.push({
+      id: 'team',
+      label: 'Team',
+      icon: Users,
+      action: { kind: 'view', view: 'team' },
+    });
+  }
+
+  if (isViewAllowed(activeTier, 'finance')) {
+    selectedEventItems.push({
+      id: 'finance',
+      label: 'Finance',
+      icon: DollarSign,
+      action: { kind: 'view', view: 'finance' },
+    });
+  }
+
   return [
     {
       id: 'event-context',
@@ -215,76 +359,7 @@ export function createEventSidebarGroups({
     {
       id: 'event-navigation',
       label: 'Selected Event',
-      items: [
-        {
-          id: 'event-menu',
-          label: 'Event Menu',
-          icon: Calendar,
-          description: selectedEventName || 'Selected Event',
-          children: [
-            {
-              id: 'event-management-items',
-              label: selectedEventName || 'Selected Event',
-              items: [
-                {
-                  id: 'details',
-                  label: 'Event Details',
-                  icon: Calendar,
-                  action: { kind: 'event-tab', tab: 'details' },
-                },
-                {
-                  id: 'ticketing',
-                  label: 'Ticketing',
-                  icon: Ticket,
-                  action: { kind: 'event-tab', tab: 'ticketing' },
-                },
-                {
-                  id: 'orders',
-                  label: 'Orders',
-                  icon: CreditCard,
-                  action: { kind: 'event-tab', tab: 'orders' },
-                },
-                {
-                  id: 'checked-in',
-                  label: 'Checked-In',
-                  icon: QrCode,
-                  action: { kind: 'event-tab', tab: 'checked-in' },
-                },
-                {
-                  id: 'marketing',
-                  label: 'Marketing',
-                  icon: Mail,
-                  action: { kind: 'event-tab', tab: 'marketing' },
-                },
-                {
-                  id: 'reports',
-                  label: 'Reports',
-                  icon: BarChart3,
-                  action: { kind: 'event-tab', tab: 'reports' },
-                },
-                {
-                  id: 'event-settings',
-                  label: 'Settings',
-                  icon: Settings,
-                  action: { kind: 'event-tab', tab: 'settings' },
-                },
-              ],
-            },
-          ],
-        },
-        {
-          id: 'team',
-          label: 'Team',
-          icon: Users,
-          action: { kind: 'view', view: 'team' },
-        },
-        {
-          id: 'finance',
-          label: 'Finance',
-          icon: DollarSign,
-          action: { kind: 'view', view: 'finance' },
-        },
-      ],
+      items: selectedEventItems,
     },
     {
       id: 'event-workspace',

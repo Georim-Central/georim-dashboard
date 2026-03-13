@@ -11,9 +11,10 @@ import {
   createOrganizationSidebarGroups,
   isSidebarParentItem,
 } from '@/components/sidebar/sidebar-config';
-import { AppView, EventManagementTab, SettingsSection } from '@/types/navigation';
+import { AppView, EventManagementTab, SettingsSection, SubscriptionTier } from '@/types/navigation';
 
 interface SidebarProps {
+  activeTier: SubscriptionTier;
   currentView: AppView;
   onViewChange: (view: AppView) => void;
   contextMode: 'organization' | 'event';
@@ -38,6 +39,7 @@ function collectParentItems(groups: SidebarNavGroup[]) {
 }
 
 export function Sidebar({
+  activeTier,
   currentView,
   onViewChange,
   contextMode,
@@ -54,16 +56,18 @@ export function Sidebar({
     () =>
       contextMode === 'organization'
         ? createOrganizationSidebarGroups({
+            activeTier,
             onViewChange,
             onBackToOrganization,
             onSettingsSectionSelect,
           })
         : createEventSidebarGroups({
+            activeTier,
             onViewChange,
             onBackToOrganization,
             selectedEventName,
           }),
-    [contextMode, onBackToOrganization, onSettingsSectionSelect, onViewChange, selectedEventName]
+    [activeTier, contextMode, onBackToOrganization, onSettingsSectionSelect, onViewChange, selectedEventName]
   );
 
   const primaryItems = useMemo(() => collectParentItems(navGroups), [navGroups]);

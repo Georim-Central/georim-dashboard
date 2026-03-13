@@ -22,15 +22,12 @@ Important:
 ### Dashboard Page
 
 - `[Page: Dashboard]` View organization-level summary cards for total events, attendees, revenue, and published events.
-- `[Page: Dashboard]` See platform activity highlights such as ticket sales, revenue, active events, and attendee growth.
 - `[Page: Dashboard]` Browse all events in one place with status, date, location, ticket sales, and revenue.
 - `[Page: Dashboard]` Filter events by status and sort events by recent activity, revenue, or tickets sold.
-- `[Page: Dashboard]` Open an event directly from the dashboard into event management.
 - `[Page: Dashboard]` Duplicate an event from quick actions.
 - `[Page: Dashboard]` Archive an event from quick actions.
 - `[Page: Dashboard]` Publish or move an event back to draft from quick actions.
 - `[Page: Dashboard]` View a recent activity feed for organizer activity.
-- `[Page: Dashboard]` View a team collaboration card with quick access to team members and invite flow entry.
 
 ### Create Event Page
 
@@ -51,22 +48,20 @@ Important:
 
 ### Top Bar / Global Navigation
 
-- `[Page: Top Bar]` Search across events, orders, attendees, and team members.
-- `[Page: Top Bar]` Open matching search results and jump into the related workflow.
+- `[Page: Top Bar]` Use the global search UI, with visible results limited by the active subscription layer.
 - `[Page: Top Bar]` Open a notifications dropdown from the bell icon.
-- `[Page: Top Bar]` Mark all notifications as read from the dropdown.
+- `[Page: Top Bar]` Mark all visible notifications as read from the dropdown.
 - `[Page: Top Bar]` Open profile settings from the top-right account control.
 - `[Page: Top Bar]` See whether you are in Organization View or Event View.
 
 ### Notification Center Page
 
 - `[Page: Notification Center]` View all organizer notifications in a dedicated activity feed.
-- `[Page: Notification Center]` Filter notifications by all activity, unread, orders, tickets, marketing, finance, and team.
-- `[Page: Notification Center]` See summary cards for unread, urgent, finance, and today counts.
+- `[Page: Notification Center]` Filter notifications by all activity and unread.
+- `[Page: Notification Center]` See summary cards for unread, urgent, and today counts.
 - `[Page: Notification Center]` Open a selected notification in a detail review panel.
-- `[Page: Notification Center]` Mark notifications as read.
+- `[Page: Notification Center]` Mark visible notifications as read or unread.
 - `[Page: Notification Center]` Archive notifications.
-- `[Page: Notification Center]` Open linked workflows directly from a notification.
 - `[Page: Notification Center]` Open notification preferences from the page.
 
 ### Settings Page
@@ -78,6 +73,7 @@ Important:
 - `[Page: Settings > Payments]` View payment methods and choose a default payment method.
 - `[Page: Settings > Payments]` See recent transaction history inside settings.
 - `[Page: Settings > Notifications]` Manage notification preferences from account settings.
+- `[Page: Settings > Subscriptions]` Switch the active frontend subscription layer between Free, Premium, and Business / Enterprise.
 
 ### Help Center Page
 
@@ -97,8 +93,19 @@ Important:
 
 ## ------- Premium Features -------
 
-### Event Management > Details Page
+### Dashboard Page
 
+- `[Page: Dashboard]` See platform activity highlights such as ticket sales, revenue, active events, and attendee growth.
+- `[Page: Dashboard]` Open an event from the dashboard into event management.
+- `[Page: Dashboard]` View a team collaboration overview card from the dashboard.
+
+### Notification Center Page
+
+- `[Page: Notification Center]` Filter notifications by orders, tickets, marketing, and finance.
+- `[Page: Notification Center]` See finance summary cards and finance-related notification counts.
+- `[Page: Notification Center]` Open premium linked workflows directly from a notification.
+
+### Event Management > Details Page
 - `[Page: Event Management > Details]` View and edit event information after creation.
 - `[Page: Event Management > Details]` Update title, type, category, tags, location type, and location.
 - `[Page: Event Management > Details]` Update start and end dates and times.
@@ -227,6 +234,11 @@ Important:
 - `[Page: Team Management]` Assign special tickets such as VIP Access, All Access Pass, Staff Pass, Media Pass, and Comp Ticket.
 - `[Page: Team Management]` View preset role summaries and role counts.
 - `[Page: Team Management]` View on-site tools cards for Organizer App, Guest List Manager, and Coverage Planning.
+
+### Notification Center Page
+
+- `[Page: Notification Center]` Filter notifications by team.
+- `[Page: Notification Center]` Open team-related linked workflows directly from a notification.
 
 
 ## ---  Suggested Additions -----

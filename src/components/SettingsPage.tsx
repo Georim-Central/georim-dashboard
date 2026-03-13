@@ -1,6 +1,7 @@
 import * as React from 'react';
 import type { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { subscriptionTierDetails } from '@/lib/subscription-access';
 
 import {
   AtSign,
@@ -35,9 +36,11 @@ import {
 import { PaymentMethodSelector } from '@/components/ui/payment-1';
 import { PasswordField } from '@/components/ui/password-input';
 import { OrangeToggle } from '@/components/ui/toggle';
-import { SettingsSection } from '@/types/navigation';
+import { SettingsSection, SubscriptionTier } from '@/types/navigation';
 
 interface SettingsPageProps {
+  activeTier: SubscriptionTier;
+  onTierChange: (tier: SubscriptionTier) => void;
   section: SettingsSection;
 }
 
@@ -118,6 +121,11 @@ const settingsMeta: Record<SettingsSection, { title: string; subtitle: string; i
     title: 'Notifications',
     subtitle: 'Choose how updates, reminders, and alerts are delivered.',
     icon: Bell,
+  },
+  subscriptions: {
+    title: 'Subscriptions',
+    subtitle: 'Control which frontend feature layer is active across the platform.',
+    icon: CreditCard,
   },
 };
 
@@ -1610,6 +1618,11 @@ function getAssistantSuggestions(section: SettingsSection) {
       'Pair quiet hours with push alerts so critical day-of-event updates still surface.',
       'Review channel settings after onboarding new team members or changing workflows.',
     ],
+    subscriptions: [
+      'Use Free to review the core organizer workspace without premium operational screens.',
+      'Switch to Premium when you want event management, analytics, and finance visible together.',
+      'Switch to Business / Enterprise when you need team management and full collaboration controls.',
+    ],
   };
 
   return suggestions[section];
@@ -1866,7 +1879,82 @@ function PlaceholderSettingsContent({ section }: { section: SettingsSection }) {
   );
 }
 
-export function SettingsPage({ section }: SettingsPageProps) {
+function SubscriptionSettingsContent({
+  activeTier,
+  onTierChange,
+}: {
+  activeTier: SubscriptionTier;
+  onTierChange: (tier: SubscriptionTier) => void;
+}) {
+  const tierBenefits: Record<SubscriptionTier, string[]> = {
+    free: ['Dashboard base workspace', 'Create Event flow', 'Notification Center, Settings, Help, and AI chat'],
+    premium: ['Everything in Free', 'Event Management, Analytics, and Finance', 'Premium dashboard insights'],
+    business: ['Everything in Premium', 'Team Management workspace', 'Full collaboration controls across the platform'],
+  };
+
+  return (
+    <div className={SETTINGS_PAGE_STACK_CLASS}>
+      <SettingsCard
+        title={<ProfileCardTitle icon={<CreditCard className="h-4 w-4" />} title="Platform Subscription Layers" />}
+        className="shadow-[0_18px_42px_rgba(15,23,42,0.06)]"
+      >
+        <div className="space-y-6">
+          <p className="max-w-3xl text-sm leading-6 text-gray-500">
+            Switch the frontend workspace between Free, Premium, and Business / Enterprise. This is a UI-only control for the MVP and changes feature visibility immediately across the platform.
+          </p>
+
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+            {(['free', 'premium', 'business'] as SubscriptionTier[]).map((tier) => {
+              const isActive = activeTier === tier;
+              const tierDetail = subscriptionTierDetails[tier];
+
+              return (
+                <button
+                  key={tier}
+                  type="button"
+                  onClick={() => onTierChange(tier)}
+                  aria-pressed={isActive}
+                  className={`rounded-[24px] border p-5 text-left transition duration-[150ms] ${
+                    isActive
+                      ? 'border-[#7626c6] bg-[#f8f1ff] shadow-[0_18px_42px_rgba(118,38,198,0.12)]'
+                      : 'border-gray-200 bg-white hover:border-[#d5baf2] hover:bg-[#fcf9ff]'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-lg font-semibold tracking-[-0.02em] text-gray-950">{tierDetail.label}</p>
+                      <p className="mt-1 text-sm font-medium text-[#7626c6]">{tierDetail.subtitle}</p>
+                    </div>
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${
+                        isActive ? 'bg-[#7626c6] text-white' : 'bg-gray-100 text-gray-500'
+                      }`}
+                    >
+                      {isActive ? 'Active' : 'Select'}
+                    </span>
+                  </div>
+
+                  <p className="mt-4 text-sm leading-6 text-gray-600">{tierDetail.description}</p>
+
+                  <div className="mt-5 space-y-2">
+                    {tierBenefits[tier].map((benefit) => (
+                      <div key={benefit} className="flex items-start gap-2.5 text-sm text-gray-700">
+                        <CheckCircle2 className={`mt-0.5 h-4 w-4 flex-shrink-0 ${isActive ? 'text-[#7626c6]' : 'text-gray-400'}`} />
+                        <span>{benefit}</span>
+                      </div>
+                    ))}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </SettingsCard>
+    </div>
+  );
+}
+
+export function SettingsPage({ activeTier, onTierChange, section }: SettingsPageProps) {
   const sectionData = settingsMeta[section];
   const [assistantOpen, setAssistantOpen] = React.useState(false);
 
@@ -1888,10 +1976,14 @@ export function SettingsPage({ section }: SettingsPageProps) {
         {section === 'security' ? <SecuritySettingsContent /> : null}
         {section === 'payments' ? <PaymentsSettingsContent /> : null}
         {section === 'notifications' ? <NotificationsSettingsContent /> : null}
+        {section === 'subscriptions' ? (
+          <SubscriptionSettingsContent activeTier={activeTier} onTierChange={onTierChange} />
+        ) : null}
         {section !== 'profile' &&
         section !== 'security' &&
         section !== 'payments' &&
-        section !== 'notifications' ? (
+        section !== 'notifications' &&
+        section !== 'subscriptions' ? (
           <PlaceholderSettingsContent section={section} />
         ) : null}
       </div>
