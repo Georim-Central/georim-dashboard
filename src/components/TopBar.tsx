@@ -56,21 +56,22 @@ export function TopBar({
     <div className="glass-header sticky top-0 z-20 px-8 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="ui-search-field flex-1">
-            <Search className="ui-search-field__icon" />
-            <input
-              type="text"
-              aria-label="Search events, orders, attendees, and team"
-              placeholder="Search events, orders, attendees..."
-              value={searchQuery}
-              onChange={(event) => onSearchQueryChange(event.target.value)}
-              className="ui-search-field__input ui-toolbar-select h-12 w-96 rounded-2xl border border-gray-200 bg-white/90 pr-4 text-sm text-gray-700 shadow-sm"
-              style={{ paddingLeft: '44px' }}
-            />
-
+          <div className="relative w-96 max-w-full flex-1">
+            <div className="ui-search-field relative z-10 flex-1">
+              <Search className="ui-search-field__icon" />
+              <input
+                type="text"
+                aria-label="Search events, orders, attendees, and team"
+                placeholder="Search events, orders, attendees..."
+                value={searchQuery}
+                onChange={(event) => onSearchQueryChange(event.target.value)}
+                className="ui-search-field__input ui-toolbar-select h-12 w-full rounded-2xl border border-gray-200 bg-white/90 pr-4 text-sm text-gray-700 shadow-sm"
+                style={{ paddingLeft: '44px' }}
+              />
+            </div>
             {showSearchResults && (
-              <div className="ui-menu-panel absolute left-0 top-[calc(100%+12px)] z-20 w-[28rem] overflow-hidden">
-                <div className="border-b border-gray-200 px-5 py-4">
+              <div className="ui-menu-panel search-results-container absolute left-0 top-full z-0 mt-3 w-full overflow-hidden">
+                <div className="border-b border-gray-200 py-4">
                   <div className="ui-card-title">Search Results</div>
                   <div className="ui-meta-text mt-1">
                     Organizer view: {currentView === 'event-management' ? 'event operations' : currentView}
@@ -83,7 +84,7 @@ export function TopBar({
                         key={result.id}
                         type="button"
                         onClick={() => onSearchResultSelect(result)}
-                        className="flex min-h-12 w-full items-start justify-between gap-3 border-b border-gray-100 px-5 py-4 text-left transition hover:bg-gray-50"
+                        className="flex min-h-12 w-full items-start justify-between gap-3 border-b border-gray-100 py-4 text-left transition hover:bg-gray-50"
                       >
                         <div className="min-w-0">
                           <div className="truncate text-sm font-medium text-gray-900">{result.label}</div>
@@ -96,7 +97,7 @@ export function TopBar({
                     ))}
                   </div>
                 ) : (
-                  <div className="px-5 py-8 text-sm text-gray-500">No organizer results matched “{searchQuery.trim()}”.</div>
+                  <div className="py-8 text-sm text-gray-500">No organizer results matched “{searchQuery.trim()}”.</div>
                 )}
               </div>
             )}

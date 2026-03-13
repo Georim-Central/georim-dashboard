@@ -2884,6 +2884,11 @@ button.btn-glass:focus-visible {
   -webkit-backdrop-filter: blur(16px);
 }
 
+.search-results-container {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
 .ui-progress-track {
   height: 8px;
   overflow: hidden;
