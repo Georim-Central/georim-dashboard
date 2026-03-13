@@ -36,13 +36,23 @@ import {
 import { PaymentMethodSelector } from '@/components/ui/payment-1';
 import { PasswordField } from '@/components/ui/password-input';
 import { OrangeToggle } from '@/components/ui/toggle';
+import { Tabs as VercelTabs, TabsList as VercelTabsList, TabsTrigger as VercelTabsTrigger } from '@/components/ui/vercel-tabs';
 import { SettingsSection, SubscriptionTier } from '@/types/navigation';
 
 interface SettingsPageProps {
   activeTier: SubscriptionTier;
   onTierChange: (tier: SubscriptionTier) => void;
   section: SettingsSection;
+  onSectionChange: (section: SettingsSection) => void;
 }
+
+const settingsTabs: Array<{ id: SettingsSection; label: string; icon: typeof Shield }> = [
+  { id: 'profile', label: 'Profile', icon: UserRound },
+  { id: 'security', label: 'Security', icon: Shield },
+  { id: 'payments', label: 'Payments', icon: Wallet },
+  { id: 'notifications', label: 'Notifications', icon: Bell },
+  { id: 'subscriptions', label: 'Subscriptions', icon: SlidersHorizontal },
+];
 
 const profileAddresses = [
   {
@@ -235,7 +245,7 @@ function SettingsCard({
   return (
     <section className={`rounded-[28px] border border-gray-200 bg-white shadow-sm ${SETTINGS_CARD_PADDING_CLASS} ${className}`}>
       <div className="mb-5 flex items-start justify-between gap-4 sm:mb-6 lg:mb-7">
-        <h2 className="text-[1.05rem] font-semibold tracking-[-0.02em] text-gray-950">{title}</h2>
+        <h2 className="ui-card-title">{title}</h2>
         {headerRight}
       </div>
       {children}
@@ -252,7 +262,7 @@ function SettingsFeedback({
     <div
       role="status"
       aria-live="polite"
-      className="rounded-xl border border-[#e7d8fa] bg-[#fbf7ff] px-5 py-4 text-sm font-medium text-[#5c2a99] sm:px-6 sm:py-5"
+      className="rounded-xl border border-[#e7d8fa] bg-[#fbf7ff] px-5 py-4 ui-type-subsection text-[#5c2a99] sm:px-6 sm:py-5"
     >
       {message}
     </div>
@@ -274,7 +284,7 @@ function FieldInput({
 }) {
   return (
     <label className="grid gap-1.5">
-      <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400">{label}</span>
+      <span className="ui-type-meta uppercase tracking-[0.08em] text-gray-400">{label}</span>
       <input
         type={type}
         value={value}
@@ -383,8 +393,8 @@ function SettingsModal({
         {/* Header */}
         <div className="flex items-start justify-between gap-4 px-6 pb-5 pt-6">
           <div>
-            <h2 id={titleId} className="text-xl font-semibold tracking-[-0.02em] text-gray-950">{title}</h2>
-            <p id={descriptionId} className="mt-1.5 text-sm leading-relaxed text-gray-500">{description}</p>
+            <h2 id={titleId} className="ui-dialog-title">{title}</h2>
+            <p id={descriptionId} className="ui-dialog-subtitle mt-1.5">{description}</p>
           </div>
           <button
             type="button"
@@ -439,7 +449,7 @@ function ProfileCardTitle({
       <span className="flex h-8 w-8 items-center justify-center text-gray-600">
         {icon}
       </span>
-      <span className="text-base font-semibold tracking-tight text-gray-900">{title}</span>
+      <span className="ui-type-ui tracking-tight text-gray-900">{title}</span>
     </span>
   );
 }
@@ -463,10 +473,10 @@ function ProfileMetric({
         <div className="flex h-8 w-8 items-center justify-center text-gray-500">
           {icon}
         </div>
-        <span className="text-2xl font-semibold tracking-[-0.03em] text-gray-950">{value}</span>
+        <span className="ui-type-card tracking-[-0.03em] text-gray-950">{value}</span>
       </div>
       <div>
-        <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-400">{label}</div>
+        <div className="ui-type-meta mb-1.5 uppercase tracking-[0.12em] text-gray-400">{label}</div>
         {progress !== undefined && (
           <div className="mb-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
             <div
@@ -475,7 +485,7 @@ function ProfileMetric({
             />
           </div>
         )}
-        <p className="text-xs leading-5 text-gray-500">{detail}</p>
+        <p className="ui-meta-text leading-5">{detail}</p>
       </div>
     </div>
   );
@@ -899,7 +909,7 @@ function ProfileSettingsContent() {
           >
             <div className="space-y-5">
               <p className="text-sm text-gray-400">
-                These preferences shape how dates, identity, and operational details appear across the dashboard.
+                These preferences shape how dates, identity, and operational details appear across Home.
               </p>
 
               <div className="grid grid-cols-1 gap-4">
@@ -1870,8 +1880,8 @@ function PlaceholderSettingsContent({ section }: { section: SettingsSection }) {
             <Icon className="h-6 w-6" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-semibold tracking-[-0.02em] text-gray-950">{sectionData.title}</h2>
-            <p className="max-w-2xl text-base leading-7 text-gray-500">{sectionData.subtitle}</p>
+            <h2 className="ui-card-title">{sectionData.title}</h2>
+            <p className="ui-support-copy max-w-2xl">{sectionData.subtitle}</p>
           </div>
         </div>
       </section>
@@ -1887,8 +1897,8 @@ function SubscriptionSettingsContent({
   onTierChange: (tier: SubscriptionTier) => void;
 }) {
   const tierBenefits: Record<SubscriptionTier, string[]> = {
-    free: ['Dashboard base workspace', 'Create Event flow', 'Notification Center, Settings, Help, and AI chat'],
-    premium: ['Everything in Free', 'Event Management, Analytics, and Finance', 'Premium dashboard insights'],
+    free: ['Home base workspace', 'Create Event flow', 'Notification Center, Settings, and AI chat'],
+    premium: ['Everything in Free', 'Event Management, Analytics, and Finance', 'Premium Home insights'],
     business: ['Everything in Premium', 'Team Management workspace', 'Full collaboration controls across the platform'],
   };
 
@@ -1954,8 +1964,7 @@ function SubscriptionSettingsContent({
   );
 }
 
-export function SettingsPage({ activeTier, onTierChange, section }: SettingsPageProps) {
-  const sectionData = settingsMeta[section];
+export function SettingsPage({ activeTier, onTierChange, section, onSectionChange }: SettingsPageProps) {
   const [assistantOpen, setAssistantOpen] = React.useState(false);
 
   return (
@@ -1968,8 +1977,27 @@ export function SettingsPage({ activeTier, onTierChange, section }: SettingsPage
     >
       <div className="mx-auto max-w-[1380px]">
         <div className="mb-8 space-y-2 sm:mb-9 sm:space-y-3 lg:mb-10">
-          <h1 className="text-5xl font-semibold tracking-[-0.04em] text-[#2c1451]">{sectionData.title}</h1>
-          <p className="text-xl text-[#2c1451]/85">{sectionData.subtitle}</p>
+          <h1 className="ui-page-title ui-type-section text-[#2c1451]">Settings</h1>
+          <p className="ui-page-subtitle ui-type-subsection text-[#2c1451]/85">
+            Manage your organizer profile, security, payouts, alerts, and subscription controls from one workspace.
+          </p>
+        </div>
+
+        <div className="mb-8">
+          <VercelTabs
+            value={section}
+            onValueChange={(value) => onSectionChange(value as SettingsSection)}
+            className="w-full"
+          >
+            <VercelTabsList className="w-full">
+              {settingsTabs.map((tab) => (
+                <VercelTabsTrigger key={tab.id} value={tab.id}>
+                  <tab.icon className="h-4 w-4" aria-hidden="true" />
+                  <span>{tab.label}</span>
+                </VercelTabsTrigger>
+              ))}
+            </VercelTabsList>
+          </VercelTabs>
         </div>
 
         {section === 'profile' ? <ProfileSettingsContent /> : null}

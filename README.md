@@ -1,7 +1,7 @@
 
-# Dashboard (MVP)
+# Georim Home (MVP)
 
-Georim dashboard MVP for organization and event operations.
+Georim Home MVP for organization and event operations.
 
 ## Scope
 
@@ -33,7 +33,7 @@ Georim dashboard MVP for organization and event operations.
 
 ## Key Areas
 
-- Organization dashboard, analytics, team, finance, profile, help
+- Organization Home, analytics, team, finance, profile, help
 - Event creation and event management tabs
 - Ticketing, orders, marketing, reports, settings
 - Checked-In live log workflow with QR scan handling
@@ -68,7 +68,7 @@ Georim dashboard MVP for organization and event operations.
 ## Frontend Structure
 
 - `src/App.tsx` - app shell and view/state orchestration
-- `src/components/` - feature modules (dashboard, team, event creation/management, etc.)
+- `src/components/` - feature modules (home, team, event creation/management, etc.)
 - `src/components/ui/` - shared UI primitives
 - `src/hooks/useModalA11y.ts` - modal accessibility behavior
 - `src/types/` - shared TypeScript types

@@ -157,8 +157,8 @@ export function NotificationCenter({
             /* Card: 28px radius, 24px padding, gray-200 border — per card system rules */
             <div key={card} className="rounded-[28px] border border-gray-200 bg-white p-6">
               <p className="ui-meta-text mb-3">{notificationSummaryCardDetails[card].label}</p>
-              <p className="text-3xl font-semibold tracking-tight text-gray-900">{summaryCardValues[card]}</p>
-              <p className="mt-2 text-xs text-gray-500">{notificationSummaryCardDetails[card].sub}</p>
+              <p className="ui-kpi-value">{summaryCardValues[card]}</p>
+              <p className="ui-meta-text mt-2">{notificationSummaryCardDetails[card].sub}</p>
             </div>
           ))}
         </div>
@@ -248,14 +248,14 @@ export function NotificationCenter({
                           </p>
                           {/* Metadata row — 12px medium, 8px gap (text spacing rule) */}
                           <div className="mt-2 flex items-center gap-2">
-                            <span className={`flex items-center gap-1 text-[11px] font-medium ${getPriorityLabel(notification.priority)}`}>
+                            <span className={`ui-type-meta flex items-center gap-1 ${getPriorityLabel(notification.priority)}`}>
                               <span className={`h-1 w-1 rounded-full ${getCategoryDotColor(notification.category)}`} />
                               {notification.category}
                             </span>
                             {notification.eventLabel && (
                               <>
                                 <span className="text-gray-200">·</span>
-                                <span className="truncate text-[11px] text-gray-400">{notification.eventLabel}</span>
+                                <span className="ui-type-meta truncate text-gray-400">{notification.eventLabel}</span>
                               </>
                             )}
                           </div>
@@ -276,7 +276,7 @@ export function NotificationCenter({
             {/* Card header — py-6 (24px) consistent with feed header */}
             <div className="border-b border-gray-100 px-6 py-6">
               <h2 className="ui-card-title">Detail Review</h2>
-              <p className="mt-2 text-xs text-gray-500">
+              <p className="ui-meta-text mt-2">
                 Select an alert to inspect and act on it.
               </p>
             </div>
@@ -289,14 +289,14 @@ export function NotificationCenter({
                 <div className="rounded-[22px] border border-gray-200 bg-gray-50 p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <span className={`h-2 w-2 rounded-full ${getCategoryDotColor(selectedNotification.category)}`} />
-                    <span className="text-xs font-medium capitalize text-gray-500">
+                    <span className="ui-type-meta capitalize text-gray-500">
                       {selectedNotification.category}
                     </span>
                   </div>
-                  <h3 className="text-sm font-semibold text-gray-900 leading-snug">
+                  <h3 className="ui-type-subsection text-gray-900 leading-snug">
                     {selectedNotification.title}
                   </h3>
-                  <p className="mt-2 text-sm leading-6 text-gray-600">
+                  <p className="ui-support-copy mt-2 leading-6">
                     {selectedNotification.message}
                   </p>
                 </div>
@@ -310,10 +310,10 @@ export function NotificationCenter({
                     { label: 'Action',   value: selectedNotification.detail || 'Open the linked workspace to continue.' },
                   ].map((row) => (
                     <div key={row.label} className="flex items-start gap-4 px-4 py-3">
-                      <span className="w-16 flex-shrink-0 text-xs font-medium text-gray-400">
+                      <span className="ui-type-meta w-16 flex-shrink-0 text-gray-400">
                         {row.label}
                       </span>
-                      <span className="text-xs text-gray-700 capitalize leading-5">{row.value}</span>
+                      <span className="ui-type-meta text-gray-700 capitalize leading-5">{row.value}</span>
                     </div>
                   ))}
                 </div>

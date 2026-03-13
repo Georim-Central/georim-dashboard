@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
     <div className="relative w-full overflow-auto rounded-[28px] border border-gray-200 bg-white">
-      <table ref={ref} className={cn('w-full caption-bottom text-sm', className)} {...props} />
+      <table ref={ref} className={cn('w-full caption-bottom ui-type-subsection', className)} {...props} />
     </div>
   ),
 );
@@ -55,13 +55,13 @@ const TableHead = React.forwardRef<
   HTMLTableCellElement,
   React.ThHTMLAttributes<HTMLTableCellElement>
 >(({ className, ...props }, ref) => (
-  <th
-    ref={ref}
-    className={cn(
-      'h-12 px-4 text-left align-middle font-medium text-gray-500 [&:has([role=checkbox])]:w-px [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-0.5',
-      className,
-    )}
-    {...props}
+    <th
+      ref={ref}
+      className={cn(
+        'h-12 px-4 text-left align-middle ui-type-meta text-gray-500 [&:has([role=checkbox])]:w-px [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-0.5',
+        className,
+      )}
+      {...props}
   />
 ));
 TableHead.displayName = 'TableHead';
@@ -85,7 +85,7 @@ const TableCaption = React.forwardRef<
   HTMLTableCaptionElement,
   React.HTMLAttributes<HTMLTableCaptionElement>
 >(({ className, ...props }, ref) => (
-  <caption ref={ref} className={cn('mt-4 text-sm text-gray-500', className)} {...props} />
+  <caption ref={ref} className={cn('mt-4 ui-type-subsection text-gray-500', className)} {...props} />
 ));
 TableCaption.displayName = 'TableCaption';
 

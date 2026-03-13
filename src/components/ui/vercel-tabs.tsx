@@ -99,14 +99,6 @@ const TabsList = React.forwardRef<
       left: `${activeElement.offsetLeft}px`,
       width: `${activeElement.offsetWidth}px`,
     });
-
-    if (typeof activeElement.scrollIntoView === "function") {
-      activeElement.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "nearest",
-      });
-    }
   }, [currentValue, getTriggerNode]);
 
   useEffect(() => {
@@ -155,7 +147,7 @@ const TabsList = React.forwardRef<
             ref.current = node;
           }
         }}
-        className={cn("ui-tabs-list relative flex min-w-max items-center space-x-[6px]", className)}
+        className={cn("relative flex min-w-max items-center space-x-[6px]", className)}
         onPointerLeave={(event) => {
           setHoveredValue(null);
           onPointerLeave?.(event);
@@ -214,7 +206,7 @@ const TabsTrigger = React.forwardRef<
       }}
       value={value}
       className={cn(
-        "ui-tabs-trigger relative h-[30px] whitespace-nowrap px-3 py-2 text-sm font-medium leading-5 outline-none transition-colors duration-300 disabled:pointer-events-none disabled:opacity-50",
+        "relative h-[30px] whitespace-nowrap px-3 py-2 text-sm font-medium leading-5 outline-none transition-colors duration-300 disabled:pointer-events-none disabled:opacity-50",
         isActive ? "text-[#7626c6]" : "text-[#0e0f1199] hover:text-[#5f1fa3]",
         className
       )}
@@ -235,14 +227,7 @@ const TabsContent = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
 >(({ className, ...props }, ref) => (
-  <TabsPrimitive.Content
-    ref={ref}
-    className={cn(
-      "mt-2 outline-none focus-visible:ring-2 focus-visible:ring-[#7626c6]/30",
-      className
-    )}
-    {...props}
-  />
+  <TabsPrimitive.Content ref={ref} className={cn("mt-2 outline-none", className)} {...props} />
 ));
 TabsContent.displayName = TabsPrimitive.Content.displayName;
 

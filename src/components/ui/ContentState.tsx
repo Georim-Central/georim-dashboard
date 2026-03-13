@@ -46,7 +46,7 @@ export function ContentState({
           <button
             type="button"
             onClick={onRetry}
-            className="mt-3 px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+            className="mt-3 rounded-lg border border-gray-300 px-3 py-2 ui-type-ui hover:bg-gray-50 transition-colors"
           >
             Retry
           </button>

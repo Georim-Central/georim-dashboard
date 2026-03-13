@@ -1,187 +1,214 @@
 # Georim Features
 
-This version is based only on what currently exists in the project right now.
+This file is based on what currently exists in this repository right now.
 
 How this file is organized:
 - Features are grouped by pricing tier.
-- Inside each tier, features are grouped by the page where they exist now.
-- Each bullet is tagged with its page.
-- Suggested additions are kept at the very bottom.
+- Inside each tier, features are grouped by the page or workspace where they exist now.
+- Each bullet is tagged with its current page.
+- Suggested additions are kept at the bottom and are not part of the current MVP.
 
 Important:
 - `Premium` and `Business / Enterprise` are paid tiers.
-- `Business / Enterprise` should include everything in `Premium`.
-- This repo is frontend-focused right now.
-- The features below describe the current UI and frontend product experience only.
-- Backend integrations, live data sync, and production service behavior should not be assumed unless explicitly noted elsewhere.
-
+- `Business / Enterprise` includes everything in `Premium`.
+- This repo is frontend-only and MVP-oriented.
+- Features below describe the current UI, local state, and demo workflows in this codebase.
+- Do not assume backend integrations, real sending, real payouts, auth, or persistent production data unless explicitly called out.
 
 
 ## ------- Free Features -------
 
-### Dashboard Page
+### App Shell / Navigation
 
-- `[Page: Dashboard]` View organization-level summary cards for total events, attendees, revenue, and published events.
-- `[Page: Dashboard]` Browse all events in one place with status, date, location, ticket sales, and revenue.
-- `[Page: Dashboard]` Filter events by status and sort events by recent activity, revenue, or tickets sold.
-- `[Page: Dashboard]` Duplicate an event from quick actions.
-- `[Page: Dashboard]` Archive an event from quick actions.
-- `[Page: Dashboard]` Publish or move an event back to draft from quick actions.
-- `[Page: Dashboard]` View a recent activity feed for organizer activity.
+- `[Page: App Shell]` Use a collapsible sidebar for Home, Events, Notification Center, Settings, and Help.
+- `[Page: App Shell]` Move between organization-level views in a single-page app shell.
+- `[Page: App Shell]` Open Settings subsections from the sidebar.
+- `[Page: App Shell]` Return to Home from the Georim logo.
+
+### Home Page
+
+- `[Page: Home]` See the welcome view for the current organizer.
+- `[Page: Home]` Start the Create Event flow from the primary CTA.
+
+### Events Page
+
+- `[Page: Events]` Browse all seeded and newly created events in one list.
+- `[Page: Events]` View event cards with image, date, location, lifecycle status, ticket sales, and revenue.
+- `[Page: Events]` Filter events by All, Published, Draft, Private, and Archived.
+- `[Page: Events]` Sort events by Most Recent, Highest Revenue, or Most Tickets Sold.
+- `[Page: Events]` Publish an event or move a published event back to draft from quick actions.
+- `[Page: Events]` Duplicate an event from quick actions.
+- `[Page: Events]` Archive an event from quick actions.
 
 ### Create Event Page
 
-- `[Page: Create Event]` Create a new event with a 5-step guided flow.
-- `[Page: Create Event]` Add event title, event type, category, and tags.
+- `[Page: Create Event]` Create a new event through a 5-step guided flow.
+- `[Page: Create Event]` Add basic info including title, event type, category, and tags.
 - `[Page: Create Event]` Set the event location as in-person, online, or TBA.
-- `[Page: Create Event]` Add venue address or online event URL.
-- `[Page: Create Event]` Set start date, end date, start time, and end time.
-- `[Page: Create Event]` Enable recurring event mode in the form.
-- `[Page: Create Event]` Choose a timezone from preset timezone options.
+- `[Page: Create Event]` Add a venue address or online event URL.
+- `[Page: Create Event]` Set start and end date/time values.
+- `[Page: Create Event]` Toggle recurring-event mode and reveal recurrence inputs in the form.
+- `[Page: Create Event]` Choose from preset timezone options.
 - `[Page: Create Event]` Upload a main event image.
 - `[Page: Create Event]` Upload up to 10 additional event images.
-- `[Page: Create Event]` Add an external event video URL.
-- `[Page: Create Event]` Add a short summary and long event description.
-- `[Page: Create Event]` Use suggested description sections to build event copy faster.
-- `[Page: Create Event]` Save draft progress automatically so unfinished event setup is restored after refresh.
-- `[Page: Create Event]` Clear the saved draft and restart the form from the beginning.
+- `[Page: Create Event]` Add an external video URL.
+- `[Page: Create Event]` Write a short summary and a longer description.
+- `[Page: Create Event]` Insert suggested description sections or add a custom section block.
+- `[Page: Create Event]` Auto-save draft progress to local storage while you work.
+- `[Page: Create Event]` Restore the saved draft, current step, and form contents after refresh/remount.
+- `[Page: Create Event]` Clear the saved draft and reset the flow.
+- `[Page: Create Event]` Create an event and add it to the in-app event list.
 
-### Top Bar / Global Navigation
+### Top Bar / Global Controls
 
-- `[Page: Top Bar]` Use the global search UI, with visible results limited by the active subscription layer.
+- `[Page: Top Bar]` Use the global search input from anywhere in the app.
+- `[Page: Top Bar]` See search result visibility limited by the active subscription tier.
 - `[Page: Top Bar]` Open a notifications dropdown from the bell icon.
 - `[Page: Top Bar]` Mark all visible notifications as read from the dropdown.
+- `[Page: Top Bar]` Open the Notification Center from the dropdown.
 - `[Page: Top Bar]` Open profile settings from the top-right account control.
-- `[Page: Top Bar]` See whether you are in Organization View or Event View.
+- `[Page: Top Bar]` See whether the app is in Organization View or Event View.
 
 ### Notification Center Page
 
-- `[Page: Notification Center]` View all organizer notifications in a dedicated activity feed.
-- `[Page: Notification Center]` Filter notifications by all activity and unread.
-- `[Page: Notification Center]` See summary cards for unread, urgent, and today counts.
-- `[Page: Notification Center]` Open a selected notification in a detail review panel.
-- `[Page: Notification Center]` Mark visible notifications as read or unread.
+- `[Page: Notification Center]` View organizer notifications in a dedicated feed/detail workspace.
+- `[Page: Notification Center]` Filter notifications by `All activity` and `Unread`.
+- `[Page: Notification Center]` See summary cards for Unread, Urgent, and Today.
+- `[Page: Notification Center]` Select a notification to inspect its detail panel.
+- `[Page: Notification Center]` Mark notifications read/unread from the page.
+- `[Page: Notification Center]` Mark all visible notifications as read.
 - `[Page: Notification Center]` Archive notifications.
 - `[Page: Notification Center]` Open notification preferences from the page.
 
 ### Settings Page
 
 - `[Page: Settings > Profile]` View and edit profile information.
-- `[Page: Settings > Profile]` Upload or change the profile avatar.
-- `[Page: Settings > Profile]` Manage emails, phone numbers, and addresses.
-- `[Page: Settings > Security]` Change the account password.
-- `[Page: Settings > Payments]` View payment methods and choose a default payment method.
-- `[Page: Settings > Payments]` See recent transaction history inside settings.
-- `[Page: Settings > Notifications]` Manage notification preferences from account settings.
+- `[Page: Settings > Profile]` Upload and preview a profile avatar.
+- `[Page: Settings > Profile]` Manage email addresses, phone numbers, and addresses.
+- `[Page: Settings > Security]` Update the account password with current/new/confirm fields.
+- `[Page: Settings > Payments]` View saved payment methods and recent transactions.
+- `[Page: Settings > Payments]` Add a new payment method and make it the selected default.
+- `[Page: Settings > Notifications]` Manage delivery channels for email, push, and SMS.
+- `[Page: Settings > Notifications]` Manage event-alert toggles and quiet-hours settings.
 - `[Page: Settings > Subscriptions]` Switch the active frontend subscription layer between Free, Premium, and Business / Enterprise.
+- `[Page: Settings > Subscriptions]` See tier benefit summaries inside the settings UI.
+- `[Page: Settings]` Open the floating settings assistant modal.
 
 ### Help Center Page
 
 - `[Page: Help Center]` Browse FAQ content for common organizer workflows.
 - `[Page: Help Center]` View testimonial content on the support page.
-- `[Page: Help Center]` Open and submit the in-dashboard support contact form.
+- `[Page: Help Center]` Open a support contact modal from inside Home.
+- `[Page: Help Center]` Submit a support request with prefilled account details.
 
 ### Global AI Chat
 
-- `[Page: Global AI Chat]` Open a floating AI assistant from anywhere in the app.
-- `[Page: Global AI Chat]` See a contextual intro message based on the current page or selected event.
-- `[Page: Global AI Chat]` Send text messages to the assistant UI.
-- `[Page: Global AI Chat]` Attach files in the chat composer.
+- `[Page: Global AI Chat]` Open a floating AI assistant shell from anywhere in the app.
+- `[Page: Global AI Chat]` See a contextual intro message based on the current page and selected event.
+- `[Page: Global AI Chat]` Send text messages to the chat UI.
+- `[Page: Global AI Chat]` Attach files in the composer and remove attachments before sending.
 - `[Page: Global AI Chat]` Use browser voice input when supported.
-
+- `[Page: Global AI Chat]` Receive frontend placeholder responses that acknowledge the current workspace context.
 
 
 ## ------- Premium Features -------
 
-### Dashboard Page
+### Events Page
 
-- `[Page: Dashboard]` See platform activity highlights such as ticket sales, revenue, active events, and attendee growth.
-- `[Page: Dashboard]` Open an event from the dashboard into event management.
-- `[Page: Dashboard]` View a team collaboration overview card from the dashboard.
+- `[Page: Events]` Open an event row into the event-management workspace.
+- `[Page: Events]` Use the `Open Event` quick action from an event card menu.
 
 ### Notification Center Page
 
-- `[Page: Notification Center]` Filter notifications by orders, tickets, marketing, and finance.
-- `[Page: Notification Center]` See finance summary cards and finance-related notification counts.
-- `[Page: Notification Center]` Open premium linked workflows directly from a notification.
+- `[Page: Notification Center]` Filter notifications by Orders, Tickets, Marketing, and Finance.
+- `[Page: Notification Center]` See the Finance summary card and finance notification counts.
+- `[Page: Notification Center]` Open premium-linked workflows directly from notifications when allowed.
 
-### Event Management > Details Page
+### Global Search
+
+- `[Page: Top Bar Search]` See event, order, and attendee search results.
+- `[Page: Top Bar Search]` Route search results into event details, orders, or checked-in workflows.
+
+### Event Management > Details
+
+- `[Page: Event Management > Details]` Open a dedicated event workspace after selecting an event.
 - `[Page: Event Management > Details]` View and edit event information after creation.
 - `[Page: Event Management > Details]` Update title, type, category, tags, location type, and location.
 - `[Page: Event Management > Details]` Update start and end dates and times.
+- `[Page: Event Management > Details]` Toggle recurring status from the details form.
 - `[Page: Event Management > Details]` Upload, replace, and remove the main event image.
 - `[Page: Event Management > Details]` Upload and remove additional event images.
 - `[Page: Event Management > Details]` Add or update the event video URL.
 - `[Page: Event Management > Details]` Update event summary and full description.
 - `[Page: Event Management > Details]` Save event edits from inside the event workspace.
-- `[Page: Event Management > Details]` Preview the attendee-facing mobile event page.
-- `[Page: Event Management > Details]` Change event lifecycle status between draft, published, private, and archived.
-- `[Page: Event Management > Details]` Publish or unpublish the event directly from the header.
+- `[Page: Event Management > Details]` Preview the attendee-facing mobile event page in a modal.
+- `[Page: Event Management > Details]` Change lifecycle status between Draft, Published, Private, and Archived.
+- `[Page: Event Management > Details]` Publish or unpublish directly from the header.
 - `[Page: Event Management > Details]` Duplicate the event directly from the header.
 
-### Event Management > Ticketing Page
+### Event Management > Ticketing
 
-- `[Page: Event Management > Ticketing]` Create ticket types.
+- `[Page: Event Management > Ticketing]` Create ticket types from a modal flow.
 - `[Page: Event Management > Ticketing]` Edit existing ticket types.
 - `[Page: Event Management > Ticketing]` Delete ticket types.
 - `[Page: Event Management > Ticketing]` Support paid, free, and donation ticket types.
 - `[Page: Event Management > Ticketing]` Set price, quantity, min per order, and max per order.
-- `[Page: Event Management > Ticketing]` Mark tickets as early bird.
-- `[Page: Event Management > Ticketing]` Configure reserved seating and timed entry flags.
+- `[Page: Event Management > Ticketing]` Mark ticket types as Early Bird.
+- `[Page: Event Management > Ticketing]` Configure reserved seating and timed-entry flags.
 - `[Page: Event Management > Ticketing]` Track sold quantity versus total quantity.
+- `[Page: Event Management > Ticketing]` Display seeded ticket add-ons.
 - `[Page: Event Management > Ticketing]` Create promo codes from a modal flow.
-- `[Page: Event Management > Ticketing]` Configure promo-code discount type, discount value, usage limits, and validity windows.
+- `[Page: Event Management > Ticketing]` Configure promo-code access type, discount type, discount value, usage limit, date window, and ticket applicability.
 - `[Page: Event Management > Ticketing]` View and delete promo codes.
 
-### Event Management > Orders Page
+### Event Management > Orders
 
-- `[Page: Event Management > Orders]` View orders and registration records in a dedicated workspace.
-- `[Page: Event Management > Orders]` Search and filter orders.
-- `[Page: Event Management > Orders]` View attendee details and order details.
-- `[Page: Event Management > Orders]` Open a full attendee and order details modal.
+- `[Page: Event Management > Orders]` View orders and registrations in a dedicated workspace.
+- `[Page: Event Management > Orders]` Search orders.
+- `[Page: Event Management > Orders]` Filter orders with selectable status chips.
+- `[Page: Event Management > Orders]` Review stats for completed, pending, refunded, and total revenue.
+- `[Page: Event Management > Orders]` Select an order to inspect attendee details in a side panel.
+- `[Page: Event Management > Orders]` Open a full attendee-and-order details modal.
 - `[Page: Event Management > Orders]` Mark pending orders as paid.
-- `[Page: Event Management > Orders]` Resend confirmation for an order.
-- `[Page: Event Management > Orders]` Edit organizer notes on an order.
+- `[Page: Event Management > Orders]` Resend confirmations.
+- `[Page: Event Management > Orders]` Edit organizer notes.
 - `[Page: Event Management > Orders]` Refund an order with a refund reason.
-- `[Page: Event Management > Orders]` View refunded, pending, and completed statuses.
-- `[Page: Event Management > Orders]` Export order data with CSV export states.
-- `[Page: Event Management > Orders]` View order summary stats including refunded and revenue values.
-- `[Page: Event Management > Orders]` View waitlist entries shown in the orders workspace.
+- `[Page: Event Management > Orders]` Export order data through CSV export states in the UI.
+- `[Page: Event Management > Orders]` View waitlist entries and release tickets from the waitlist panel.
 
-### Event Management > Checked-In Page
+### Event Management > Checked-In
 
-- `[Page: Event Management > Checked-In]` Log attendee check-ins using a QR or code input.
+- `[Page: Event Management > Checked-In]` Log attendee check-ins using a QR/code input.
 - `[Page: Event Management > Checked-In]` Use manual scan fallback by typing or pasting a code.
 - `[Page: Event Management > Checked-In]` Track scan source such as gate scanner or phone scanner.
 - `[Page: Event Management > Checked-In]` See live success, warning, and error feedback after each scan.
 - `[Page: Event Management > Checked-In]` Prevent duplicate check-ins for the same attendee.
-- `[Page: Event Management > Checked-In]` View check-in stats such as checked-in count, pending count, and check-in rate.
+- `[Page: Event Management > Checked-In]` View checked-in, pending, and check-in-rate stats.
 - `[Page: Event Management > Checked-In]` Search and filter the live check-in log.
-- `[Page: Event Management > Checked-In]` Simulate scans from the UI for on-site workflow testing.
+- `[Page: Event Management > Checked-In]` Simulate a scan from the UI for workflow testing.
 
-### Event Management > Marketing Page
+### Event Management > Marketing
 
-- `[Page: Event Management > Marketing]` Manage event listing settings.
+- `[Page: Event Management > Marketing]` Manage event listing settings from a modal.
 - `[Page: Event Management > Marketing]` Control listing status, category, discovery, geo-radius, and push notifications.
 - `[Page: Event Management > Marketing]` Turn listing boost visibility on or off.
 - `[Page: Event Management > Marketing]` Create email and SMS campaigns.
 - `[Page: Event Management > Marketing]` Save campaigns as draft, scheduled, or sent.
 - `[Page: Event Management > Marketing]` Set campaign audience, send time, subject, objective, and message.
 - `[Page: Event Management > Marketing]` Target audience segments such as subscribers, ticket holders, VIP guests, waitlist, and dormant fans.
-- `[Page: Event Management > Marketing]` Connect campaigns to send integrations and sync delivery metrics back into the UI.
-- `[Page: Event Management > Marketing]` View campaign history and campaign detail summaries.
-- `[Page: Event Management > Marketing]` View delivery, engagement, conversion, and revenue metrics per campaign.
+- `[Page: Event Management > Marketing]` Filter campaign history by channel and status.
+- `[Page: Event Management > Marketing]` Review campaign delivery, engagement, conversion, and revenue metrics in the UI.
 
-### Event Management > Reports Page
+### Event Management > Reports
 
-- `[Page: Event Management > Reports]` View event report stats such as tickets sold, checked in, check-in rate, and no-shows.
+- `[Page: Event Management > Reports]` View event-report stats such as tickets sold, checked in, check-in rate, and no-shows.
 - `[Page: Event Management > Reports]` View categorized attendee issue reports.
 - `[Page: Event Management > Reports]` Expand issue groups to inspect report details.
 - `[Page: Event Management > Reports]` Mark issue reports as resolved.
 - `[Page: Event Management > Reports]` Review resolved report history.
 - `[Page: Event Management > Reports]` Export event reports as PDF.
 
-### Event Management > Settings Page
+### Event Management > Settings
 
 - `[Page: Event Management > Settings]` Set event visibility to Public, Private, or Draft.
 - `[Page: Event Management > Settings]` Generate and regenerate a private event link.
@@ -193,69 +220,78 @@ Important:
 
 - `[Page: Analytics]` View organization analytics when no event is selected.
 - `[Page: Analytics]` View event analytics when an event is selected.
-- `[Page: Analytics]` Change date range for analytics views.
+- `[Page: Analytics]` Change the analytics date range.
 - `[Page: Analytics]` Review KPI cards for revenue, tickets, attendees, and related metrics.
 - `[Page: Analytics]` View revenue and sales charts.
-- `[Page: Analytics]` View a conversion funnel for event-level discovery-to-purchase performance.
-- `[Page: Analytics]` View a Revenue Attribution card on the left and an Event Comparison card on the right in a shared two-column analytics row.
 - `[Page: Analytics]` View ticket-type breakdown charts.
-- `[Page: Analytics]` View event page traffic charts.
+- `[Page: Analytics]` View event-page traffic charts.
 - `[Page: Analytics]` View attendee geography by city and state.
+- `[Page: Analytics]` View an event-level conversion funnel.
+- `[Page: Analytics]` View revenue attribution data.
+- `[Page: Analytics]` View organization-level event comparison and status-distribution cards.
 - `[Page: Analytics]` Export analytics reports as PDF.
 
 ### Finance Page
 
-- `[Page: Finance]` View finance summary cards and financial activity.
+- `[Page: Finance]` View a payment-summary card.
 - `[Page: Finance]` Review payout history.
 - `[Page: Finance]` Review transactions with gross, fees, and net values.
 - `[Page: Finance]` Review withdrawal history.
 - `[Page: Finance]` Review invoice and billing history.
 - `[Page: Finance]` Request a withdrawal from the finance page.
 - `[Page: Finance]` Export finance reports as PDF.
-- `[Page: Finance]` View payout schedule and finance control panels.
-
+- `[Page: Finance]` View payout schedule information.
+- `[Page: Finance]` View finance control panels and jump into payment settings.
 
 
 ## ------- Business / Enterprise Features -------
 
 ### Team Management Page
 
-- `[Page: Team Management]` View all team members in a dedicated team workspace.
-- `[Page: Team Management]` View pending invites and invite statuses.
-- `[Page: Team Management]` Invite new team members from a modal flow.
+- `[Page: Team Management]` Open a dedicated team workspace.
+- `[Page: Team Management]` View role-preset summary cards for Admin, Marketing, Operations, and Custom.
+- `[Page: Team Management]` View pending invites and their statuses.
+- `[Page: Team Management]` Invite team members from a modal flow.
 - `[Page: Team Management]` Assign permission presets including Admin, Marketing, Operations, and Custom.
-- `[Page: Team Management]` Create custom role names.
-- `[Page: Team Management]` Choose all-events access or selected-events access for a team member.
-- `[Page: Team Management]` Route invite acceptance and role assignment changes through approval workflows in the UI.
+- `[Page: Team Management]` Create a custom role name.
+- `[Page: Team Management]` Choose all-events access or selected-events access for an invite.
 - `[Page: Team Management]` Resend pending invites.
 - `[Page: Team Management]` Cancel pending invites.
-- `[Page: Team Management]` Edit an existing team member's permissions and event access.
-- `[Page: Team Management]` Remove team members.
-- `[Page: Team Management]` Assign special tickets such as VIP Access, All Access Pass, Staff Pass, Media Pass, and Comp Ticket.
-- `[Page: Team Management]` View preset role summaries and role counts.
+- `[Page: Team Management]` View all team members in a dedicated table.
+- `[Page: Team Management]` Select a team member to inspect their current access.
+- `[Page: Team Management]` Edit a team member's role preset and event access.
+- `[Page: Team Management]` Remove non-owner team members.
+- `[Page: Team Management]` Assign special tickets such as VIP and staff-style access.
 - `[Page: Team Management]` View on-site tools cards for Organizer App, Guest List Manager, and Coverage Planning.
 
 ### Notification Center Page
 
-- `[Page: Notification Center]` Filter notifications by team.
+- `[Page: Notification Center]` Filter notifications by Team.
 - `[Page: Notification Center]` Open team-related linked workflows directly from a notification.
 
+### Global Search
 
-## ---  Suggested Additions -----
+- `[Page: Top Bar Search]` See team-member search results.
+- `[Page: Top Bar Search]` Route team search results into the Team workspace.
+
+
+## --- Suggested Additions -----
 
 These are not part of the current live MVP feature list above. They are only suggestions based on what is already hinted at in the repo.
 
 ### Suggested Additions for Free
 
 - `[Suggested for Help Center]` Add guided onboarding checklists for first-time organizers.
+- `[Suggested for Global AI Chat]` Connect the chat shell to a real assistant backend.
 
 ### Suggested Additions for Premium
 
-- `[Suggested for Event Management > Orders]` Add real downloadable CSV/PDF exports instead of export states only.
-- `[Suggested for Event Management > Checked-In]` Add camera-based QR scanning instead of code-entry simulation only.
+- `[Suggested for Event Management > Orders]` Add real downloadable CSV exports instead of UI export states only.
+- `[Suggested for Event Management > Checked-In]` Add camera-based QR scanning instead of code-entry and simulation only.
+- `[Suggested for Event Management > Marketing]` Add real campaign delivery integrations.
 - `[Suggested for Finance]` Add real payout scheduling and finance backend syncing.
 
 ### Suggested Additions for Business / Enterprise
 
-- `[Suggested for Team Management]` Add stronger approval workflows for invite acceptance and role assignment.
+- `[Suggested for Team Management]` Add approval workflows, audit trails, and richer access controls for role changes.
 - `[Suggested for Settings > Security]` Add two-factor authentication, active sessions, and login history.

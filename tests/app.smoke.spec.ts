@@ -1,17 +1,21 @@
 import { expect, test } from '@playwright/test';
 
-test('dashboard and create event flow renders', async ({ page }) => {
+test('home and create event flow renders', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle('Dashboard (MVP)');
-  await expect(page.getByRole('heading', { name: 'Events Dashboard' })).toBeVisible();
+  await expect(page).toHaveTitle('Georim Home (MVP)');
+  await expect(page.getByRole('heading', { name: /welcome john/i })).toBeVisible();
 
   await page.getByRole('main').getByRole('button', { name: 'Create Event' }).click();
   await expect(page.getByRole('heading', { name: 'Create New Event' })).toBeVisible();
 });
 
 test('ticketing modal buttons open and close correctly', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('georim.active-subscription-tier', 'premium');
+  });
   await page.goto('/');
 
+  await page.getByRole('button', { name: 'Events' }).click();
   await page.getByRole('heading', { name: 'Summer Music Festival 2026' }).click();
   await page.getByRole('tab', { name: 'Ticketing' }).click();
 
@@ -25,6 +29,6 @@ test('ticketing modal buttons open and close correctly', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Create Code' }).click();
   await expect(page.getByRole('heading', { name: 'Create Promo Code' })).toBeVisible();
-  await page.getByRole('button', { name: 'Create Code' }).nth(1).click();
+  await page.getByRole('button', { name: 'Cancel' }).click();
   await expect(page.getByRole('heading', { name: 'Create Promo Code' })).toHaveCount(0);
 });

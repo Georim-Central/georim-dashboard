@@ -33,7 +33,7 @@ export const subscriptionTierDetails: Record<
   premium: {
     label: 'Premium',
     subtitle: 'Unlock event operations, analytics, and finance',
-    description: 'Adds event management, analytics, finance, and richer dashboard insights.',
+    description: 'Adds event management, analytics, finance, and richer home insights.',
   },
   business: {
     label: 'Business / Enterprise',
@@ -49,7 +49,8 @@ const tierRank: Record<SubscriptionTier, number> = {
 };
 
 const viewTierRequirements: Record<AppView, SubscriptionTier> = {
-  dashboard: 'free',
+  home: 'free',
+  events: 'free',
   'create-event': 'free',
   'event-management': 'premium',
   analytics: 'premium',
@@ -57,7 +58,6 @@ const viewTierRequirements: Record<AppView, SubscriptionTier> = {
   finance: 'premium',
   'notification-center': 'free',
   settings: 'free',
-  help: 'free',
 };
 
 const eventTabTierRequirements: Record<EventManagementTab, SubscriptionTier> = {
@@ -147,13 +147,13 @@ export const notificationSummaryCardDetails: Record<
   },
 };
 
-export type DashboardFeature =
+export type HomeFeature =
   | 'platform-activity'
   | 'team-collaboration'
   | 'team-collaboration-actions'
   | 'event-open-entry';
 
-const dashboardFeatureTierRequirements: Record<DashboardFeature, SubscriptionTier> = {
+const homeFeatureTierRequirements: Record<HomeFeature, SubscriptionTier> = {
   'platform-activity': 'premium',
   'team-collaboration': 'premium',
   'team-collaboration-actions': 'business',
@@ -176,8 +176,8 @@ export function isSettingsSectionAllowed(activeTier: SubscriptionTier, section: 
   return isTierAtLeast(activeTier, settingsSectionTierRequirements[section]);
 }
 
-export function isDashboardFeatureAllowed(activeTier: SubscriptionTier, feature: DashboardFeature) {
-  return isTierAtLeast(activeTier, dashboardFeatureTierRequirements[feature]);
+export function isHomeFeatureAllowed(activeTier: SubscriptionTier, feature: HomeFeature) {
+  return isTierAtLeast(activeTier, homeFeatureTierRequirements[feature]);
 }
 
 export function isSearchResultAllowed(activeTier: SubscriptionTier, result: GlobalSearchResult) {
@@ -310,7 +310,7 @@ export function resolveSafeRouteForTier(
   if (!isViewAllowed(activeTier, routeState.currentView)) {
     return {
       contextMode: 'organization',
-      currentView: 'dashboard',
+      currentView: 'home',
       eventManagementTab: routeState.eventManagementTab,
       settingsSection: safeSettingsSection,
     };
@@ -332,7 +332,7 @@ export function resolveSafeRouteForTier(
     if (!safeEventManagementTab) {
       return {
         contextMode: 'organization',
-        currentView: 'dashboard',
+        currentView: 'home',
         eventManagementTab: routeState.eventManagementTab,
         settingsSection: safeSettingsSection,
       };

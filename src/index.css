@@ -68,7 +68,7 @@
 
 @layer theme {
   :root, :host {
-    --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-sans: "SF Pro Display", "SF Pro Text", "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --color-red-50: oklch(.971 .013 17.38);
     --color-red-100: oklch(.936 .032 17.717);
@@ -134,14 +134,14 @@
     --text-sm: .875rem;
     --text-sm--line-height: calc(1.25 / .875);
     --text-base: 1rem;
-    --text-lg: 1.125rem;
-    --text-lg--line-height: calc(1.75 / 1.125);
+    --text-lg: 1.25rem;
+    --text-lg--line-height: calc(1.75 / 1.25);
     --text-xl: 1.25rem;
     --text-xl--line-height: calc(1.75 / 1.25);
-    --text-2xl: 1.5rem;
-    --text-2xl--line-height: calc(2 / 1.5);
-    --text-3xl: 2rem;
-    --text-3xl--line-height: calc(2.4 / 2);
+    --text-2xl: 1.875rem;
+    --text-2xl--line-height: calc(2.5 / 1.875);
+    --text-3xl: 3.25rem;
+    --text-3xl--line-height: calc(3.75 / 3.25);
     --font-weight-normal: 400;
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
@@ -1941,7 +1941,9 @@
 
 :root {
   --font-size: 16px;
-  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+  --font-sans: "SF Pro Display", "SF Pro Text", "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --default-font-family: var(--font-sans);
+  --font-family: var(--font-sans);
   --primary-brand: #7626c6;
   --primary-brand-hover: #5f1fa3;
   --primary-dark: #05031b;
@@ -2355,6 +2357,27 @@ html {
 
 /* Global UI system overrides */
 :root {
+  --font-sans: "SF Pro Display", "SF Pro Text", "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --default-font-family: var(--font-sans);
+  --font-family: var(--font-sans);
+  --type-hero-size: 3.25rem;
+  --type-hero-line-height: 3.75rem;
+  --type-hero-weight: 900;
+  --type-section-size: 1.875rem;
+  --type-section-line-height: 2.5rem;
+  --type-section-weight: 700;
+  --type-card-size: 1.25rem;
+  --type-card-line-height: 1.75rem;
+  --type-card-weight: 600;
+  --type-ui-size: 1rem;
+  --type-ui-line-height: 1.5rem;
+  --type-ui-weight: 500;
+  --type-subsection-size: 0.875rem;
+  --type-subsection-line-height: 1.25rem;
+  --type-subsection-weight: 500;
+  --type-meta-size: 0.75rem;
+  --type-meta-line-height: 1rem;
+  --type-meta-weight: 400;
   --brand-500: #7626c6;
   --brand-600: #5f1fa3;
   --brand-900: #24123f;
@@ -2390,7 +2413,81 @@ button,
 input,
 select,
 textarea {
-  font-family: "SF Pro Display", "SF Pro Text", "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-sans);
+}
+
+body * {
+  font-family: inherit;
+}
+
+.ui-type-hero {
+  font-size: var(--type-hero-size);
+  line-height: var(--type-hero-line-height);
+  font-weight: var(--type-hero-weight);
+}
+
+.ui-type-section {
+  font-size: var(--type-section-size);
+  line-height: var(--type-section-line-height);
+  font-weight: var(--type-section-weight);
+}
+
+.ui-type-card {
+  font-size: var(--type-card-size);
+  line-height: var(--type-card-line-height);
+  font-weight: var(--type-card-weight);
+}
+
+.ui-type-ui {
+  font-size: var(--type-ui-size);
+  line-height: var(--type-ui-line-height);
+  font-weight: var(--type-ui-weight);
+}
+
+.ui-type-subsection {
+  font-size: var(--type-subsection-size);
+  line-height: var(--type-subsection-line-height);
+  font-weight: var(--type-subsection-weight);
+}
+
+.ui-type-meta {
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-line-height);
+  font-weight: var(--type-meta-weight);
+}
+
+h1 {
+  font-weight: 900;
+}
+
+h2 {
+  font-weight: 700;
+}
+
+h3 {
+  font-weight: 600;
+}
+
+button,
+input,
+select,
+textarea,
+label {
+  font-weight: 500;
+}
+
+small {
+  font-weight: 400;
+}
+
+.text-\[11px\] {
+  font-size: var(--text-xs) !important;
+  line-height: var(--text-xs--line-height) !important;
+}
+
+.recharts-cartesian-axis-tick-value,
+.recharts-text {
+  font-family: var(--font-sans);
 }
 
 .app-shell select {
@@ -2413,6 +2510,21 @@ body {
 
 .app-shell {
   background: transparent;
+}
+
+.home-academy-scroller::-webkit-scrollbar {
+  height: 12px;
+}
+
+.home-academy-scroller::-webkit-scrollbar-track {
+  background: #f3f1f7;
+  border-radius: 999px;
+}
+
+.home-academy-scroller::-webkit-scrollbar-thumb {
+  background: #a9a8b3;
+  border: 2px solid #f3f1f7;
+  border-radius: 999px;
 }
 
 .glass-header {
@@ -2662,7 +2774,7 @@ button.btn-glass:focus-visible {
   right: -6px;
   background: #ff3b30;
   color: #fff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   min-width: 18px;
   height: 18px;
@@ -2812,9 +2924,9 @@ button.btn-glass:focus-visible {
 }
 
 .ui-page-title {
-  font-size: 2rem;
-  font-weight: 600;
-  line-height: 1.1;
+  font-size: var(--type-section-size);
+  font-weight: var(--type-section-weight);
+  line-height: var(--type-section-line-height);
   letter-spacing: -0.03em;
   color: #111827;
 }
@@ -2822,7 +2934,9 @@ button.btn-glass:focus-visible {
 .ui-page-subtitle {
   margin-top: 8px;
   max-width: 46rem;
-  font-size: 0.875rem;
+  font-size: var(--type-subsection-size);
+  font-weight: 400;
+  line-height: var(--type-subsection-line-height);
   color: #6b7280;
 }
 
@@ -2835,25 +2949,63 @@ button.btn-glass:focus-visible {
 }
 
 .ui-section-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: var(--type-card-size);
+  font-weight: var(--type-card-weight);
+  line-height: var(--type-card-line-height);
   color: #111827;
 }
 
 .ui-card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.3;
+  font-size: var(--type-card-size);
+  font-weight: var(--type-card-weight);
+  line-height: var(--type-card-line-height);
   color: #111827;
 }
 
 .ui-card-subtitle,
 .ui-meta-text {
-  font-size: 0.75rem;
-  font-weight: 500;
-  line-height: 1.35;
+  font-size: var(--type-meta-size);
+  font-weight: var(--type-meta-weight);
+  line-height: var(--type-meta-line-height);
   color: #6b7280;
+}
+
+.ui-support-copy {
+  font-size: var(--type-subsection-size);
+  line-height: var(--type-subsection-line-height);
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.ui-field-label {
+  display: block;
+  font-size: var(--type-subsection-size);
+  line-height: var(--type-subsection-line-height);
+  font-weight: var(--type-subsection-weight);
+  color: #374151;
+}
+
+.ui-dialog-title {
+  font-size: var(--type-card-size);
+  line-height: var(--type-card-line-height);
+  font-weight: var(--type-card-weight);
+  letter-spacing: -0.02em;
+  color: #111827;
+}
+
+.ui-dialog-subtitle {
+  font-size: var(--type-subsection-size);
+  line-height: var(--type-subsection-line-height);
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.ui-kpi-value {
+  font-size: var(--type-section-size);
+  line-height: var(--type-section-line-height);
+  font-weight: var(--type-section-weight);
+  letter-spacing: -0.03em;
+  color: #111827;
 }
 
 .ui-chip {
@@ -3099,41 +3251,7 @@ button.btn-glass:focus-visible {
 }
 
 .ui-tabs-list {
-  background: rgba(241, 245, 249, 0.96);
-  border: 1px solid rgba(148, 163, 184, 0.16);
-}
-
-.ui-tabs-trigger {
-  color: #64748b;
-}
-
-.ui-tabs-trigger:hover {
-  color: #1f2937;
-}
-
-.ui-tabs-trigger::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: 0.35rem;
-  width: 2.25rem;
-  height: 3px;
-  border-radius: 9999px;
-  background: #6d28d9;
-  transform: translateX(-50%);
-  opacity: 0;
-  transition: opacity var(--ui-duration-hover) ease;
-}
-
-.ui-tabs-trigger[data-state="active"] {
-  background: #fff;
-  color: #4c1d95;
-  font-weight: 600;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
-}
-
-.ui-tabs-trigger[data-state="active"]::after {
-  opacity: 1;
+  width: 100%;
 }
 
 .finance-subcard {

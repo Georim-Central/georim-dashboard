@@ -268,8 +268,8 @@ function FinanceCard({
     <section className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-sm shadow-slate-200/60 sm:p-6 lg:p-7">
       <div className="mb-5 flex flex-col gap-3 border-b border-gray-100 pb-4 sm:mb-6 sm:pb-5 md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-950">{title}</h2>
-          {description ? <p className="mt-1 text-sm text-gray-500">{description}</p> : null}
+          <h2 className="ui-card-title">{title}</h2>
+          {description ? <p className="ui-support-copy mt-1">{description}</p> : null}
         </div>
         {action}
       </div>
@@ -312,10 +312,10 @@ function FinanceRequestWithdrawalModal({
       >
         <div className="mb-5 flex items-start justify-between gap-4 sm:mb-6">
           <div className="space-y-2">
-            <h2 id={titleId} className="text-2xl font-semibold tracking-[-0.03em] text-gray-950">
+            <h2 id={titleId} className="ui-dialog-title">
               Request Withdrawal
             </h2>
-            <p id={descriptionId} className="text-sm leading-6 text-gray-500">
+            <p id={descriptionId} className="ui-dialog-subtitle">
               Submit a withdrawal request for admin review and payout approval. Available balance: {formatCurrency(maxAmount)}.
             </p>
           </div>
@@ -331,7 +331,7 @@ function FinanceRequestWithdrawalModal({
 
         <div className="space-y-4 sm:space-y-5">
           <label className="block">
-            <span className="mb-2 block text-sm font-medium text-gray-500">Withdrawal Amount</span>
+            <span className="ui-field-label mb-2">Withdrawal Amount</span>
             <input
               type="number"
               min="0"
@@ -344,7 +344,7 @@ function FinanceRequestWithdrawalModal({
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-sm font-medium text-gray-500">Destination Account</span>
+            <span className="ui-field-label mb-2">Destination Account</span>
             <select
               value={draft.destination}
               onChange={(event) => onChange({ ...draft, destination: event.target.value })}
@@ -357,7 +357,7 @@ function FinanceRequestWithdrawalModal({
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-sm font-medium text-gray-500">Admin Contact Email</span>
+            <span className="ui-field-label mb-2">Admin Contact Email</span>
             <input
               type="email"
               value={draft.contact}
@@ -368,7 +368,7 @@ function FinanceRequestWithdrawalModal({
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-sm font-medium text-gray-500">Request Note</span>
+            <span className="ui-field-label mb-2">Request Note</span>
             <textarea
               value={draft.note}
               onChange={(event) => onChange({ ...draft, note: event.target.value })}
@@ -494,10 +494,10 @@ export function Finance({ onOpenPaymentSettings }: { onOpenPaymentSettings?: () 
   return (
     <div className="min-h-full bg-[#f7f5fb] p-6 md:p-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="ui-page-header flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-gray-950">Finance</h1>
-            <p className="mt-2 max-w-2xl text-sm text-gray-600 md:text-base">
+            <h1 className="ui-page-title ui-type-section">Finance</h1>
+            <p className="ui-page-subtitle ui-type-subsection mt-2 max-w-2xl">
               Monitor organizer cash flow, reconcile ticket revenue, and manage withdrawals without
               leaving the event workspace.
             </p>
@@ -562,30 +562,30 @@ export function Finance({ onOpenPaymentSettings }: { onOpenPaymentSettings?: () 
             }
           >
             <Tabs defaultValue="payouts" className="w-full">
-              <TabsList className="mb-5 grid h-auto w-full grid-cols-2 gap-2 rounded-[28px] bg-[#f4ecfb] p-1 lg:grid-cols-4">
+              <TabsList className="mb-5 w-full">
                 <TabsTrigger
                   value="payouts"
-                  className="px-4 py-2.5"
                 >
-                  Payout History
+                  <Landmark className="h-4 w-4" aria-hidden="true" />
+                  <span>Payout History</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="transactions"
-                  className="px-4 py-2.5"
                 >
-                  Transactions
+                  <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                  <span>Transactions</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="withdrawals"
-                  className="px-4 py-2.5"
                 >
-                  Withdrawal History
+                  <ArrowDownLeft className="h-4 w-4" aria-hidden="true" />
+                  <span>Withdrawal History</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="invoices"
-                  className="px-4 py-2.5"
                 >
-                  Invoices & Billing
+                  <CreditCard className="h-4 w-4" aria-hidden="true" />
+                  <span>Invoices & Billing</span>
                 </TabsTrigger>
               </TabsList>
 

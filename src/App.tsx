@@ -1,5 +1,6 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { GlobalAIChat } from './components/GlobalAIChat';
+import { Home } from './components/Home';
 import { Sidebar } from './components/Sidebar';
 import { SettingsPage } from './components/SettingsPage';
 import { TopBar } from './components/TopBar';
@@ -18,7 +19,7 @@ import { AppView, EventManagementTab, GlobalSearchResult, SettingsSection, Subsc
 import { OrganizerNotification } from './types/notifications';
 import { EventDraft, EventDraftUpdate, EventLifecycleStatus, EventSummary } from './types/event';
 
-const Dashboard = lazy(() => import('./components/Dashboard').then((module) => ({ default: module.Dashboard })));
+const EventsPage = lazy(() => import('./components/EventsPage').then((module) => ({ default: module.EventsPage })));
 const EventCreation = lazy(() => import('./components/EventCreation').then((module) => ({ default: module.EventCreation })));
 const EventManagement = lazy(() => import('./components/EventManagement').then((module) => ({ default: module.EventManagement })));
 const Analytics = lazy(() => import('./components/Analytics').then((module) => ({ default: module.Analytics })));
@@ -27,7 +28,6 @@ const Finance = lazy(() => import('./components/Finance').then((module) => ({ de
 const NotificationCenter = lazy(() =>
   import('./components/NotificationCenter').then((module) => ({ default: module.NotificationCenter }))
 );
-const HelpCenter = lazy(() => import('./components/HelpCenter').then((module) => ({ default: module.HelpCenter })));
 
 const defaultTeamEventOptions = [
   'Summer Music Festival 2026',
@@ -313,11 +313,8 @@ const formatDateLabel = (draft: EventDraft) => {
 
 export default function App() {
   const currentUserFirstName = 'John';
-  useEffect(() => {
-    document.documentElement.style.fontSize = '12.8px';
-  }, []);
 
-  const [currentView, setCurrentView] = useState<AppView>('dashboard');
+  const [currentView, setCurrentView] = useState<AppView>('home');
   const [activeTier, setActiveTier] = useState<SubscriptionTier>(() => getStoredSubscriptionTier());
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [selectedEventName, setSelectedEventName] = useState<string | null>(null);
@@ -325,7 +322,6 @@ export default function App() {
   const [eventManagementTab, setEventManagementTab] = useState<EventManagementTab>('details');
   const [settingsSection, setSettingsSection] = useState<SettingsSection>('profile');
   const [teamEventOptions, setTeamEventOptions] = useState<string[]>(defaultTeamEventOptions);
-  const [teamInviteRequestId, setTeamInviteRequestId] = useState(0);
   const [eventDetailsById, setEventDetailsById] = useState<Record<string, EventDraft>>(seededEventDetails);
   const [eventSummariesById, setEventSummariesById] = useState<Record<string, EventSummary>>(seededEventSummaries);
   const [searchQuery, setSearchQuery] = useState('');
@@ -580,7 +576,7 @@ export default function App() {
 
     const allowedResult = filterSearchResultsByTier(activeTier, [result])[0];
     if (!allowedResult) {
-      setCurrentView('dashboard');
+      setCurrentView('home');
       setContextMode('organization');
       return;
     }
@@ -628,12 +624,12 @@ export default function App() {
     setSelectedEventId(null);
     setSelectedEventName(null);
     setEventManagementTab('details');
-    setCurrentView('dashboard');
+    setCurrentView('home');
   };
 
   const openNotificationTarget = (notification: OrganizerNotification) => {
     if (!isNotificationAllowed(activeTier, notification)) {
-      setCurrentView('dashboard');
+      setCurrentView('home');
       setContextMode('organization');
       return;
     }
@@ -723,7 +719,7 @@ export default function App() {
   };
 
   return (
-    <div className="app-shell flex h-screen">
+    <div className="app-shell flex h-screen overflow-hidden">
       <Sidebar
         activeTier={activeTier}
         currentView={effectiveView}
@@ -737,7 +733,7 @@ export default function App() {
         onSettingsSectionSelect={setSettingsSection}
       />
       
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="min-w-0 flex-1 flex flex-col overflow-hidden">
         <TopBar
           contextMode={effectiveContextMode}
           currentView={effectiveView}
@@ -752,7 +748,7 @@ export default function App() {
           onOpenProfileSettings={handleOpenProfileSettings}
         />
         
-        <main className="flex-1 overflow-y-auto" aria-live="polite">
+        <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto" aria-live="polite">
           <Suspense
             fallback={(
               <div className="p-8">
@@ -762,24 +758,18 @@ export default function App() {
               </div>
             )}
           >
-            {effectiveView === 'dashboard' && (
-              <Dashboard
-                activeTier={activeTier}
+            {effectiveView === 'home' && (
+              <Home
                 firstName={currentUserFirstName}
+                onCreateEvent={() => setCurrentView('create-event')}
+              />
+            )}
+            {effectiveView === 'events' && (
+              <EventsPage
+                activeTier={activeTier}
                 events={eventSummaries}
                 onCreateEvent={() => setCurrentView('create-event')}
                 onEventSelect={handleEventSelect}
-                onViewTeam={() => {
-                  if (!isViewAllowed(activeTier, 'team')) return;
-                  setCurrentView('team');
-                }}
-                onInviteTeamMember={() => {
-                  if (!isViewAllowed(activeTier, 'team')) return;
-                  setTeamInviteRequestId((current) => current + 1);
-                  setContextMode('organization');
-                  setCurrentView('team');
-                }}
-                onViewActivity={handleOpenNotificationCenter}
                 onDuplicateEvent={handleDuplicateEvent}
                 onArchiveEvent={handleArchiveEvent}
                 onUpdateEventStatus={handleEventStatusChange}
@@ -817,7 +807,7 @@ export default function App() {
               <Analytics selectedEventId={selectedEventId} selectedEventName={selectedEventName} />
             )}
             {effectiveView === 'team' && (
-              <TeamManagement eventOptions={teamEventOptions} inviteRequestId={teamInviteRequestId} />
+              <TeamManagement eventOptions={teamEventOptions} />
             )}
             {effectiveView === 'finance' && (
               <Finance onOpenPaymentSettings={handleOpenPaymentSettings} />
@@ -838,10 +828,8 @@ export default function App() {
                 activeTier={activeTier}
                 onTierChange={setActiveTier}
                 section={effectiveSettingsSection}
+                onSectionChange={setSettingsSection}
               />
-            )}
-            {effectiveView === 'help' && (
-              <HelpCenter />
             )}
           </Suspense>
         </main>

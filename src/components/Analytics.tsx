@@ -150,12 +150,12 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                   <div className={`ui-icon-tile ${metric.bg} ${metric.color}`}>
                     <Icon className="w-5 h-5" />
                   </div>
-                  <span className={`text-sm font-medium ${metric.trend === 'up' ? 'text-green-600' : metric.trend === 'down' ? 'text-red-600' : 'text-gray-600'}`}>
+                  <span className={`ui-type-subsection ${metric.trend === 'up' ? 'text-green-600' : metric.trend === 'down' ? 'text-red-600' : 'text-gray-600'}`}>
                     {metric.change}
                   </span>
                 </div>
                 <div className="ui-meta-text mb-2">{metric.label}</div>
-                <div className="text-2xl font-semibold text-gray-900">{metric.value}</div>
+                <div className="ui-kpi-value">{metric.value}</div>
               </div>
             );
           })}
@@ -170,7 +170,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="ui-card-title">Ticket Sales Performance</h2>
-                <p className="text-sm text-gray-600 mt-1">Daily ticket sales and revenue trends</p>
+                <p className="ui-support-copy mt-1">Daily ticket sales and revenue trends</p>
               </div>
               <div className="flex gap-2">
                 <button type="button" className="ui-chip is-active">
@@ -250,7 +250,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
             <h2 className="ui-card-title mb-6">Attendee Geography</h2>
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-4">Top Cities</h3>
+                <h3 className="ui-type-subsection mb-4 text-gray-700">Top Cities</h3>
                 <div className="space-y-3">
                   <ContentState
                     isLoading={isLoading}
@@ -269,7 +269,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                             style={{ width: `${city.percentage}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-medium text-gray-900 w-16 text-right">
+                        <span className="ui-type-subsection w-16 text-right text-gray-900">
                           {city.count} ({city.percentage}%)
                         </span>
                       </div>
@@ -279,7 +279,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                 </div>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-4">Top States</h3>
+                <h3 className="ui-type-subsection mb-4 text-gray-700">Top States</h3>
                 <div className="space-y-3">
                   <ContentState
                     isLoading={isLoading}
@@ -298,7 +298,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                             style={{ width: `${state.percentage}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-medium text-gray-900 w-16 text-right">
+                        <span className="ui-type-subsection w-16 text-right text-gray-900">
                           {state.count} ({state.percentage}%)
                         </span>
                       </div>
@@ -315,7 +315,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
               <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
                   <h2 className="ui-card-title">Conversion Funnel</h2>
-                  <p className="mt-1 text-sm text-gray-600">Track the path from event discovery to completed ticket purchase.</p>
+                  <p className="ui-support-copy mt-1">Track the path from event discovery to completed ticket purchase.</p>
                 </div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-[#f5ecfd] px-3 py-1 text-xs font-semibold text-[#7626c6]">
                   <Target className="h-3.5 w-3.5" />
@@ -327,12 +327,12 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                   <div key={stage.stage} className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
                     <div className="flex items-center justify-between gap-4">
                       <div>
-                        <p className="text-sm font-semibold text-gray-900">{stage.stage}</p>
-                        <p className="mt-1 text-xs text-gray-500">{stage.description}</p>
+                        <p className="ui-type-subsection text-gray-900">{stage.stage}</p>
+                        <p className="ui-meta-text mt-1">{stage.description}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-semibold text-gray-900">{stage.value.toLocaleString()}</p>
-                        <p className="text-xs font-medium text-gray-500">{stage.rateLabel}</p>
+                        <p className="ui-type-card text-gray-900">{stage.value.toLocaleString()}</p>
+                        <p className="ui-type-meta text-gray-500">{stage.rateLabel}</p>
                       </div>
                     </div>
                     <div className="ui-progress-track mt-3 h-2.5">
@@ -346,19 +346,19 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
             <section className="rounded-[28px] border border-gray-200 bg-white p-6">
               <div className="mb-6">
                 <h2 className="ui-card-title">Revenue Attribution</h2>
-                <p className="mt-1 text-sm text-gray-600">See which channels are driving the most converted ticket revenue.</p>
+                <p className="ui-support-copy mt-1">See which channels are driving the most converted ticket revenue.</p>
               </div>
               <div className="space-y-4">
                 {eventRevenueAttribution.map((channel) => (
                   <div key={channel.channel}>
                     <div className="flex items-center justify-between gap-4">
                       <div>
-                        <p className="text-sm font-semibold text-gray-900">{channel.channel}</p>
-                        <p className="mt-1 text-xs text-gray-500">{channel.conversions} purchases attributed</p>
+                        <p className="ui-type-subsection text-gray-900">{channel.channel}</p>
+                        <p className="ui-meta-text mt-1">{channel.conversions} purchases attributed</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-semibold text-gray-900">${channel.revenue.toLocaleString()}</p>
-                        <p className="text-xs text-gray-500">{channel.share}% share</p>
+                        <p className="ui-type-subsection text-gray-900">${channel.revenue.toLocaleString()}</p>
+                        <p className="ui-meta-text">{channel.share}% share</p>
                       </div>
                     </div>
                     <div className="ui-progress-track mt-2">
@@ -378,7 +378,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="ui-card-title">Revenue & Sales Overview</h2>
-                <p className="text-sm text-gray-600 mt-1">Performance across all events</p>
+                <p className="ui-support-copy mt-1">Performance across all events</p>
               </div>
               <div className="flex gap-2">
                 <button
@@ -467,7 +467,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={orgEventsPerformance}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="event" stroke="#666" style={{ fontSize: '11px' }} angle={-15} textAnchor="end" height={80} />
+                  <XAxis dataKey="event" stroke="#666" style={{ fontSize: '12px' }} angle={-15} textAnchor="end" height={80} />
                   <YAxis stroke="#666" style={{ fontSize: '12px' }} />
                   <Tooltip 
                     contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
@@ -501,7 +501,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
             <h2 className="ui-card-title mb-6">Attendee Geography (All Events)</h2>
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-4">Top Cities</h3>
+                <h3 className="ui-type-subsection mb-4 text-gray-700">Top Cities</h3>
                 <div className="space-y-3">
                   <ContentState
                     isLoading={isLoading}
@@ -520,7 +520,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                             style={{ width: `${city.percentage}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-medium text-gray-900 w-16 text-right">
+                        <span className="ui-type-subsection w-16 text-right text-gray-900">
                           {city.count} ({city.percentage}%)
                         </span>
                       </div>
@@ -530,7 +530,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                 </div>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-4">Top States</h3>
+                <h3 className="ui-type-subsection mb-4 text-gray-700">Top States</h3>
                 <div className="space-y-3">
                   <ContentState
                     isLoading={isLoading}
@@ -549,7 +549,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                             style={{ width: `${state.percentage}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-medium text-gray-900 w-16 text-right">
+                        <span className="ui-type-subsection w-16 text-right text-gray-900">
                           {state.count} ({state.percentage}%)
                         </span>
                       </div>
@@ -566,7 +566,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
               <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
                   <h2 className="ui-card-title">Revenue Attribution</h2>
-                  <p className="mt-1 text-sm text-gray-600">Connect paid, organic, partner, and lifecycle channels to closed ticket revenue.</p>
+                  <p className="ui-support-copy mt-1">Connect paid, organic, partner, and lifecycle channels to closed ticket revenue.</p>
                 </div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
                   <TrendingUp className="h-3.5 w-3.5" />
@@ -588,9 +588,9 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
               <div className="mt-4 grid grid-cols-2 gap-3">
                 {orgRevenueAttributionData.map((channel) => (
                   <div key={channel.channel} className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                    <p className="text-xs font-medium uppercase tracking-[0.14em] text-gray-400">{channel.channel}</p>
-                    <p className="mt-2 text-lg font-semibold text-gray-900">${channel.revenue.toLocaleString()}</p>
-                    <p className="mt-1 text-xs text-gray-500">{channel.conversions} conversions · {channel.share}% share</p>
+                    <p className="ui-type-meta uppercase tracking-[0.14em] text-gray-400">{channel.channel}</p>
+                    <p className="ui-type-card mt-2 text-gray-900">${channel.revenue.toLocaleString()}</p>
+                    <p className="ui-meta-text mt-1">{channel.conversions} conversions · {channel.share}% share</p>
                   </div>
                 ))}
               </div>
@@ -600,7 +600,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
               <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
                   <h2 className="ui-card-title">Event Comparison</h2>
-                  <p className="mt-1 text-sm text-gray-600">Compare core outcomes across your highest-impact events without leaving the dashboard.</p>
+                  <p className="ui-support-copy mt-1">Compare core outcomes across your highest-impact events without leaving the dashboard.</p>
                 </div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
                   <GitCompareArrows className="h-3.5 w-3.5" />
@@ -638,7 +638,7 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={orgEventComparisonData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="event" stroke="#666" style={{ fontSize: '11px' }} angle={-15} textAnchor="end" height={74} />
+                  <XAxis dataKey="event" stroke="#666" style={{ fontSize: '12px' }} angle={-15} textAnchor="end" height={74} />
                   <YAxis
                     stroke="#666"
                     style={{ fontSize: '12px' }}
@@ -669,12 +669,12 @@ export function Analytics({ selectedEventId, selectedEventName }: AnalyticsProps
                 {orgEventComparisonData.map((event) => (
                   <div key={event.event} className="flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3">
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{event.event}</p>
-                      <p className="mt-1 text-xs text-gray-500">${event.attributedRevenue.toLocaleString()} attributed revenue</p>
+                      <p className="ui-type-subsection text-gray-900">{event.event}</p>
+                      <p className="ui-meta-text mt-1">${event.attributedRevenue.toLocaleString()} attributed revenue</p>
                     </div>
-                    <div className="text-right text-sm text-gray-600">
+                    <div className="ui-type-subsection text-right text-gray-600">
                       <p className="font-semibold text-gray-900">{eventComparisonMetric === 'revenue' ? `$${event.revenue.toLocaleString()}` : eventComparisonMetric === 'conversion' ? `${event.conversion}%` : event.attendees.toLocaleString()}</p>
-                      <p className="mt-1 text-xs text-gray-500">{event.checkoutStarts.toLocaleString()} checkout starts</p>
+                      <p className="ui-meta-text mt-1">{event.checkoutStarts.toLocaleString()} checkout starts</p>
                     </div>
                   </div>
                 ))}

@@ -1,4 +1,4 @@
-import { KeyboardEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Calendar, Ticket, Mail, BarChart3, CreditCard, Download, Settings as SettingsIcon, QrCode, Search, Phone, CheckCircle, UserRound, ChevronDown, ChevronLeft, ChevronRight, Bookmark, Share2, MapPin, Clock, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAllowedEventManagementTabs } from '@/lib/subscription-access';
@@ -6,6 +6,7 @@ import { Iphone15Pro } from './ui/iphone-15-pro';
 import { TicketingSection } from './event-management/TicketingSection';
 import { OrdersSection } from './event-management/OrdersSection';
 import { MarketingSection } from './event-management/MarketingSection';
+import { Tabs as VercelTabs, TabsList as VercelTabsList, TabsTrigger as VercelTabsTrigger } from '@/components/ui/vercel-tabs';
 import { downloadReportPdf } from '../utils/reportExport';
 import { useModalA11y } from '../hooks/useModalA11y';
 import { EventDraft, EventDraftUpdate, EventLifecycleStatus } from '../types/event';
@@ -498,28 +499,6 @@ export function EventManagement({
     setStatusNotice(`Event status updated to ${nextStatus}.`);
   };
 
-  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, currentIndex: number) => {
-    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
-      return;
-    }
-
-    event.preventDefault();
-
-    if (event.key === 'Home') {
-      activateTab(tabIds[0]);
-      return;
-    }
-
-    if (event.key === 'End') {
-      activateTab(tabIds[tabIds.length - 1]);
-      return;
-    }
-
-    const direction = event.key === 'ArrowRight' ? 1 : -1;
-    const nextIndex = (currentIndex + direction + tabIds.length) % tabIds.length;
-    activateTab(tabIds[nextIndex]);
-  };
-
   return (
     <div className="min-h-full bg-gray-50">
       {/* Event Header */}
@@ -527,8 +506,8 @@ export function EventManagement({
         <div className="max-w-7xl mx-auto px-8 py-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{resolvedEventName}</h1>
-              <p className="text-gray-600 mt-1">{eventHeaderDetails}</p>
+              <h1 className="ui-page-title ui-type-section text-gray-900">{resolvedEventName}</h1>
+              <p className="ui-page-subtitle ui-type-subsection mt-1">{eventHeaderDetails}</p>
               {statusNotice ? (
                 <p className="mt-2 text-sm font-medium capitalize text-[#7626c6]" aria-live="polite">
                   {statusNotice}
@@ -573,39 +552,27 @@ export function EventManagement({
               </button>
             </div>
           </div>
-
-          {/* Tabs */}
-          <div className="flex gap-1 border-b border-gray-200 -mb-px overflow-x-auto pb-1" role="tablist" aria-label="Event management sections">
-            {tabs.map((tab, index) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  type="button"
-                  key={tab.id}
-                  id={`event-tab-${tab.id}`}
-                  role="tab"
-                  aria-selected={activeTab === tab.id}
-                  aria-controls={`event-panel-${tab.id}`}
-                  tabIndex={activeTab === tab.id ? 0 : -1}
-                  onClick={() => activateTab(tab.id as Tab)}
-                  onKeyDown={(event) => handleTabKeyDown(event, index)}
-                  className={`flex items-center gap-2 px-4 py-3 text-sm border-b-2 transition-colors duration-[150ms] whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? 'border-gray-900 text-gray-900 font-semibold'
-                      : 'border-transparent text-gray-400 font-medium hover:text-violet-400 hover:border-violet-200'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span className="font-medium">{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
         </div>
       </div>
 
       {/* Tab Content */}
-      <div className="max-w-7xl mx-auto px-8 py-8">
+      <div className="max-w-7xl mx-auto px-8 pt-6 pb-8">
+        <div className="sticky top-0 z-10 mb-8 pt-1">
+          <VercelTabs value={activeTab} onValueChange={(value) => activateTab(value as Tab)} className="w-full">
+            <VercelTabsList className="w-full" aria-label="Event management sections">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <VercelTabsTrigger key={tab.id} id={`event-tab-${tab.id}`} value={tab.id}>
+                    <Icon className="h-4 w-4" aria-hidden="true" />
+                    <span>{tab.label}</span>
+                  </VercelTabsTrigger>
+                );
+              })}
+            </VercelTabsList>
+          </VercelTabs>
+        </div>
+
         <section id={`event-panel-${activeTab}`} role="tabpanel" aria-labelledby={`event-tab-${activeTab}`}>
           {activeTab === 'details' && (
             <EventDetailsTab
@@ -771,8 +738,8 @@ function CheckedInTab({
         ].map((stat) => (
           <div key={stat.label} className="rounded-[28px] border border-gray-200 bg-white p-6">
             <p className="ui-meta-text mb-3">{stat.label}</p>
-            <p className="text-3xl font-semibold tracking-tight text-gray-900 leading-none">{stat.value}</p>
-            <p className="mt-2 text-xs text-gray-500">{stat.sub}</p>
+            <p className="ui-kpi-value leading-none">{stat.value}</p>
+            <p className="ui-meta-text mt-2">{stat.sub}</p>
           </div>
         ))}
       </div>
@@ -783,7 +750,7 @@ function CheckedInTab({
         <div className="flex items-start justify-between gap-4 px-6 py-6 border-b border-gray-100">
           <div>
             <h2 className="ui-card-title">Checked-In Attendees</h2>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="ui-meta-text mt-1">
               Scan attendee QR codes from your phone or scanner device to log check-ins in real time.
             </p>
           </div>
@@ -852,7 +819,7 @@ function CheckedInTab({
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-4">
-          <h3 className="text-lg font-semibold text-gray-900 flex-shrink-0">Live Check-In Log</h3>
+          <h3 className="ui-card-title flex-shrink-0">Live Check-In Log</h3>
           <div className="flex items-center gap-3 ml-auto">
             <select
               value={ticketTypeFilter}
@@ -1075,7 +1042,7 @@ function EventDetailsTab({
     <div className="space-y-6">
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         <div className="flex items-center justify-between gap-3 mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Event Information</h2>
+          <h2 className="ui-card-title">Event Information</h2>
           <div className="flex items-center gap-2">
             {isEditing ? (
               <>
@@ -1112,7 +1079,7 @@ function EventDetailsTab({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor={getFieldId('title')} className="block text-sm font-medium text-gray-700 mb-2">Event Title</label>
+            <label htmlFor={getFieldId('title')} className="ui-field-label mb-2">Event Title</label>
             <input
               id={getFieldId('title')}
               type="text"
@@ -1124,7 +1091,7 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label htmlFor={getFieldId('type')} className="block text-sm font-medium text-gray-700 mb-2">Event Type</label>
+            <label htmlFor={getFieldId('type')} className="ui-field-label mb-2">Event Type</label>
             <input
               id={getFieldId('type')}
               type="text"
@@ -1136,7 +1103,7 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label htmlFor={getFieldId('category')} className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+            <label htmlFor={getFieldId('category')} className="ui-field-label mb-2">Category</label>
             <input
               id={getFieldId('category')}
               type="text"
@@ -1148,7 +1115,7 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label htmlFor={getFieldId('tags')} className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+            <label htmlFor={getFieldId('tags')} className="ui-field-label mb-2">Tags</label>
             <input
               id={getFieldId('tags')}
               type="text"
@@ -1160,7 +1127,7 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label htmlFor={getFieldId('location-type')} className="block text-sm font-medium text-gray-700 mb-2">Location Type</label>
+            <label htmlFor={getFieldId('location-type')} className="ui-field-label mb-2">Location Type</label>
             <input
               id={getFieldId('location-type')}
               type="text"
@@ -1172,7 +1139,7 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label htmlFor={getFieldId('location')} className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+            <label htmlFor={getFieldId('location')} className="ui-field-label mb-2">Location</label>
             <input
               id={getFieldId('location')}
               type="text"
@@ -1184,7 +1151,7 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label htmlFor={getFieldId('start-date')} className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+            <label htmlFor={getFieldId('start-date')} className="ui-field-label mb-2">Start Date</label>
             <input
               id={getFieldId('start-date')}
               type="date"
@@ -1195,7 +1162,7 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label htmlFor={getFieldId('start-time')} className="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+            <label htmlFor={getFieldId('start-time')} className="ui-field-label mb-2">Start Time</label>
             <input
               id={getFieldId('start-time')}
               type="time"
@@ -1206,7 +1173,7 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label htmlFor={getFieldId('end-date')} className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+            <label htmlFor={getFieldId('end-date')} className="ui-field-label mb-2">End Date</label>
             <input
               id={getFieldId('end-date')}
               type="date"
@@ -1217,7 +1184,7 @@ function EventDetailsTab({
             />
           </div>
           <div>
-            <label htmlFor={getFieldId('end-time')} className="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+            <label htmlFor={getFieldId('end-time')} className="ui-field-label mb-2">End Time</label>
             <input
               id={getFieldId('end-time')}
               type="time"
@@ -1229,7 +1196,7 @@ function EventDetailsTab({
           </div>
           <div className="md:col-span-2">
             <div className="flex items-center justify-between mb-2">
-              <label htmlFor={getFieldId('main-image')} className="block text-sm font-medium text-gray-700">Main Event Image</label>
+              <label htmlFor={getFieldId('main-image')} className="ui-field-label">Main Event Image</label>
               {isEditing && (
                 <div className="flex items-center gap-2">
                   <button
@@ -1277,7 +1244,7 @@ function EventDetailsTab({
 
           <div className="md:col-span-2">
             <div className="flex items-center justify-between mb-2">
-              <label htmlFor={getFieldId('additional-images')} className="block text-sm font-medium text-gray-700">Additional Uploaded Images</label>
+              <label htmlFor={getFieldId('additional-images')} className="ui-field-label">Additional Uploaded Images</label>
               {isEditing && (
                 <button
                   type="button"
@@ -1325,7 +1292,7 @@ function EventDetailsTab({
           </div>
 
           <div className="md:col-span-2">
-            <label htmlFor={getFieldId('video-url')} className="block text-sm font-medium text-gray-700 mb-2">Event Video URL</label>
+            <label htmlFor={getFieldId('video-url')} className="ui-field-label mb-2">Event Video URL</label>
             <input
               id={getFieldId('video-url')}
               type="url"
@@ -1337,7 +1304,7 @@ function EventDetailsTab({
             />
           </div>
           <div className="md:col-span-2">
-            <label htmlFor={getFieldId('summary')} className="block text-sm font-medium text-gray-700 mb-2">Summary</label>
+            <label htmlFor={getFieldId('summary')} className="ui-field-label mb-2">Summary</label>
             <textarea
               id={getFieldId('summary')}
               rows={2}
@@ -1349,7 +1316,7 @@ function EventDetailsTab({
             />
           </div>
           <div className="md:col-span-2">
-            <label htmlFor={getFieldId('full-description')} className="block text-sm font-medium text-gray-700 mb-2">Full Description</label>
+            <label htmlFor={getFieldId('full-description')} className="ui-field-label mb-2">Full Description</label>
             <textarea
               id={getFieldId('full-description')}
               rows={8}
@@ -1459,7 +1426,7 @@ function ReportsTab({ eventName }: { eventName: string }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="ui-card-title">Event Reports</h2>
-          <p className="mt-1 text-xs text-gray-500">Attendee issue log and performance snapshot.</p>
+          <p className="ui-meta-text mt-1">Attendee issue log and performance snapshot.</p>
         </div>
         <button type="button" onClick={handleExportReport} className="ui-button ui-button--default ui-button--size-sm flex-shrink-0">
           <Download className="w-4 h-4" />
@@ -1477,8 +1444,8 @@ function ReportsTab({ eventName }: { eventName: string }) {
         ].map((stat) => (
           <div key={stat.label} className="rounded-[28px] border border-gray-200 bg-white p-6">
             <p className="ui-meta-text mb-3">{stat.label}</p>
-            <p className="text-3xl font-semibold tracking-tight text-gray-900 leading-none">{stat.value}</p>
-            <p className="mt-2 text-xs text-gray-500">{stat.sub}</p>
+            <p className="ui-kpi-value leading-none">{stat.value}</p>
+            <p className="ui-meta-text mt-2">{stat.sub}</p>
           </div>
         ))}
       </div>
@@ -1488,7 +1455,7 @@ function ReportsTab({ eventName }: { eventName: string }) {
         <div className="flex items-start justify-between gap-4 border-b border-gray-100 px-6 py-6">
           <div>
             <h3 className="ui-card-title">Attendee Report Issues</h3>
-            <p className="mt-1 text-xs text-gray-500">Issues and concerns reported by attendees for this event.</p>
+            <p className="ui-meta-text mt-1">Issues and concerns reported by attendees for this event.</p>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 border border-rose-200 px-2.5 py-1 text-xs font-medium text-rose-700">1 high</span>
@@ -1684,13 +1651,13 @@ function SettingsTab() {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Event Settings</h2>
+        <h2 className="ui-card-title mb-4">Event Settings</h2>
         
         <div className="space-y-4">
           <div className="flex items-center justify-between py-3 border-b border-gray-200">
             <div>
-              <h3 className="font-medium text-gray-900">Event Visibility</h3>
-              <p className="text-sm text-gray-500">Control who can see your event</p>
+              <h3 className="ui-type-subsection text-gray-900">Event Visibility</h3>
+              <p className="ui-support-copy">Control who can see your event</p>
             </div>
             <select
               value={eventVisibility}
@@ -1708,8 +1675,8 @@ function SettingsTab() {
             <div className="mt-3 rounded-lg border border-purple-200 bg-purple-50 p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h4 className="font-medium text-purple-900">Private Access Link</h4>
-                  <p className="text-sm text-purple-700">
+                  <h4 className="ui-type-subsection text-purple-900">Private Access Link</h4>
+                  <p className="ui-support-copy text-purple-700">
                     Share this link with invited attendees so they can access this private event.
                   </p>
                 </div>
@@ -1741,8 +1708,8 @@ function SettingsTab() {
 
           <div className="flex items-center justify-between py-3 border-b border-gray-200">
             <div>
-              <h3 className="font-medium text-gray-900">Waitlist</h3>
-              <p className="text-sm text-gray-500">
+              <h3 className="ui-type-subsection text-gray-900">Waitlist</h3>
+              <p className="ui-support-copy">
                 Enable waitlist when sold out
               </p>
               <p className={`text-xs mt-1 ${waitlistEnabled ? 'text-[#7626c6]' : 'text-gray-500'}`}>
@@ -1765,8 +1732,8 @@ function SettingsTab() {
 
           <div className="flex items-center justify-between py-3">
             <div>
-              <h3 className="font-medium text-gray-900">Cancellation Policy</h3>
-              <p className="text-sm text-gray-500">Refund and cancellation rules</p>
+              <h3 className="ui-type-subsection text-gray-900">Cancellation Policy</h3>
+              <p className="ui-support-copy">Refund and cancellation rules</p>
               {!cancellationPolicy && <p className="text-xs mt-1 text-gray-500">No cancellation policy set yet.</p>}
             </div>
             {!cancellationPolicy && (
@@ -1783,7 +1750,7 @@ function SettingsTab() {
           {cancellationPolicy && (
             <div className="mt-1 rounded-lg border border-gray-200 bg-gray-50 p-4">
               <div className="flex items-start justify-between gap-3 mb-3">
-                <h4 className="text-sm font-semibold text-gray-900">Policy Write-up</h4>
+                <h4 className="ui-type-subsection text-gray-900">Policy Write-up</h4>
                 <button
                   type="button"
                   onClick={openCancellationPolicyModal}
@@ -1815,12 +1782,12 @@ function SettingsTab() {
             tabIndex={-1}
             className="ticketing-modal-card bg-white rounded-2xl border border-gray-200 shadow-2xl p-6"
           >
-            <h3 id={cancellationTitleId} className="text-xl font-semibold text-gray-900 mb-1">Configure Cancellation Policy</h3>
-            <p id={cancellationDescriptionId} className="text-sm text-gray-600 mb-5">Set your full refund and cancellation terms.</p>
+            <h3 id={cancellationTitleId} className="ui-dialog-title mb-1">Configure Cancellation Policy</h3>
+            <p id={cancellationDescriptionId} className="ui-dialog-subtitle mb-5">Set your full refund and cancellation terms.</p>
 
             <div className="ticketing-modal-body space-y-4">
               <div>
-                <label htmlFor="event-policy-details" className="block text-sm font-medium text-gray-700 mb-2">Policy Details</label>
+                <label htmlFor="event-policy-details" className="ui-field-label mb-2">Policy Details</label>
                 <textarea
                   id="event-policy-details"
                   value={cancellationDraft}

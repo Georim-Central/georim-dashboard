@@ -273,7 +273,7 @@ Navigation should follow a consistent structure.
 
 Example:
 
-Dashboard  
+Home  
 Events  
 Orders  
 Finance  

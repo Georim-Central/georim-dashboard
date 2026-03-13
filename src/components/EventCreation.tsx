@@ -211,9 +211,9 @@ export function EventCreation({ onEventCreated }: EventCreationProps) {
                 <AppleCalendar className="h-5 w-5" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Create New Event</h1>
-                <p className="mt-1 text-sm text-gray-500">Build the essentials, timing, media, and copy in one flow.</p>
-                <p className="mt-1 text-xs text-gray-400">
+                <h1 className="ui-page-title ui-type-section text-gray-900">Create New Event</h1>
+                <p className="ui-page-subtitle ui-type-subsection mt-1">Build the essentials, timing, media, and copy in one flow.</p>
+                <p className="ui-meta-text mt-1">
                   {lastSavedAt
                     ? `Draft saved automatically · Last saved ${new Date(lastSavedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
                     : 'Draft saves automatically while you work.'}

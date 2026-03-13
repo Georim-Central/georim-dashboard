@@ -35,7 +35,7 @@
 - [ ] Check-in statistics: X of Y attendees checked in
 
 ### 5. Team Management
-- [ ] Invite team members from event dashboard
+- [ ] Invite team members from event home
 - [ ] Roles: Admin (full access), Marketing (campaigns + analytics, no financials), Operations (check-in + attendees only)
 - [ ] Team table: member name, role, last active, assigned special tickets
 - [ ] Assign special tickets (VIP, All Access, Staff, Media Pass) per event — auto-generated and emailed
@@ -67,7 +67,7 @@
 - [ ] Event Status Distribution: active vs completed
 - [ ] Attendee Geography: top cities + states
 
-### 9. Dashboard Metrics
+### 9. Home Metrics
 - [ ] Total Events
 - [ ] Total Attendees
 - [ ] Total Revenue
@@ -133,7 +133,7 @@
 - [ ] Full description / rich text field
 
 ### 21. Cancellation Policy
-- [ ] Optional free-text cancellation policy field on event dashboard
+- [ ] Optional free-text cancellation policy field on event home
 
 ### 22. AI Chat Assistant
 - [ ] Expandable chat widget on right side

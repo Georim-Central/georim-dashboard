@@ -14,13 +14,27 @@ describe('App core flows', () => {
     window.localStorage.clear();
   });
 
-  it('navigates from dashboard to event creation', async () => {
+  it('navigates from home to event creation', async () => {
     const user = userEvent.setup();
     render(<App />);
 
     await user.click(await screen.findByRole('button', { name: /create event/i }));
 
     expect(await screen.findByRole('heading', { name: /create new event/i })).toBeInTheDocument();
+  });
+
+  it('opens the events page from the primary sidebar', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /^events$/i }));
+
+    expect(await screen.findByRole('heading', { name: /^events$/i })).toBeInTheDocument();
+    expect(screen.getByText(/^total events$/i)).toBeInTheDocument();
+    expect(screen.getByText(/^total attendees$/i)).toBeInTheDocument();
+    expect(screen.getByText(/^total revenue$/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/^published$/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: /your events/i })).toBeInTheDocument();
   });
 
   it('creates private link and activates waitlist in event settings', async () => {
@@ -69,19 +83,10 @@ describe('App core flows', () => {
 
     await user.click(screen.getByRole('button', { name: /open profile settings/i }));
 
-    expect(await screen.findByRole('heading', { name: /^profile$/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /^settings$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^profile$/i, pressed: true })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /your profile/i })).toBeInTheDocument();
   }, 10000);
-
-  it('opens help center from sidebar help', async () => {
-    const user = userEvent.setup();
-    render(<App />);
-
-    await user.click(screen.getByRole('button', { name: /^help$/i }));
-
-    expect(await screen.findByRole('heading', { name: /help center/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /faqs/i })).toBeInTheDocument();
-  });
 
   it('opens the notification center from the bell and routes into linked organizer workflows', async () => {
     const user = userEvent.setup();
@@ -162,10 +167,11 @@ describe('App core flows', () => {
     expect(screen.getByRole('heading', { name: /orders & registration/i })).toBeInTheDocument();
   });
 
-  it('duplicates events from the dashboard and updates lifecycle in event management', async () => {
+  it('duplicates events from Home and updates lifecycle in event management', async () => {
     const user = userEvent.setup();
     renderAppWithTier('premium');
 
+    await user.click(screen.getByRole('button', { name: /^events$/i }));
     await user.click(screen.getByRole('button', { name: /quick actions for tech conference 2026/i }));
     await user.click(screen.getByRole('button', { name: /duplicate tech conference 2026/i }));
 
@@ -179,16 +185,21 @@ describe('App core flows', () => {
     expect(screen.getAllByText(/archived/i).length).toBeGreaterThan(0);
   });
 
-  it('opens the organization settings profile page from the sidebar', async () => {
+  it('opens the settings workspace from the sidebar and switches sections with the top tabs', async () => {
     const user = userEvent.setup();
     render(<App />);
 
     await user.click(screen.getByRole('button', { name: /^settings$/i }));
-    await user.click(await screen.findByRole('button', { name: /^profile$/i }));
 
-    expect(await screen.findByRole('heading', { name: /^profile$/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /^settings$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^profile$/i, pressed: true })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /your profile/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /account options/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /^payments$/i }));
+
+    expect(screen.getByRole('button', { name: /^payments$/i, pressed: true })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /payout preferences/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /recent transactions/i })).toBeInTheDocument();
   });
 
   it('opens the team management workspace with permissions and invite tracking', async () => {
@@ -222,20 +233,17 @@ describe('App core flows', () => {
 
     await user.click(screen.getAllByRole('button', { name: /^edit$/i })[0]);
 
-    expect(await screen.findByRole('heading', { name: /^payments$/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /^settings$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^payments$/i, pressed: true })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /choose how to pay/i })).toBeInTheDocument();
   }, 10000);
 
-  it('routes dashboard support buttons into live organizer workflows', async () => {
+  it('routes Home support buttons into live organizer workflows', async () => {
     const user = userEvent.setup();
-    renderAppWithTier('business');
+    render(<App />);
 
-    await user.click(screen.getByRole('button', { name: /add member/i }));
-    const inviteDialog = await screen.findByRole('dialog', { name: /invite team member/i });
-
-    await user.click(within(inviteDialog).getByRole('button', { name: /^cancel$/i }));
-    await user.click(screen.getByRole('button', { name: /^dashboard$/i }));
-    await user.click(screen.getByRole('button', { name: /view all activity/i }));
+    await user.click(screen.getByRole('button', { name: /open notifications/i }));
+    await user.click(await screen.findByRole('button', { name: /view all notifications/i }));
 
     expect(await screen.findByRole('heading', { name: /notification center/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /activity feed/i })).toBeInTheDocument();
@@ -280,7 +288,8 @@ describe('App core flows', () => {
     await user.click(screen.getByRole('button', { name: /^settings$/i }));
     await user.click(await screen.findByRole('button', { name: /^security$/i }));
 
-    expect(await screen.findByRole('heading', { name: /^security$/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /^settings$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^security$/i, pressed: true })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /password & access/i })).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/enter your current password/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/create a strong new password/i)).toBeInTheDocument();
@@ -309,7 +318,8 @@ describe('App core flows', () => {
     await user.click(screen.getByRole('button', { name: /^settings$/i }));
     await user.click(await screen.findByRole('button', { name: /^payments$/i }));
 
-    expect(await screen.findByRole('heading', { name: /^payments$/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /^settings$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^payments$/i, pressed: true })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /choose how to pay/i })).toBeInTheDocument();
     expect(screen.getAllByText(/visa \*\*\*\* 0912/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/recent transactions/i)).toBeInTheDocument();
@@ -322,7 +332,8 @@ describe('App core flows', () => {
     await user.click(screen.getByRole('button', { name: /^settings$/i }));
     await user.click(await screen.findByRole('button', { name: /^subscriptions$/i }));
 
-    expect(await screen.findByRole('heading', { name: /^subscriptions$/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /^settings$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^subscriptions$/i, pressed: true })).toBeInTheDocument();
     const premiumTierButton = screen
       .getAllByRole('button')
       .find((button) => within(button).queryByText(/^Premium$/i));
@@ -360,7 +371,8 @@ describe('App core flows', () => {
     await user.click(screen.getByRole('button', { name: /^settings$/i }));
     await user.click(await screen.findByRole('button', { name: /^notifications$/i }));
 
-    expect(await screen.findByRole('heading', { name: /^notifications$/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /^settings$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^notifications$/i, pressed: true })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /delivery channels/i })).toBeInTheDocument();
     expect(screen.getByRole('switch', { name: /email notifications/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /quiet hours/i })).toBeInTheDocument();
@@ -376,7 +388,7 @@ describe('App core flows', () => {
     expect(screen.queryByRole('heading', { name: /team collaboration/i })).not.toBeInTheDocument();
   });
 
-  it('redirects back to dashboard when the active tier is lowered below the current view', async () => {
+  it('removes analytics access when the active tier is lowered from subscriptions', async () => {
     const user = userEvent.setup();
     renderAppWithTier('premium');
 
@@ -385,9 +397,13 @@ describe('App core flows', () => {
 
     await user.click(screen.getByRole('button', { name: /^settings$/i }));
     await user.click(await screen.findByRole('button', { name: /^subscriptions$/i }));
-    await user.click(screen.getByRole('button', { name: /^free$/i }));
+    await user.click(screen.getByRole('button', { name: /^free base organizer workspace/i }));
 
+    expect(await screen.findByRole('heading', { name: /^settings$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^subscriptions$/i, pressed: true })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^analytics$/i })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /^home$/i }));
     expect(await screen.findByRole('heading', { name: /welcome john/i })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: /^analytics$/i })).not.toBeInTheDocument();
   });
 });

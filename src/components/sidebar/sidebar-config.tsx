@@ -8,7 +8,6 @@ import {
   DollarSign,
   Home,
   Mail,
-  MessageCircle,
   QrCode,
   Repeat,
   Settings,
@@ -89,20 +88,19 @@ export const isSidebarParentItem = (item: SidebarNavItem): item is SidebarNavPar
 export function createOrganizationSidebarGroups({
   activeTier,
   onBackToOrganization,
-  onSettingsSectionSelect,
 }: OrganizationNavigationConfig): SidebarNavGroup[] {
   const organizationItems: SidebarNavItem[] = [
     {
-      id: 'dashboard',
-      label: 'Dashboard',
+      id: 'home',
+      label: 'Home',
       icon: Home,
-      action: { kind: 'view', view: 'dashboard' },
+      action: { kind: 'view', view: 'home' },
     },
     {
-      id: 'create-event',
-      label: 'Create Event',
+      id: 'events',
+      label: 'Events',
       icon: Calendar,
-      action: { kind: 'view', view: 'create-event' },
+      action: { kind: 'view', view: 'events' },
     },
   ];
 
@@ -133,53 +131,6 @@ export function createOrganizationSidebarGroups({
     });
   }
 
-  const settingsItems: SidebarNavLeafItem[] = [];
-
-  if (isSettingsSectionAllowed(activeTier, 'profile')) {
-    settingsItems.push({
-      id: 'settings-profile',
-      label: 'Profile',
-      icon: Users,
-      action: { kind: 'settings-section', section: 'profile' },
-    });
-  }
-
-  if (isSettingsSectionAllowed(activeTier, 'security')) {
-    settingsItems.push({
-      id: 'settings-security',
-      label: 'Security',
-      icon: Shield,
-      action: { kind: 'settings-section', section: 'security' },
-    });
-  }
-
-  if (isSettingsSectionAllowed(activeTier, 'payments')) {
-    settingsItems.push({
-      id: 'settings-payments',
-      label: 'Payments',
-      icon: Wallet,
-      action: { kind: 'settings-section', section: 'payments' },
-    });
-  }
-
-  if (isSettingsSectionAllowed(activeTier, 'notifications')) {
-    settingsItems.push({
-      id: 'settings-notifications',
-      label: 'Notifications',
-      icon: Bell,
-      action: { kind: 'settings-section', section: 'notifications' },
-    });
-  }
-
-  if (isSettingsSectionAllowed(activeTier, 'subscriptions')) {
-    settingsItems.push({
-      id: 'settings-subscriptions',
-      label: 'Subscriptions',
-      icon: CreditCard,
-      action: { kind: 'settings-section', section: 'subscriptions' },
-    });
-  }
-
   return [
     {
       id: 'organization',
@@ -200,22 +151,7 @@ export function createOrganizationSidebarGroups({
           id: 'settings',
           label: 'Settings',
           icon: Settings,
-          description: 'Contextual menu',
-          children: settingsItems.length > 0
-            ? [
-                {
-                  id: 'settings-account',
-                  label: 'Account Settings',
-                  items: settingsItems,
-                },
-              ]
-            : [],
-        },
-        {
-          id: 'help',
-          label: 'Help',
-          icon: MessageCircle,
-          action: { kind: 'view', view: 'help' },
+          action: { kind: 'view', view: 'settings' },
         },
         {
           id: 'logout',
@@ -224,10 +160,7 @@ export function createOrganizationSidebarGroups({
           accent: 'danger',
           action: {
             kind: 'callback',
-            onSelect: () => {
-              onSettingsSectionSelect('profile');
-              onBackToOrganization();
-            },
+            onSelect: onBackToOrganization,
           },
         },
       ],
@@ -365,12 +298,6 @@ export function createEventSidebarGroups({
       id: 'event-workspace',
       label: 'Workspace',
       items: [
-        {
-          id: 'help',
-          label: 'Help',
-          icon: MessageCircle,
-          action: { kind: 'view', view: 'help' },
-        },
         {
           id: 'logout',
           label: 'Logout',

@@ -58,7 +58,8 @@ interface SpeechRecognitionLike {
 type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
 
 const viewTitles: Record<AppView, string> = {
-  dashboard: 'dashboard overview',
+  home: 'home overview',
+  events: 'events',
   'create-event': 'event setup',
   'event-management': 'event operations',
   analytics: 'analytics',
@@ -66,7 +67,6 @@ const viewTitles: Record<AppView, string> = {
   finance: 'finance',
   'notification-center': 'notification center',
   settings: 'settings',
-  help: 'help center',
 };
 
 const getIntroMessage = (currentView: AppView, contextMode: 'organization' | 'event', selectedEventName?: string | null) => {
@@ -279,7 +279,7 @@ export function GlobalAIChat({ currentView, contextMode, selectedEventName }: Gl
       )}
     >
       <ExpandableChatHeader className="ai-chat-header--stacked">
-        <h2 className="ai-chat-title">Dashboard AI</h2>
+        <h2 className="ai-chat-title">Home AI</h2>
         <p className="ai-chat-subtitle">{introMessage}</p>
       </ExpandableChatHeader>
 

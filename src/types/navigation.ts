@@ -1,15 +1,15 @@
 export type SubscriptionTier = 'free' | 'premium' | 'business';
 
 export type AppView =
-  | 'dashboard'
+  | 'home'
+  | 'events'
   | 'create-event'
   | 'event-management'
   | 'analytics'
   | 'team'
   | 'finance'
   | 'notification-center'
-  | 'settings'
-  | 'help';
+  | 'settings';
 
 export type SettingsSection =
   | 'profile'

@@ -172,7 +172,7 @@ export function Sidebar({
       return;
     }
 
-    onViewChange('dashboard');
+    onViewChange('home');
     setOpenParentId(null);
   };
 
@@ -195,7 +195,7 @@ export function Sidebar({
           type="button"
           onClick={handleLogoClick}
           className="georim-sidebar-primary__brand"
-          title="Go to dashboard"
+          title="Go to home"
         >
           <img
             src={isCollapsed ? '/images/collasible logo.svg' : '/images/logo.svg'}

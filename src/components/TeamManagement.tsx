@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 import {
   Edit2,
   Mail,
@@ -21,7 +21,6 @@ type AccessScope = 'all' | string[];
 
 interface TeamManagementProps {
   eventOptions?: string[];
-  inviteRequestId?: number;
 }
 
 type TeamMember = {
@@ -169,9 +168,8 @@ const getPresetLabel = (preset: PermissionPreset, customRoleName?: string) =>
 
 const getAccessLabel = (access: AccessScope) => (access === 'all' ? 'All events' : access.join(', '));
 
-export function TeamManagement({ eventOptions = defaultEventOptions, inviteRequestId = 0 }: TeamManagementProps) {
+export function TeamManagement({ eventOptions = defaultEventOptions }: TeamManagementProps) {
   const fieldIdPrefix = useId();
-  const previousInviteRequestIdRef = useRef(0);
   const availableEventOptions = Array.from(new Set(eventOptions.map((eventName) => eventName.trim()).filter(Boolean)));
 
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(initialTeamMembers);
@@ -272,14 +270,6 @@ export function TeamManagement({ eventOptions = defaultEventOptions, inviteReque
     setInviteError('');
     setShowInviteModal(true);
   }, []);
-
-  useEffect(() => {
-    if (inviteRequestId > 0 && inviteRequestId !== previousInviteRequestIdRef.current) {
-      openInviteModal();
-    }
-
-    previousInviteRequestIdRef.current = inviteRequestId;
-  }, [inviteRequestId, openInviteModal]);
 
   const toggleEventSelection = (currentValues: string[], eventName: string) =>
     currentValues.includes(eventName)
@@ -423,10 +413,10 @@ export function TeamManagement({ eventOptions = defaultEventOptions, inviteReque
   return (
     <div className="min-h-full bg-[#f7f5fb] p-6 md:p-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="ui-page-header flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-gray-950">Team Management</h1>
-            <p className="mt-2 max-w-2xl text-sm text-gray-600 md:text-base">
+            <h1 className="ui-page-title ui-type-section">Team Management</h1>
+            <p className="ui-page-subtitle ui-type-subsection mt-2 max-w-2xl">
               Clarify organizer permissions, review event-by-event access, and track every pending invite from one workspace.
             </p>
           </div>
@@ -461,8 +451,8 @@ export function TeamManagement({ eventOptions = defaultEventOptions, inviteReque
             <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
               <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Pending Invites</h2>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <h2 className="ui-card-title">Pending Invites</h2>
+                  <p className="ui-support-copy mt-1">
                     Track invite delivery, resend pending access, and expire outdated links.
                   </p>
                 </div>
@@ -537,8 +527,8 @@ export function TeamManagement({ eventOptions = defaultEventOptions, inviteReque
             <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
               <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Team Members</h2>
-                  <p className="mt-1 text-sm text-gray-500">Review role preset, event access scope, and special tickets per teammate.</p>
+                  <h2 className="ui-card-title">Team Members</h2>
+                  <p className="ui-support-copy mt-1">Review role preset, event access scope, and special tickets per teammate.</p>
                 </div>
               </div>
 
@@ -675,8 +665,8 @@ export function TeamManagement({ eventOptions = defaultEventOptions, inviteReque
               tabIndex={-1}
               className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl"
             >
-              <h2 id={inviteTitleId} className="text-xl font-semibold text-gray-900">Invite Team Member</h2>
-              <p id={inviteDescriptionId} className="mt-1 text-sm text-gray-600">
+              <h2 id={inviteTitleId} className="ui-dialog-title">Invite Team Member</h2>
+              <p id={inviteDescriptionId} className="ui-dialog-subtitle mt-1">
                 Assign a permission preset and event scope before sending access.
               </p>
 
@@ -725,7 +715,7 @@ export function TeamManagement({ eventOptions = defaultEventOptions, inviteReque
               ) : null}
 
               <div className="mt-4">
-                <div className="mb-2 text-sm font-medium text-gray-700">Event Access</div>
+                <div className="ui-field-label mb-2">Event Access</div>
                 <div className="flex items-center gap-2 rounded-lg bg-gray-100 p-1">
                   <button
                     type="button"
@@ -805,8 +795,8 @@ export function TeamManagement({ eventOptions = defaultEventOptions, inviteReque
               tabIndex={-1}
               className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl"
             >
-              <h2 id={editTitleId} className="text-xl font-semibold text-gray-900">Edit Team Member</h2>
-              <p id={editDescriptionId} className="mt-1 text-sm text-gray-600">
+              <h2 id={editTitleId} className="ui-dialog-title">Edit Team Member</h2>
+              <p id={editDescriptionId} className="ui-dialog-subtitle mt-1">
                 Update role preset and event access for this teammate.
               </p>
 
@@ -859,7 +849,7 @@ export function TeamManagement({ eventOptions = defaultEventOptions, inviteReque
               </div>
 
               <div className="mt-4">
-                <div className="mb-2 text-sm font-medium text-gray-700">Event Access</div>
+                <div className="ui-field-label mb-2">Event Access</div>
                 <div className="flex items-center gap-2 rounded-lg bg-gray-100 p-1">
                   <button
                     type="button"
@@ -943,8 +933,8 @@ export function TeamManagement({ eventOptions = defaultEventOptions, inviteReque
                   <Ticket className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h2 id={ticketTitleId} className="text-xl font-semibold text-gray-900">Assign Special Tickets</h2>
-                  <p id={ticketDescriptionId} className="text-sm text-gray-600">{selectedMember.name}</p>
+                  <h2 id={ticketTitleId} className="ui-dialog-title">Assign Special Tickets</h2>
+                  <p id={ticketDescriptionId} className="ui-dialog-subtitle">{selectedMember.name}</p>
                 </div>
               </div>
 
@@ -969,7 +959,7 @@ export function TeamManagement({ eventOptions = defaultEventOptions, inviteReque
                         }
                         className="rounded"
                       />
-                      <span className="text-sm font-medium text-gray-900">{ticketName}</span>
+                      <span className="ui-type-subsection text-gray-900">{ticketName}</span>
                     </div>
                   </label>
                 ))}
@@ -1009,13 +999,13 @@ function PresetCard({ preset, memberCount }: { preset: PermissionPreset; memberC
         <div className={`rounded-2xl p-3 ${definition.cardTone}`}>
           <Icon className="h-5 w-5 text-gray-900" />
         </div>
-        <span className="text-sm text-gray-500">{memberCount} assigned</span>
+        <span className="ui-type-subsection text-gray-500">{memberCount} assigned</span>
       </div>
-      <h3 className="text-lg font-semibold text-gray-900">{definition.label}</h3>
-      <p className="mt-2 text-sm text-gray-600">{definition.description}</p>
+      <h3 className="ui-card-title">{definition.label}</h3>
+      <p className="ui-support-copy mt-2">{definition.description}</p>
       <div className="mt-4 space-y-2">
         {definition.bullets.map((bullet) => (
-          <div key={bullet} className="flex items-start gap-2 text-sm text-gray-700">
+          <div key={bullet} className="ui-type-subsection flex items-start gap-2 text-gray-700">
             <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#7626c6]" />
             <span>{bullet}</span>
           </div>
@@ -1060,8 +1050,8 @@ function PanelCard({
     <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
       <div className="mb-5 flex items-start justify-between gap-3 border-b border-gray-100 pb-4">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
-          <p className="mt-1 text-sm text-gray-500">{description}</p>
+          <h2 className="ui-card-title">{title}</h2>
+          <p className="ui-support-copy mt-1">{description}</p>
         </div>
         <div className="rounded-full bg-[#f5ecfd] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#7626c6]">
           {badge}
@@ -1086,8 +1076,8 @@ function ToolRow({
       <div className="inline-flex rounded-xl bg-gray-100 p-2 text-gray-700">
         <Icon className="h-4 w-4" />
       </div>
-      <div className="mt-3 text-sm font-semibold text-gray-900">{title}</div>
-      <p className="mt-2 text-sm leading-6 text-gray-500">{description}</p>
+      <div className="ui-type-subsection mt-3 text-gray-900">{title}</div>
+      <p className="ui-support-copy mt-2">{description}</p>
     </div>
   );
 }
@@ -1103,7 +1093,7 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-2 block text-sm font-medium text-gray-700">
+      <label htmlFor={htmlFor} className="ui-field-label mb-2">
         {label}
       </label>
       {children}
